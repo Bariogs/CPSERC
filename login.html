@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CPSERC | Secure Login</title>
+
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+    <!-- Background -->
+    <div class="background-grid"></div>
+
+    <!-- Login Container -->
+    <main class="login-page">
+
+        <section class="login-card">
+
+            <!-- Logo / Header -->
+            <div class="login-header">
+
+                <div class="logo-circle">
+                    CPS
+                </div>
+
+                <h1>CPSERC</h1>
+
+                <p class="organization-name">
+                    CSFJ Public Safety and Response Corps
+                </p>
+
+                <div class="security-line">
+                    SECURE MEMBER ACCESS
+                </div>
+
+            </div>
+
+
+            <!-- Login Form -->
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle"
+                            aria-label="Show password"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="login-button"
+                >
+                    <span id="loginButtonText">
+                        SIGN IN
+                    </span>
+                </button>
+
+            </form>
+
+
+            <!-- Status -->
+            <div
+                id="loginStatus"
+                class="login-status"
+            ></div>
+
+
+            <!-- Footer -->
+            <div class="login-footer">
+
+                <span>
+                    Authorized CPSERC Members Only
+                </span>
+
+                <span class="separator">
+                    •
+                </span>
+
+                <span>
+                    Secure Access
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- Credentials Not Enrolled Modal -->
+    <div
+        id="errorModal"
+        class="modal-overlay"
+    >
+
+        <div class="modal-box">
+
+            <button
+                type="button"
+                id="closeErrorModal"
+                class="modal-close"
+            >
+                ×
+            </button>
+
+            <div class="modal-icon error-icon">
+                !
+            </div>
+
+            <h2>
+                Credentials Not Enrolled
+            </h2>
+
+            <p>
+                Your credentials are not enrolled in the CPSERC system.
+                Please check your username and password.
+            </p>
+
+            <button
+                type="button"
+                id="errorModalButton"
+                class="modal-button"
+            >
+                TRY AGAIN
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Account Inactive Modal -->
+    <div
+        id="inactiveModal"
+        class="modal-overlay"
+    >
+
+        <div class="modal-box">
+
+            <button
+                type="button"
+                id="closeInactiveModal"
+                class="modal-close"
+            >
+                ×
+            </button>
+
+            <div class="modal-icon warning-icon">
+                !
+            </div>
+
+            <h2>
+                Account Inactive
+            </h2>
+
+            <p>
+                Your CPSERC account is currently inactive.
+                Please contact the administrator for assistance.
+            </p>
+
+            <button
+                type="button"
+                id="inactiveModalButton"
+                class="modal-button"
+            >
+                CLOSE
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Firebase -->
+    <script type="module">
+
+        /*
+        ========================================================
+        FIREBASE CONFIGURATION
+        ========================================================
+
+        Replace these values with your Firebase project
+        configuration.
+
+        Firebase Console
+        → Project Settings
+        → Your apps
+        → Web app
+        */
+
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            limit
+        } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+
+            apiKey: "YOUR_API_KEY",
+
+            authDomain:
+                "YOUR_PROJECT.firebaseapp.com",
+
+            projectId:
+                "YOUR_PROJECT_ID",
+
+            storageBucket:
+                "YOUR_PROJECT.firebasestorage.app",
+
+            messagingSenderId:
+                "YOUR_MESSAGING_SENDER_ID",
+
+            appId:
+                "YOUR_APP_ID"
+
+        };
+
+
+        const app =
+            initializeApp(firebaseConfig);
+
+
+        const db =
+            getFirestore(app);
+
+
+        /*
+        ========================================================
+        ELEMENTS
+        ========================================================
+        */
+
+        const loginForm =
+            document.getElementById("loginForm");
+
+        const usernameInput =
+            document.getElementById("username");
+
+        const passwordInput =
+            document.getElementById("password");
+
+        const loginButton =
+            document.getElementById("loginButton");
+
+        const loginButtonText =
+            document.getElementById("loginButtonText");
+
+        const loginStatus =
+            document.getElementById("loginStatus");
+
+        const togglePassword =
+            document.getElementById("togglePassword");
+
+
+        /*
+        ========================================================
+        PASSWORD SHOW / HIDE
+        ========================================================
+        */
+
+        togglePassword.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    passwordInput.type === "password"
+                ) {
+
+                    passwordInput.type = "text";
+
+                    togglePassword.textContent =
+                        "Hide";
+
+                } else {
+
+                    passwordInput.type =
+                        "password";
+
+                    togglePassword.textContent =
+                        "Show";
+                }
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        STATUS MESSAGE
+        ========================================================
+        */
+
+        function showStatus(
+            message,
+            type = "error"
+        ) {
+
+            loginStatus.textContent =
+                message;
+
+            loginStatus.className =
+                "login-status " + type;
+
+        }
+
+
+        function clearStatus() {
+
+            loginStatus.textContent = "";
+
+            loginStatus.className =
+                "login-status";
+
+        }
+
+
+        /*
+        ========================================================
+        MODALS
+        ========================================================
+        */
+
+        const errorModal =
+            document.getElementById("errorModal");
+
+        const inactiveModal =
+            document.getElementById("inactiveModal");
+
+
+        const closeErrorModal =
+            document.getElementById(
+                "closeErrorModal"
+            );
+
+        const errorModalButton =
+            document.getElementById(
+                "errorModalButton"
+            );
+
+
+        const closeInactiveModal =
+            document.getElementById(
+                "closeInactiveModal"
+            );
+
+        const inactiveModalButton =
+            document.getElementById(
+                "inactiveModalButton"
+            );
+
+
+        function openErrorModal() {
+
+            errorModal.classList.add("show");
+
+        }
+
+
+        function closeError() {
+
+            errorModal.classList.remove(
+                "show"
+            );
+
+            usernameInput.focus();
+
+        }
+
+
+        function openInactiveModal() {
+
+            inactiveModal.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function closeInactive() {
+
+            inactiveModal.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        closeErrorModal.addEventListener(
+            "click",
+            closeError
+        );
+
+
+        errorModalButton.addEventListener(
+            "click",
+            closeError
+        );
+
+
+        closeInactiveModal.addEventListener(
+            "click",
+            closeInactive
+        );
+
+
+        inactiveModalButton.addEventListener(
+            "click",
+            closeInactive
+        );
+
+
+        /*
+        ========================================================
+        CLOSE MODAL WHEN CLICKING OUTSIDE
+        ========================================================
+        */
+
+        errorModal.addEventListener(
+            "click",
+            (event) => {
+
+                if (
+                    event.target === errorModal
+                ) {
+
+                    closeError();
+
+                }
+
+            }
+        );
+
+
+        inactiveModal.addEventListener(
+            "click",
+            (event) => {
+
+                if (
+                    event.target === inactiveModal
+                ) {
+
+                    closeInactive();
+
+                }
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        NORMALIZE USERNAME
+        ========================================================
+        */
+
+        function normalizeUsername(
+            username
+        ) {
+
+            return username
+                .trim()
+                .toLowerCase();
+
+        }
+
+
+        /*
+        ========================================================
+        LOGIN
+        ========================================================
+        */
+
+        loginForm.addEventListener(
+            "submit",
+            async (event) => {
+
+                event.preventDefault();
+
+
+                clearStatus();
+
+
+                const username =
+                    normalizeUsername(
+                        usernameInput.value
+                    );
+
+
+                const password =
+                    passwordInput.value;
+
+
+                if (
+                    !username ||
+                    !password
+                ) {
+
+                    showStatus(
+                        "Please enter your username and password.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                Disable button
+                */
+
+                loginButton.disabled =
+                    true;
+
+                loginButtonText.textContent =
+                    "CHECKING...";
+
+
+                try {
+
+                    /*
+                    ====================================================
+                    SEARCH USER IN FIRESTORE
+                    ====================================================
+
+                    Collection:
+                    users
+
+                    Example document:
+
+                    users
+                    └── userDocument
+                        ├── fullName
+                        ├── position
+                        ├── username
+                        ├── password
+                        ├── status
+                        └── ...
+                    */
+
+
+                    const usersRef =
+                        collection(
+                            db,
+                            "users"
+                        );
+
+
+                    const userQuery =
+                        query(
+                            usersRef,
+
+                            where(
+                                "username",
+                                "==",
+                                username
+                            ),
+
+                            limit(1)
+                        );
+
+
+                    const result =
+                        await getDocs(
+                            userQuery
+                        );
+
+
+                    /*
+                    ====================================================
+                    USER DOES NOT EXIST
+                    ====================================================
+                    */
+
+                    if (
+                        result.empty
+                    ) {
+
+                        openErrorModal();
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButtonText.textContent =
+                            "SIGN IN";
+
+                        return;
+
+                    }
+
+
+                    /*
+                    ====================================================
+                    USER FOUND
+                    ====================================================
+                    */
+
+                    const userDocument =
+                        result.docs[0];
+
+
+                    const userData =
+                        userDocument.data();
+
+
+                    /*
+                    ====================================================
+                    CHECK PASSWORD
+                    ====================================================
+                    */
+
+                    if (
+                        userData.password !==
+                        password
+                    ) {
+
+                        openErrorModal();
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButtonText.textContent =
+                            "SIGN IN";
+
+                        return;
+
+                    }
+
+
+                    /*
+                    ====================================================
+                    CHECK ACCOUNT STATUS
+                    ====================================================
+                    */
+
+                    const accountStatus =
+                        String(
+                            userData.status ||
+                            "active"
+                        ).toLowerCase();
+
+
+                    if (
+                        accountStatus ===
+                        "inactive"
+                    ) {
+
+                        openInactiveModal();
+
+                        loginButton.disabled =
+                            false;
+
+                        loginButtonText.textContent =
+                            "SIGN IN";
+
+                        return;
+
+                    }
+
+
+                    /*
+                    ====================================================
+                    SAVE SESSION
+                    ====================================================
+
+                    This allows user.html to know
+                    which enrolled user logged in.
+                    */
+
+                    const sessionData = {
+
+                        uid:
+                            userDocument.id,
+
+                        fullName:
+                            userData.fullName ||
+                            "",
+
+                        position:
+                            userData.position ||
+                            "",
+
+                        username:
+                            userData.username ||
+                            username,
+
+                        status:
+                            userData.status ||
+                            "active"
+
+                    };
+
+
+                    sessionStorage.setItem(
+                        "cpsercUser",
+                        JSON.stringify(
+                            sessionData
+                        )
+                    );
+
+
+                    /*
+                    ====================================================
+                    SUCCESS
+                    ====================================================
+                    */
+
+                    showStatus(
+                        "Login successful. Redirecting...",
+                        "success"
+                    );
+
+
+                    loginButtonText.textContent =
+                        "ACCESS GRANTED";
+
+
+                    /*
+                    Redirect to user dashboard
+                    */
+
+                    setTimeout(
+                        () => {
+
+                            window.location.href =
+                                "user.html";
+
+                        },
+                        600
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Login error:",
+                        error
+                    );
+
+
+                    showStatus(
+                        "Unable to connect to the database. Please try again.",
+                        "error"
+                    );
+
+
+                    loginButton.disabled =
+                        false;
+
+                    loginButtonText.textContent =
+                        "SIGN IN";
+
+                }
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        ENTER KEY
+        ========================================================
+        */
+
+        usernameInput.addEventListener(
+            "keydown",
+            (event) => {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    passwordInput.focus();
+
+                }
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        AUTO FOCUS
+        ========================================================
+        */
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                usernameInput.focus();
+
+            }
+        );
+
+    </script>
+
+</body>
+</html>

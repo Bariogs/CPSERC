@@ -1,0 +1,3302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CPSERC | Member Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="css/user.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================================
+         MOBILE OVERLAY
+    ====================================================== -->
+
+    <div
+        id="sidebarOverlay"
+        class="sidebar-overlay"
+    ></div>
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        id="sidebar"
+        class="sidebar"
+    >
+
+        <div class="sidebar-brand">
+
+            <div class="brand-logo">
+                CPSERC
+            </div>
+
+            <div class="brand-subtitle">
+                CSFJ PUBLIC SAFETY AND RESPONSE CORPS
+            </div>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <button
+                class="nav-item active"
+                data-section="dashboardSection"
+            >
+                <span>
+                    Dashboard
+                </span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="attendanceSection"
+            >
+                <span>
+                    Attendance
+                </span>
+            </button>
+
+
+            <button
+                class="nav-item"
+                data-section="profileSection"
+            >
+                <span>
+                    My Profile
+                </span>
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button"
+            >
+                Sign Out
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header class="topbar">
+
+            <button
+                id="menuButton"
+                class="menu-button"
+                type="button"
+            >
+                ☰
+            </button>
+
+
+            <div class="topbar-title">
+
+                <div class="topbar-title-main">
+                    Member Dashboard
+                </div>
+
+                <div class="topbar-title-sub">
+                    CPSERC Attendance System
+                </div>
+
+            </div>
+
+
+            <div class="user-mini-profile">
+
+                <div
+                    id="topAvatar"
+                    class="user-avatar small-avatar"
+                >
+                    U
+                </div>
+
+                <div class="top-user-info">
+
+                    <strong id="topUserName">
+                        Member
+                    </strong>
+
+                    <small id="topUserPosition">
+                        CPSERC Member
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             DASHBOARD SECTION
+        ================================================== -->
+
+        <section
+            id="dashboardSection"
+            class="page-section active-section"
+        >
+
+            <div class="welcome-area">
+
+                <div>
+
+                    <div class="welcome-label">
+                        MEMBER ACCESS
+                    </div>
+
+                    <h1>
+                        Welcome,
+                        <span id="welcomeName">
+                            Member
+                        </span>
+                    </h1>
+
+                    <p>
+                        Stay ready. Stay alert. Be prepared to
+                        respond when help is needed.
+                    </p>
+
+                </div>
+
+
+                <div
+                    id="dashboardStatus"
+                    class="account-status active"
+                >
+                    ACTIVE MEMBER
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ATTENDANCE WINDOW CARD
+            ================================================== -->
+
+            <div class="attendance-window-card">
+
+                <div class="window-left">
+
+                    <div class="section-label">
+                        CURRENT ATTENDANCE WINDOW
+                    </div>
+
+                    <h2 id="attendanceWindowTitle">
+                        Checking attendance schedule...
+                    </h2>
+
+                    <p id="attendanceWindowDescription">
+                        Please wait while the system checks
+                        the active attendance schedule.
+                    </p>
+
+                </div>
+
+
+                <div class="countdown-box">
+
+                    <span class="countdown-label">
+                        TIME REMAINING
+                    </span>
+
+                    <strong id="countdown">
+                        --:--:--
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 STAT CARDS
+            ================================================== -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Attendance Status
+                    </span>
+
+                    <strong
+                        id="attendanceStatus"
+                        class="stat-value"
+                    >
+                        Not Recorded
+                    </strong>
+
+                    <small>
+                        Current attendance period
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Position
+                    </span>
+
+                    <strong
+                        id="positionValue"
+                        class="stat-value small-stat"
+                    >
+                        —
+                    </strong>
+
+                    <small>
+                        CPSERC role
+                    </small>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span class="stat-label">
+                        Username
+                    </span>
+
+                    <strong
+                        id="usernameValue"
+                        class="stat-value small-stat"
+                    >
+                        —
+                    </strong>
+
+                    <small>
+                        Member identification
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ATTENDANCE ACTION
+            ================================================== -->
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>
+                            Attendance
+                        </h2>
+
+                        <p>
+                            Your location and photo are required
+                            before attendance can be submitted.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="attendanceActionArea"
+                    class="attendance-action-area"
+                >
+
+                    <div class="action-information">
+
+                        <div class="action-icon">
+                            A
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Ready for Attendance
+                            </strong>
+
+                            <p>
+                                Click the button below to begin.
+                                Location permission is required.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        id="takeAttendanceButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        TAKE ATTENDANCE
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INSTRUCTIONS
+            ================================================== -->
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>
+                            Attendance Procedure
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="procedure-grid">
+
+                    <div class="procedure-item">
+
+                        <div class="procedure-number">
+                            01
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Allow Location
+                            </strong>
+
+                            <p>
+                                Allow the system to access
+                                your current location.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="procedure-item">
+
+                        <div class="procedure-number">
+                            02
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Take Photo
+                            </strong>
+
+                            <p>
+                                Take a clear photo for attendance
+                                verification.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="procedure-item">
+
+                        <div class="procedure-number">
+                            03
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Review
+                            </strong>
+
+                            <p>
+                                Retake the photo if you are not
+                                satisfied with it.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="procedure-item">
+
+                        <div class="procedure-number">
+                            04
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Submit
+                            </strong>
+
+                            <p>
+                                Submit once. You cannot submit
+                                again for the same schedule.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             ATTENDANCE SECTION
+        ================================================== -->
+
+        <section
+            id="attendanceSection"
+            class="page-section"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h1>
+                        Attendance
+                    </h1>
+
+                    <p>
+                        View your current attendance information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="content-card">
+
+                <div class="card-heading">
+
+                    <div>
+
+                        <h2>
+                            Current Schedule
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="attendance-detail-grid">
+
+                    <div class="detail-box">
+
+                        <span>
+                            Attendance Type
+                        </span>
+
+                        <strong id="detailType">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            Date
+                        </span>
+
+                        <strong id="detailDate">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            Start Time
+                        </span>
+
+                        <strong id="detailStart">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            End Time
+                        </span>
+
+                        <strong id="detailEnd">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            Submission
+                        </span>
+
+                        <strong id="detailSubmission">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <span>
+                            Admin Verification
+                        </span>
+
+                        <strong id="detailVerification">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             PROFILE SECTION
+        ================================================== -->
+
+        <section
+            id="profileSection"
+            class="page-section"
+        >
+
+            <div class="page-heading">
+
+                <div>
+
+                    <h1>
+                        My Profile
+                    </h1>
+
+                    <p>
+                        Your CPSERC member information.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-card">
+
+                <div class="profile-header">
+
+                    <div
+                        id="profileAvatar"
+                        class="user-avatar large-avatar"
+                    >
+                        U
+                    </div>
+
+                    <div>
+
+                        <h2 id="profileName">
+                            Member
+                        </h2>
+
+                        <p id="profilePosition">
+                            CPSERC Member
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="profile-grid">
+
+                    <div class="profile-field">
+
+                        <span>
+                            Full Name
+                        </span>
+
+                        <strong id="profileFullName">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-field">
+
+                        <span>
+                            Position
+                        </span>
+
+                        <strong id="profilePositionValue">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-field">
+
+                        <span>
+                            Username
+                        </span>
+
+                        <strong id="profileUsername">
+                            —
+                        </strong>
+
+                    </div>
+
+
+                    <div class="profile-field">
+
+                        <span>
+                            Account Status
+                        </span>
+
+                        <strong id="profileStatus">
+                            —
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         ATTENDANCE MODAL
+    ====================================================== -->
+
+    <div
+        id="attendanceModal"
+        class="modal-overlay"
+    >
+
+        <div class="attendance-modal">
+
+            <button
+                id="closeAttendanceModal"
+                class="modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-heading">
+
+                <div class="modal-icon">
+                    A
+                </div>
+
+                <h2>
+                    Attendance Verification
+                </h2>
+
+                <p>
+                    Your location must be verified before
+                    taking an attendance photo.
+                </p>
+
+            </div>
+
+
+            <!-- LOCATION STEP -->
+
+            <div
+                id="locationStep"
+                class="attendance-step"
+            >
+
+                <div class="step-status-icon">
+                    L
+                </div>
+
+                <h3>
+                    Location Verification
+                </h3>
+
+                <p id="locationMessage">
+                    Click the button below to verify
+                    your current location.
+                </p>
+
+
+                <button
+                    id="locationButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    ALLOW LOCATION
+                </button>
+
+
+                <div
+                    id="locationResult"
+                    class="location-result"
+                >
+
+                    <div>
+                        Latitude:
+                        <strong id="latitudeValue">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        Longitude:
+                        <strong id="longitudeValue">
+                            —
+                        </strong>
+                    </div>
+
+                    <div>
+                        Accuracy:
+                        <strong id="accuracyValue">
+                            —
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CAMERA STEP -->
+
+            <div
+                id="cameraStep"
+                class="attendance-step hidden"
+            >
+
+                <div class="step-status-icon">
+                    C
+                </div>
+
+                <h3>
+                    Take Attendance Photo
+                </h3>
+
+                <p>
+                    Make sure your face is clearly visible.
+                </p>
+
+
+                <div class="camera-container">
+
+                    <video
+                        id="cameraVideo"
+                        autoplay
+                        playsinline
+                        muted
+                    ></video>
+
+
+                    <canvas
+                        id="photoCanvas"
+                        class="hidden"
+                    ></canvas>
+
+
+                    <img
+                        id="photoPreview"
+                        class="photo-preview hidden"
+                        alt="Attendance preview"
+                    >
+
+                </div>
+
+
+                <div class="camera-buttons">
+
+                    <button
+                        id="captureButton"
+                        class="primary-button"
+                        type="button"
+                    >
+                        TAKE PHOTO
+                    </button>
+
+
+                    <button
+                        id="retakeButton"
+                        class="secondary-button hidden"
+                        type="button"
+                    >
+                        RETAKE
+                    </button>
+
+
+                    <button
+                        id="submitAttendanceButton"
+                        class="accept-button hidden"
+                        type="button"
+                    >
+                        SUBMIT ATTENDANCE
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUCCESS STEP -->
+
+            <div
+                id="successStep"
+                class="attendance-step hidden"
+            >
+
+                <div class="success-icon">
+                    ✓
+                </div>
+
+                <h3>
+                    Attendance Submitted
+                </h3>
+
+                <p>
+                    Your attendance has been submitted
+                    successfully and is waiting for
+                    administrator verification.
+                </p>
+
+
+                <button
+                    id="finishAttendanceButton"
+                    class="primary-button"
+                    type="button"
+                >
+                    DONE
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GENERAL MESSAGE MODAL
+    ====================================================== -->
+
+    <div
+        id="messageModal"
+        class="modal-overlay"
+    >
+
+        <div class="message-modal">
+
+            <button
+                id="closeMessageModal"
+                class="modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+
+            <div
+                id="messageIcon"
+                class="message-icon"
+            >
+                !
+            </div>
+
+
+            <h2 id="messageTitle">
+                Notice
+            </h2>
+
+
+            <p id="messageText">
+                —
+            </p>
+
+
+            <button
+                id="messageButton"
+                class="primary-button"
+                type="button"
+            >
+                OK
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FIREBASE + JAVASCRIPT
+    ====================================================== -->
+
+    <script type="module">
+
+        import {
+            initializeApp
+        } from
+        "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+
+
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            addDoc,
+            doc,
+            getDoc,
+            limit,
+            serverTimestamp
+        } from
+        "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+
+
+        /*
+        ========================================================
+        FIREBASE CONFIG
+        ========================================================
+        */
+
+        const firebaseConfig = {
+
+            apiKey:
+                "YOUR_API_KEY",
+
+            authDomain:
+                "YOUR_PROJECT.firebaseapp.com",
+
+            projectId:
+                "YOUR_PROJECT_ID",
+
+            storageBucket:
+                "YOUR_PROJECT.firebasestorage.app",
+
+            messagingSenderId:
+                "YOUR_MESSAGING_SENDER_ID",
+
+            appId:
+                "YOUR_APP_ID"
+
+        };
+
+
+        const app =
+            initializeApp(
+                firebaseConfig
+            );
+
+
+        const db =
+            getFirestore(app);
+
+
+        /*
+        ========================================================
+        USER SESSION
+        ========================================================
+        */
+
+        const savedSession =
+            sessionStorage.getItem(
+                "cpsercUser"
+            );
+
+
+        if (!savedSession) {
+
+            window.location.href =
+                "login.html";
+
+            throw new Error(
+                "No active user session."
+            );
+
+        }
+
+
+        let currentUser;
+
+
+        try {
+
+            currentUser =
+                JSON.parse(
+                    savedSession
+                );
+
+        } catch {
+
+            sessionStorage.removeItem(
+                "cpsercUser"
+            );
+
+            window.location.href =
+                "login.html";
+
+            throw new Error(
+                "Invalid user session."
+            );
+
+        }
+
+
+        /*
+        ========================================================
+        ELEMENTS
+        ========================================================
+        */
+
+        const sidebar =
+            document.getElementById(
+                "sidebar"
+            );
+
+
+        const sidebarOverlay =
+            document.getElementById(
+                "sidebarOverlay"
+            );
+
+
+        const menuButton =
+            document.getElementById(
+                "menuButton"
+            );
+
+
+        const logoutButton =
+            document.getElementById(
+                "logoutButton"
+            );
+
+
+        const navItems =
+            document.querySelectorAll(
+                ".nav-item"
+            );
+
+
+        const pageSections =
+            document.querySelectorAll(
+                ".page-section"
+            );
+
+
+        /*
+        ========================================================
+        USER INFORMATION
+        ========================================================
+        */
+
+        const fullName =
+            currentUser.fullName ||
+            "Member";
+
+
+        const position =
+            currentUser.position ||
+            "CPSERC Member";
+
+
+        const username =
+            currentUser.username ||
+            "";
+
+
+        /*
+        ========================================================
+        INITIAL PROFILE
+        ========================================================
+        */
+
+        function getInitials(name) {
+
+            const words =
+                name
+                    .trim()
+                    .split(/\s+/)
+                    .filter(Boolean);
+
+
+            if (!words.length) {
+
+                return "U";
+
+            }
+
+
+            if (words.length === 1) {
+
+                return words[0]
+                    .substring(0, 2)
+                    .toUpperCase();
+
+            }
+
+
+            return (
+                words[0][0] +
+                words[words.length - 1][0]
+            ).toUpperCase();
+
+        }
+
+
+        const initials =
+            getInitials(
+                fullName
+            );
+
+
+        document.getElementById(
+            "welcomeName"
+        ).textContent =
+            fullName;
+
+
+        document.getElementById(
+            "topUserName"
+        ).textContent =
+            fullName;
+
+
+        document.getElementById(
+            "topUserPosition"
+        ).textContent =
+            position;
+
+
+        document.getElementById(
+            "positionValue"
+        ).textContent =
+            position;
+
+
+        document.getElementById(
+            "usernameValue"
+        ).textContent =
+            username;
+
+
+        document.getElementById(
+            "profileName"
+        ).textContent =
+            fullName;
+
+
+        document.getElementById(
+            "profilePosition"
+        ).textContent =
+            position;
+
+
+        document.getElementById(
+            "profileFullName"
+        ).textContent =
+            fullName;
+
+
+        document.getElementById(
+            "profilePositionValue"
+        ).textContent =
+            position;
+
+
+        document.getElementById(
+            "profileUsername"
+        ).textContent =
+            username;
+
+
+        document.getElementById(
+            "profileStatus"
+        ).textContent =
+            currentUser.status ||
+            "Active";
+
+
+        document.getElementById(
+            "topAvatar"
+        ).textContent =
+            initials;
+
+
+        document.getElementById(
+            "profileAvatar"
+        ).textContent =
+            initials;
+
+
+        /*
+        ========================================================
+        NAVIGATION
+        ========================================================
+        */
+
+        function showSection(
+            sectionId
+        ) {
+
+            pageSections.forEach(
+                section => {
+
+                    section.classList.remove(
+                        "active-section"
+                    );
+
+                }
+            );
+
+
+            navItems.forEach(
+                item => {
+
+                    item.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+            const target =
+                document.getElementById(
+                    sectionId
+                );
+
+
+            if (target) {
+
+                target.classList.add(
+                    "active-section"
+                );
+
+            }
+
+
+            navItems.forEach(
+                item => {
+
+                    if (
+                        item.dataset.section ===
+                        sectionId
+                    ) {
+
+                        item.classList.add(
+                            "active"
+                        );
+
+                    }
+
+                }
+            );
+
+
+            closeMobileSidebar();
+
+        }
+
+
+        navItems.forEach(
+            item => {
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        showSection(
+                            item.dataset.section
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        MOBILE SIDEBAR
+        ========================================================
+        */
+
+        function openMobileSidebar() {
+
+            sidebar.classList.add(
+                "mobile-open"
+            );
+
+            sidebarOverlay.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function closeMobileSidebar() {
+
+            sidebar.classList.remove(
+                "mobile-open"
+            );
+
+            sidebarOverlay.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        menuButton.addEventListener(
+            "click",
+            openMobileSidebar
+        );
+
+
+        sidebarOverlay.addEventListener(
+            "click",
+            closeMobileSidebar
+        );
+
+
+        /*
+        ========================================================
+        LOGOUT
+        ========================================================
+        */
+
+        logoutButton.addEventListener(
+            "click",
+            () => {
+
+                sessionStorage.removeItem(
+                    "cpsercUser"
+                );
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        MODALS
+        ========================================================
+        */
+
+        const attendanceModal =
+            document.getElementById(
+                "attendanceModal"
+            );
+
+
+        const messageModal =
+            document.getElementById(
+                "messageModal"
+            );
+
+
+        function openAttendanceModal() {
+
+            attendanceModal.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function closeAttendanceModal() {
+
+            attendanceModal.classList.remove(
+                "show"
+            );
+
+            stopCamera();
+
+        }
+
+
+        document.getElementById(
+            "closeAttendanceModal"
+        ).addEventListener(
+            "click",
+            closeAttendanceModal
+        );
+
+
+        function showMessage(
+            title,
+            message,
+            type = "error"
+        ) {
+
+            document.getElementById(
+                "messageTitle"
+            ).textContent =
+                title;
+
+
+            document.getElementById(
+                "messageText"
+            ).textContent =
+                message;
+
+
+            const icon =
+                document.getElementById(
+                    "messageIcon"
+                );
+
+
+            icon.className =
+                "message-icon " +
+                type;
+
+
+            icon.textContent =
+                type === "success"
+                    ? "✓"
+                    : "!";
+
+
+            messageModal.classList.add(
+                "show"
+            );
+
+        }
+
+
+        function closeMessage() {
+
+            messageModal.classList.remove(
+                "show"
+            );
+
+        }
+
+
+        document.getElementById(
+            "closeMessageModal"
+        ).addEventListener(
+            "click",
+            closeMessage
+        );
+
+
+        document.getElementById(
+            "messageButton"
+        ).addEventListener(
+            "click",
+            closeMessage
+        );
+
+
+        /*
+        ========================================================
+        ATTENDANCE VARIABLES
+        ========================================================
+        */
+
+        let activeSchedule = null;
+
+        let countdownTimer = null;
+
+        let cameraStream = null;
+
+        let capturedPhoto = null;
+
+        let currentLocation = null;
+
+
+        /*
+        ========================================================
+        DOM ATTENDANCE ELEMENTS
+        ========================================================
+        */
+
+        const attendanceStatus =
+            document.getElementById(
+                "attendanceStatus"
+            );
+
+
+        const attendanceWindowTitle =
+            document.getElementById(
+                "attendanceWindowTitle"
+            );
+
+
+        const attendanceWindowDescription =
+            document.getElementById(
+                "attendanceWindowDescription"
+            );
+
+
+        const countdown =
+            document.getElementById(
+                "countdown"
+            );
+
+
+        const takeAttendanceButton =
+            document.getElementById(
+                "takeAttendanceButton"
+            );
+
+
+        /*
+        ========================================================
+        FIRESTORE HELPERS
+        ========================================================
+        */
+
+
+        async function getActiveSchedules() {
+
+            const schedulesRef =
+                collection(
+                    db,
+                    "attendanceSchedules"
+                );
+
+
+            const scheduleQuery =
+                query(
+                    schedulesRef,
+                    where(
+                        "active",
+                        "==",
+                        true
+                    )
+                );
+
+
+            const snapshot =
+                await getDocs(
+                    scheduleQuery
+                );
+
+
+            return snapshot.docs.map(
+                item => ({
+                    id: item.id,
+                    ...item.data()
+                })
+            );
+
+        }
+
+
+        /*
+        ========================================================
+        PARSE FIRESTORE DATE / TIMESTAMP
+        ========================================================
+        */
+
+        function toDate(value) {
+
+            if (!value) {
+
+                return null;
+
+            }
+
+
+            if (
+                value instanceof Date
+            ) {
+
+                return value;
+
+            }
+
+
+            if (
+                typeof value.toDate ===
+                "function"
+            ) {
+
+                return value.toDate();
+
+            }
+
+
+            if (
+                typeof value ===
+                "string"
+            ) {
+
+                const date =
+                    new Date(value);
+
+
+                if (
+                    !Number.isNaN(
+                        date.getTime()
+                    )
+                ) {
+
+                    return date;
+
+                }
+
+            }
+
+
+            return null;
+
+        }
+
+
+        /*
+        ========================================================
+        CHECK SCHEDULE
+        ========================================================
+        */
+
+        async function loadAttendanceSchedule() {
+
+            try {
+
+                const schedules =
+                    await getActiveSchedules();
+
+
+                if (
+                    !schedules.length
+                ) {
+
+                    setNoActiveSchedule();
+
+                    return;
+
+                }
+
+
+                const now =
+                    new Date();
+
+
+                let selected =
+                    null;
+
+
+                for (
+                    const schedule
+                    of schedules
+                ) {
+
+                    const start =
+                        toDate(
+                            schedule.startDateTime
+                        );
+
+
+                    const end =
+                        toDate(
+                            schedule.endDateTime
+                        );
+
+
+                    if (
+                        start &&
+                        end &&
+                        now >= start &&
+                        now <= end
+                    ) {
+
+                        selected =
+                            schedule;
+
+                        break;
+
+                    }
+
+                }
+
+
+                if (!selected) {
+
+                    setNoActiveSchedule();
+
+                    return;
+
+                }
+
+
+                activeSchedule =
+                    selected;
+
+
+                updateScheduleDisplay();
+
+                startCountdown();
+
+                await checkExistingAttendance();
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                attendanceWindowTitle.textContent =
+                    "Unable to load schedule";
+
+
+                attendanceWindowDescription.textContent =
+                    "Please try again later.";
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        NO ACTIVE SCHEDULE
+        ========================================================
+        */
+
+        function setNoActiveSchedule() {
+
+            activeSchedule =
+                null;
+
+
+            attendanceWindowTitle.textContent =
+                "No Active Attendance Window";
+
+
+            attendanceWindowDescription.textContent =
+                "Attendance is currently unavailable. Please wait for the administrator to open a new attendance schedule.";
+
+
+            countdown.textContent =
+                "--:--:--";
+
+
+            attendanceStatus.textContent =
+                "Unavailable";
+
+
+            attendanceStatus.className =
+                "stat-value";
+
+
+            takeAttendanceButton.disabled =
+                true;
+
+
+            takeAttendanceButton.textContent =
+                "ATTENDANCE CLOSED";
+
+        }
+
+
+        /*
+        ========================================================
+        DISPLAY SCHEDULE
+        ========================================================
+        */
+
+        function updateScheduleDisplay() {
+
+            if (!activeSchedule) {
+
+                return;
+
+            }
+
+
+            const type =
+                activeSchedule.type ||
+                "Attendance";
+
+
+            const start =
+                toDate(
+                    activeSchedule.startDateTime
+                );
+
+
+            const end =
+                toDate(
+                    activeSchedule.endDateTime
+                );
+
+
+            attendanceWindowTitle.textContent =
+                type;
+
+
+            attendanceWindowDescription.textContent =
+                start && end
+                    ? `${formatDate(start)} • ${formatTime(start)} - ${formatTime(end)}`
+                    : "Attendance schedule is active.";
+
+
+            document.getElementById(
+                "detailType"
+            ).textContent =
+                type;
+
+
+            document.getElementById(
+                "detailDate"
+            ).textContent =
+                start
+                    ? formatDate(start)
+                    : "—";
+
+
+            document.getElementById(
+                "detailStart"
+            ).textContent =
+                start
+                    ? formatTime(start)
+                    : "—";
+
+
+            document.getElementById(
+                "detailEnd"
+            ).textContent =
+                end
+                    ? formatTime(end)
+                    : "—";
+
+        }
+
+
+        /*
+        ========================================================
+        DATE FORMATTING
+        ========================================================
+        */
+
+        function formatDate(
+            date
+        ) {
+
+            return date.toLocaleDateString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                }
+            );
+
+        }
+
+
+        function formatTime(
+            date
+        ) {
+
+            return date.toLocaleTimeString(
+                "en-US",
+                {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+        /*
+        ========================================================
+        COUNTDOWN
+        ========================================================
+        */
+
+        function startCountdown() {
+
+            if (
+                countdownTimer
+            ) {
+
+                clearInterval(
+                    countdownTimer
+                );
+
+            }
+
+
+            function update() {
+
+                if (
+                    !activeSchedule
+                ) {
+
+                    return;
+
+                }
+
+
+                const end =
+                    toDate(
+                        activeSchedule.endDateTime
+                    );
+
+
+                if (!end) {
+
+                    countdown.textContent =
+                        "--:--:--";
+
+                    return;
+
+                }
+
+
+                const now =
+                    new Date();
+
+
+                const difference =
+                    end.getTime() -
+                    now.getTime();
+
+
+                if (
+                    difference <= 0
+                ) {
+
+                    countdown.textContent =
+                        "00:00:00";
+
+
+                    clearInterval(
+                        countdownTimer
+                    );
+
+
+                    setNoActiveSchedule();
+
+                    return;
+
+                }
+
+
+                const totalSeconds =
+                    Math.floor(
+                        difference / 1000
+                    );
+
+
+                const hours =
+                    Math.floor(
+                        totalSeconds / 3600
+                    );
+
+
+                const minutes =
+                    Math.floor(
+                        (
+                            totalSeconds % 3600
+                        ) / 60
+                    );
+
+
+                const seconds =
+                    totalSeconds % 60;
+
+
+                countdown.textContent =
+                    String(hours).padStart(
+                        2,
+                        "0"
+                    )
+                    + ":"
+                    +
+                    String(minutes).padStart(
+                        2,
+                        "0"
+                    )
+                    + ":"
+                    +
+                    String(seconds).padStart(
+                        2,
+                        "0"
+                    );
+
+            }
+
+
+            update();
+
+
+            countdownTimer =
+                setInterval(
+                    update,
+                    1000
+                );
+
+        }
+
+
+        /*
+        ========================================================
+        CHECK EXISTING ATTENDANCE
+        ========================================================
+        */
+
+        async function checkExistingAttendance() {
+
+            if (
+                !activeSchedule
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const attendanceRef =
+                    collection(
+                        db,
+                        "attendance"
+                    );
+
+
+                const attendanceQuery =
+                    query(
+                        attendanceRef,
+
+                        where(
+                            "userId",
+                            "==",
+                            currentUser.uid
+                        ),
+
+                        where(
+                            "scheduleId",
+                            "==",
+                            activeSchedule.id
+                        ),
+
+                        limit(1)
+                    );
+
+
+                const snapshot =
+                    await getDocs(
+                        attendanceQuery
+                    );
+
+
+                if (
+                    !snapshot.empty
+                ) {
+
+                    const data =
+                        snapshot.docs[0].data();
+
+
+                    setAttendanceAlreadySubmitted(
+                        data
+                    );
+
+                } else {
+
+                    setAttendanceReady();
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Attendance check error:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        ATTENDANCE STATES
+        ========================================================
+        */
+
+        function setAttendanceReady() {
+
+            attendanceStatus.textContent =
+                "Ready";
+
+
+            attendanceStatus.className =
+                "stat-value";
+
+
+            takeAttendanceButton.disabled =
+                false;
+
+
+            takeAttendanceButton.textContent =
+                "TAKE ATTENDANCE";
+
+
+            document.getElementById(
+                "detailSubmission"
+            ).textContent =
+                "Not Submitted";
+
+
+            document.getElementById(
+                "detailVerification"
+            ).textContent =
+                "Waiting";
+
+        }
+
+
+        function setAttendanceAlreadySubmitted(
+            data
+        ) {
+
+            attendanceStatus.textContent =
+                "Submitted";
+
+
+            attendanceStatus.className =
+                "stat-value success";
+
+
+            takeAttendanceButton.disabled =
+                true;
+
+
+            takeAttendanceButton.textContent =
+                "ATTENDANCE SUBMITTED";
+
+
+            document.getElementById(
+                "detailSubmission"
+            ).textContent =
+                "Submitted";
+
+
+            document.getElementById(
+                "detailVerification"
+            ).textContent =
+                data.status ||
+                "Pending";
+
+        }
+
+
+        /*
+        ========================================================
+        TAKE ATTENDANCE
+        ========================================================
+        */
+
+        takeAttendanceButton.addEventListener(
+            "click",
+            async () => {
+
+                if (
+                    !activeSchedule
+                ) {
+
+                    showMessage(
+                        "Attendance Closed",
+                        "There is currently no active attendance schedule.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                await checkExistingAttendance();
+
+
+                if (
+                    takeAttendanceButton.disabled
+                ) {
+
+                    return;
+
+                }
+
+
+                resetAttendanceModal();
+
+                openAttendanceModal();
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        RESET ATTENDANCE MODAL
+        ========================================================
+        */
+
+        function resetAttendanceModal() {
+
+            currentLocation =
+                null;
+
+
+            capturedPhoto =
+                null;
+
+
+            stopCamera();
+
+
+            document.getElementById(
+                "locationStep"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "cameraStep"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "successStep"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "locationResult"
+            ).classList.remove(
+                "show"
+            );
+
+
+            document.getElementById(
+                "locationMessage"
+            ).textContent =
+                "Click the button below to verify your current location.";
+
+
+            document.getElementById(
+                "locationButton"
+            ).disabled =
+                false;
+
+
+            document.getElementById(
+                "locationButton"
+            ).textContent =
+                "ALLOW LOCATION";
+
+
+            document.getElementById(
+                "photoPreview"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "cameraVideo"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "captureButton"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "retakeButton"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "submitAttendanceButton"
+            ).classList.add(
+                "hidden"
+            );
+
+        }
+
+
+        /*
+        ========================================================
+        LOCATION
+        ========================================================
+        */
+
+        document.getElementById(
+            "locationButton"
+        ).addEventListener(
+            "click",
+            requestLocation
+        );
+
+
+        function requestLocation() {
+
+            const message =
+                document.getElementById(
+                    "locationMessage"
+                );
+
+
+            const button =
+                document.getElementById(
+                    "locationButton"
+                );
+
+
+            if (
+                !navigator.geolocation
+            ) {
+
+                message.textContent =
+                    "Geolocation is not supported by this browser.";
+
+                return;
+
+            }
+
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "LOCATING...";
+
+
+            message.textContent =
+                "Please allow location access when your browser asks for permission.";
+
+
+            navigator.geolocation.getCurrentPosition(
+
+                position => {
+
+                    currentLocation = {
+
+                        latitude:
+                            position.coords.latitude,
+
+                        longitude:
+                            position.coords.longitude,
+
+                        accuracy:
+                            position.coords.accuracy
+
+                    };
+
+
+                    document.getElementById(
+                        "latitudeValue"
+                    ).textContent =
+                        currentLocation.latitude
+                            .toFixed(6);
+
+
+                    document.getElementById(
+                        "longitudeValue"
+                    ).textContent =
+                        currentLocation.longitude
+                            .toFixed(6);
+
+
+                    document.getElementById(
+                        "accuracyValue"
+                    ).textContent =
+                        `${Math.round(currentLocation.accuracy)} meters`;
+
+
+                    document.getElementById(
+                        "locationResult"
+                    ).classList.add(
+                        "show"
+                    );
+
+
+                    message.textContent =
+                        "Location verified successfully. You may now take your attendance photo.";
+
+
+                    button.textContent =
+                        "LOCATION VERIFIED";
+
+
+                    button.disabled =
+                        true;
+
+
+                    setTimeout(
+                        () => {
+
+                            showCameraStep();
+
+                        },
+                        500
+                    );
+
+                },
+
+
+                error => {
+
+                    console.error(
+                        "Location error:",
+                        error
+                    );
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.textContent =
+                        "TRY AGAIN";
+
+
+                    if (
+                        error.code ===
+                        error.PERMISSION_DENIED
+                    ) {
+
+                        message.textContent =
+                            "Location permission was denied. Please enable location permission in your browser settings and try again.";
+
+                    } else if (
+                        error.code ===
+                        error.POSITION_UNAVAILABLE
+                    ) {
+
+                        message.textContent =
+                            "Your location could not be determined. Please make sure location services are enabled.";
+
+                    } else {
+
+                        message.textContent =
+                            "Location request timed out. Please try again.";
+
+                    }
+
+                },
+
+                {
+                    enableHighAccuracy: true,
+
+                    timeout: 15000,
+
+                    maximumAge: 0
+
+                }
+
+            );
+
+        }
+
+
+        /*
+        ========================================================
+        CAMERA
+        ========================================================
+        */
+
+        async function showCameraStep() {
+
+            document.getElementById(
+                "locationStep"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "cameraStep"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            try {
+
+                cameraStream =
+                    await navigator.mediaDevices
+                        .getUserMedia({
+
+                            video: {
+
+                                facingMode:
+                                    "user",
+
+                                width: {
+                                    ideal: 1280
+                                },
+
+                                height: {
+                                    ideal: 720
+                                }
+
+                            },
+
+                            audio: false
+
+                        });
+
+
+                const video =
+                    document.getElementById(
+                        "cameraVideo"
+                    );
+
+
+                video.srcObject =
+                    cameraStream;
+
+
+            } catch (error) {
+
+                console.error(
+                    "Camera error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Camera Access Required",
+                    "Camera access is required to take your attendance photo. Please allow camera permission and try again.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        STOP CAMERA
+        ========================================================
+        */
+
+        function stopCamera() {
+
+            if (
+                cameraStream
+            ) {
+
+                cameraStream
+                    .getTracks()
+                    .forEach(
+                        track => {
+                            track.stop();
+                        }
+                    );
+
+
+                cameraStream =
+                    null;
+
+            }
+
+
+            const video =
+                document.getElementById(
+                    "cameraVideo"
+                );
+
+
+            if (video) {
+
+                video.srcObject =
+                    null;
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        CAPTURE PHOTO
+        ========================================================
+        */
+
+        document.getElementById(
+            "captureButton"
+        ).addEventListener(
+            "click",
+            capturePhoto
+        );
+
+
+        function capturePhoto() {
+
+            const video =
+                document.getElementById(
+                    "cameraVideo"
+                );
+
+
+            const canvas =
+                document.getElementById(
+                    "photoCanvas"
+                );
+
+
+            if (
+                video.readyState <
+                2
+            ) {
+
+                showMessage(
+                    "Camera Not Ready",
+                    "Please wait for the camera to become ready.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            canvas.width =
+                video.videoWidth;
+
+
+            canvas.height =
+                video.videoHeight;
+
+
+            const context =
+                canvas.getContext(
+                    "2d"
+                );
+
+
+            context.drawImage(
+                video,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+
+            capturedPhoto =
+                canvas.toDataURL(
+                    "image/jpeg",
+                    0.85
+                );
+
+
+            const preview =
+                document.getElementById(
+                    "photoPreview"
+                );
+
+
+            preview.src =
+                capturedPhoto;
+
+
+            preview.classList.remove(
+                "hidden"
+            );
+
+
+            video.classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "captureButton"
+            ).classList.add(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "retakeButton"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            document.getElementById(
+                "submitAttendanceButton"
+            ).classList.remove(
+                "hidden"
+            );
+
+
+            stopCamera();
+
+        }
+
+
+        /*
+        ========================================================
+        RETAKE
+        ========================================================
+        */
+
+        document.getElementById(
+            "retakeButton"
+        ).addEventListener(
+            "click",
+            async () => {
+
+                capturedPhoto =
+                    null;
+
+
+                document.getElementById(
+                    "photoPreview"
+                ).classList.add(
+                    "hidden"
+                );
+
+
+                document.getElementById(
+                    "cameraVideo"
+                ).classList.remove(
+                    "hidden"
+                );
+
+
+                document.getElementById(
+                    "captureButton"
+                ).classList.remove(
+                    "hidden"
+                );
+
+
+                document.getElementById(
+                    "retakeButton"
+                ).classList.add(
+                    "hidden"
+                );
+
+
+                document.getElementById(
+                    "submitAttendanceButton"
+                ).classList.add(
+                    "hidden"
+                );
+
+
+                await startCameraAgain();
+
+            }
+        );
+
+
+        async function startCameraAgain() {
+
+            try {
+
+                cameraStream =
+                    await navigator.mediaDevices
+                        .getUserMedia({
+
+                            video: {
+
+                                facingMode:
+                                    "user",
+
+                                width: {
+                                    ideal: 1280
+                                },
+
+                                height: {
+                                    ideal: 720
+                                }
+
+                            },
+
+                            audio: false
+
+                        });
+
+
+                document.getElementById(
+                    "cameraVideo"
+                ).srcObject =
+                    cameraStream;
+
+
+            } catch (error) {
+
+                console.error(
+                    error
+                );
+
+
+                showMessage(
+                    "Camera Error",
+                    "Unable to start the camera. Please check your browser permission.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        SUBMIT ATTENDANCE
+        ========================================================
+        */
+
+        document.getElementById(
+            "submitAttendanceButton"
+        ).addEventListener(
+            "click",
+            submitAttendance
+        );
+
+
+        async function submitAttendance() {
+
+            if (
+                !activeSchedule
+            ) {
+
+                showMessage(
+                    "Attendance Closed",
+                    "The attendance schedule is no longer active.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !currentLocation
+            ) {
+
+                showMessage(
+                    "Location Required",
+                    "Your location must be verified first.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (
+                !capturedPhoto
+            ) {
+
+                showMessage(
+                    "Photo Required",
+                    "Please take your attendance photo first.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            const button =
+                document.getElementById(
+                    "submitAttendanceButton"
+                );
+
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "SUBMITTING...";
+
+
+            try {
+
+                /*
+                ================================================
+                CHECK AGAIN BEFORE INSERTING
+                ================================================
+                */
+
+                const attendanceRef =
+                    collection(
+                        db,
+                        "attendance"
+                    );
+
+
+                const duplicateQuery =
+                    query(
+
+                        attendanceRef,
+
+                        where(
+                            "userId",
+                            "==",
+                            currentUser.uid
+                        ),
+
+                        where(
+                            "scheduleId",
+                            "==",
+                            activeSchedule.id
+                        ),
+
+                        limit(1)
+
+                    );
+
+
+                const duplicateSnapshot =
+                    await getDocs(
+                        duplicateQuery
+                    );
+
+
+                if (
+                    !duplicateSnapshot.empty
+                ) {
+
+                    setAttendanceAlreadySubmitted(
+                        duplicateSnapshot.docs[0].data()
+                    );
+
+
+                    closeAttendanceModal();
+
+
+                    showMessage(
+                        "Already Submitted",
+                        "You have already submitted attendance for this schedule.",
+                        "error"
+                    );
+
+
+                    return;
+
+                }
+
+
+                /*
+                ================================================
+                FIRESTORE ATTENDANCE
+                ================================================
+                */
+
+                await addDoc(
+                    attendanceRef,
+                    {
+
+                        userId:
+                            currentUser.uid,
+
+                        fullName:
+                            fullName,
+
+                        username:
+                            username,
+
+                        position:
+                            position,
+
+                        scheduleId:
+                            activeSchedule.id,
+
+                        attendanceType:
+                            activeSchedule.type ||
+                            "Attendance",
+
+                        latitude:
+                            currentLocation.latitude,
+
+                        longitude:
+                            currentLocation.longitude,
+
+                        accuracy:
+                            currentLocation.accuracy,
+
+                        photo:
+                            capturedPhoto,
+
+                        status:
+                            "pending",
+
+                        adminAccepted:
+                            false,
+
+                        submittedAt:
+                            serverTimestamp()
+
+                    }
+                );
+
+
+                /*
+                ================================================
+                SUCCESS
+                ================================================
+                */
+
+                attendanceStatus.textContent =
+                    "Submitted";
+
+
+                attendanceStatus.className =
+                    "stat-value success";
+
+
+                takeAttendanceButton.disabled =
+                    true;
+
+
+                takeAttendanceButton.textContent =
+                    "ATTENDANCE SUBMITTED";
+
+
+                document.getElementById(
+                    "detailSubmission"
+                ).textContent =
+                    "Submitted";
+
+
+                document.getElementById(
+                    "detailVerification"
+                ).textContent =
+                    "Pending";
+
+
+                document.getElementById(
+                    "cameraStep"
+                ).classList.add(
+                    "hidden"
+                );
+
+
+                document.getElementById(
+                    "successStep"
+                ).classList.remove(
+                    "hidden"
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Submit attendance error:",
+                    error
+                );
+
+
+                button.disabled =
+                    false;
+
+
+                button.textContent =
+                    "SUBMIT ATTENDANCE";
+
+
+                showMessage(
+                    "Submission Failed",
+                    "Your attendance could not be submitted. Please try again.",
+                    "error"
+                );
+
+            }
+
+        }
+
+
+        /*
+        ========================================================
+        FINISH ATTENDANCE
+        ========================================================
+        */
+
+        document.getElementById(
+            "finishAttendanceButton"
+        ).addEventListener(
+            "click",
+            () => {
+
+                closeAttendanceModal();
+
+                resetAttendanceModal();
+
+                showSection(
+                    "dashboardSection"
+                );
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        MODAL OUTSIDE CLICK
+        ========================================================
+        */
+
+        attendanceModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    attendanceModal
+                ) {
+
+                    closeAttendanceModal();
+
+                }
+
+            }
+        );
+
+
+        messageModal.addEventListener(
+            "click",
+            event => {
+
+                if (
+                    event.target ===
+                    messageModal
+                ) {
+
+                    closeMessage();
+
+                }
+
+            }
+        );
+
+
+        /*
+        ========================================================
+        INITIAL LOAD
+        ========================================================
+        */
+
+        loadAttendanceSchedule();
+
+
+        /*
+        ========================================================
+        REFRESH SCHEDULE
+        ========================================================
+        */
+
+        setInterval(
+            () => {
+
+                loadAttendanceSchedule();
+
+            },
+            30000
+        );
+
+    </script>
+
+</body>
+</html>

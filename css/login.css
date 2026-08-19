@@ -1,0 +1,819 @@
+/* =========================================================
+   CPSERC LOGIN PAGE
+   login.css
+========================================================= */
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html {
+    min-height: 100%;
+}
+
+
+body {
+    min-height: 100vh;
+
+    font-family:
+        Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color: #e7f1f8;
+
+    background:
+        #050e18;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+.background-grid {
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(
+            rgba(52, 96, 124, 0.045) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(52, 96, 124, 0.045) 1px,
+            transparent 1px
+        );
+
+    background-size:
+        45px 45px;
+
+    opacity: 0.65;
+}
+
+
+.background-grid::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(19, 70, 100, 0.18),
+            transparent 55%
+        );
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.login-page {
+    position: relative;
+
+    min-height: 100vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 25px;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   LOGIN CARD
+========================================================= */
+
+.login-card {
+    width: min(
+        440px,
+        100%
+    );
+
+    padding: 38px 35px 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0a1c2c,
+            #071522
+        );
+
+    border:
+        1px solid #1c3b52;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 25px 80px
+        rgba(
+            0,
+            0,
+            0,
+            0.42
+        );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.login-header {
+    text-align: center;
+
+    margin-bottom: 30px;
+}
+
+
+.logo-circle {
+    width: 68px;
+    height: 68px;
+
+    margin: 0 auto 17px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        #12354b;
+
+    border:
+        1px solid #2c5d78;
+
+    color: #eef8ff;
+
+    font-size: 17px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    box-shadow:
+        0 8px 30px
+        rgba(
+            5,
+            20,
+            31,
+            0.5
+        );
+}
+
+
+.login-header h1 {
+    color: #f1f7fb;
+
+    font-size: 28px;
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+
+.organization-name {
+    margin-top: 6px;
+
+    color: #7895aa;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+}
+
+
+.security-line {
+    width: fit-content;
+
+    margin: 13px auto 0;
+
+    padding: 6px 10px;
+
+    border:
+        1px solid #24475e;
+
+    border-radius: 5px;
+
+    background: #091a28;
+
+    color: #7795aa;
+
+    font-size: 8px;
+    font-weight: 800;
+
+    letter-spacing: 1.2px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form-group {
+    margin-bottom: 19px;
+}
+
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #91aabd;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    letter-spacing: 0.3px;
+}
+
+
+.form-group input {
+    width: 100%;
+    height: 48px;
+
+    padding:
+        0 14px;
+
+    border:
+        1px solid #23465d;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background:
+        #061522;
+
+    color: #e9f4fa;
+
+    font-size: 13px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.form-group input::placeholder {
+    color: #506c81;
+}
+
+
+.form-group input:focus {
+    border-color: #3b6c88;
+
+    background:
+        #081a2a;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(
+            52,
+            105,
+            136,
+            0.10
+        );
+}
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+.password-wrapper {
+    position: relative;
+}
+
+
+.password-wrapper input {
+    padding-right: 70px;
+}
+
+
+.password-toggle {
+    position: absolute;
+
+    top: 50%;
+    right: 9px;
+
+    transform:
+        translateY(-50%);
+
+    min-width: 48px;
+    height: 30px;
+
+    padding: 0 7px;
+
+    border:
+        1px solid #29485d;
+
+    border-radius: 6px;
+
+    background:
+        #0c2131;
+
+    color: #82a0b5;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.password-toggle:hover {
+    color: #e6f2f9;
+
+    background:
+        #123047;
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+========================================================= */
+
+.login-button {
+    width: 100%;
+    height: 49px;
+
+    margin-top: 4px;
+
+    border:
+        1px solid #2c5b76;
+
+    border-radius: 9px;
+
+    background:
+        #16435e;
+
+    color: #f2f8fc;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 0.7px;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.login-button:hover {
+    background:
+        #1b5271;
+
+    border-color:
+        #3d7693;
+
+    transform:
+        translateY(-1px);
+}
+
+
+.login-button:active {
+    transform:
+        translateY(0);
+}
+
+
+.login-button:disabled {
+    opacity: 0.6;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.login-status {
+    min-height: 20px;
+
+    margin-top: 13px;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+
+.login-status.error {
+    color: #e3a1a8;
+}
+
+
+.login-status.success {
+    color: #83d1a5;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.login-footer {
+    margin-top: 25px;
+
+    padding-top: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    border-top:
+        1px solid #183448;
+
+    color: #536f83;
+
+    font-size: 8px;
+
+    text-align: center;
+}
+
+
+.separator {
+    color: #315269;
+}
+
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(
+            2,
+            8,
+            14,
+            0.82
+        );
+
+    backdrop-filter:
+        blur(7px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+
+    z-index: 1000;
+}
+
+
+.modal-overlay.show {
+    opacity: 1;
+
+    visibility: visible;
+}
+
+
+.modal-box {
+    position: relative;
+
+    width: min(
+        390px,
+        100%
+    );
+
+    padding: 32px 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #0c1f30,
+            #081522
+        );
+
+    border:
+        1px solid #29465d;
+
+    border-radius: 14px;
+
+    text-align: center;
+
+    box-shadow:
+        0 25px 70px
+        rgba(
+            0,
+            0,
+            0,
+            0.5
+        );
+
+    transform:
+        translateY(10px)
+        scale(0.98);
+
+    transition:
+        transform 0.2s ease;
+}
+
+
+.modal-overlay.show
+.modal-box {
+    transform:
+        translateY(0)
+        scale(1);
+}
+
+
+/* =========================================================
+   MODAL CLOSE
+========================================================= */
+
+.modal-close {
+    position: absolute;
+
+    top: 11px;
+    right: 12px;
+
+    width: 33px;
+    height: 33px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid #29465b;
+
+    border-radius: 7px;
+
+    background:
+        #0a1b2a;
+
+    color: #7791a4;
+
+    font-size: 21px;
+
+    line-height: 1;
+}
+
+
+.modal-close:hover {
+    background:
+        #142c3e;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   MODAL ICON
+========================================================= */
+
+.modal-icon {
+    width: 52px;
+    height: 52px;
+
+    margin: 0 auto 17px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 22px;
+    font-weight: 900;
+}
+
+
+.error-icon {
+    background:
+        #38191e;
+
+    border:
+        1px solid #68343b;
+
+    color:
+        #eaa4aa;
+}
+
+
+.warning-icon {
+    background:
+        #392d15;
+
+    border:
+        1px solid #695326;
+
+    color:
+        #e3bd6b;
+}
+
+
+/* =========================================================
+   MODAL TEXT
+========================================================= */
+
+.modal-box h2 {
+    color:
+        #edf5fa;
+
+    font-size: 18px;
+    font-weight: 800;
+}
+
+
+.modal-box p {
+    margin-top: 9px;
+
+    color:
+        #718da2;
+
+    font-size: 11px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   MODAL BUTTON
+========================================================= */
+
+.modal-button {
+    width: 100%;
+    height: 43px;
+
+    margin-top: 21px;
+
+    border:
+        1px solid #2b5973;
+
+    border-radius: 8px;
+
+    background:
+        #143c56;
+
+    color:
+        #eaf4f9;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 0.5px;
+}
+
+
+.modal-button:hover {
+    background:
+        #1a4d6a;
+
+    border-color:
+        #3a7391;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 500px) {
+
+    .login-page {
+        padding: 15px;
+    }
+
+
+    .login-card {
+        padding:
+            30px 21px 23px;
+
+        border-radius: 13px;
+    }
+
+
+    .logo-circle {
+        width: 60px;
+        height: 60px;
+
+        margin-bottom: 14px;
+    }
+
+
+    .login-header h1 {
+        font-size: 24px;
+    }
+
+
+    .organization-name {
+        font-size: 9px;
+    }
+
+
+    .login-footer {
+        flex-direction: column;
+
+        gap: 3px;
+    }
+
+
+    .separator {
+        display: none;
+    }
+
+}
+
+
+@media (max-width: 350px) {
+
+    .login-card {
+        padding:
+            26px 16px 20px;
+    }
+
+
+    .login-header {
+        margin-bottom: 23px;
+    }
+
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+
+    .modal-box {
+        padding:
+            28px 20px;
+    }
+
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+button:focus-visible,
+input:focus-visible {
+    outline:
+        2px solid #4a819f;
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+
+        transition: none !important;
+    }
+
+}

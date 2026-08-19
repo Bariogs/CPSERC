@@ -520,30 +520,6 @@ input, select{ font-size: 16px; }
 }
 
 /* ===========================================================
-   Student roster pagination — "See more"
-   =========================================================== */
-#studentsCountInfo{
-  font-size: .82rem;
-  color: var(--ink-faint);
-}
-
-#seeMoreBtn{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-/* a small downward chevron hints there's more to reveal below */
-#seeMoreBtn::after{
-  content: "▾";
-  font-size: .8em;
-}
-
-@media (max-width: 480px){
-  #seeMoreBtn{ width: 100%; }
-}
-
-/* ===========================================================
    Login screen — the "ID scanner" doorway
    Reuses .card, .eyebrow, .page-title, .field, .msg, .btn, .spinner
    from above; this section only adds what's specific to logging in.
@@ -962,25 +938,3 @@ input, select{ font-size: 16px; }
     height: 40px;
   }
 }
-
-
-
-
-
-  /* ===== Inline edit fields for the students table ===== */
-  .editNameInput, .editSchoolIdInput{
-    width: 100%;
-    min-width: 120px;
-    padding: 6px 8px;
-    border: 1px solid #d8d2c0;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 13px;
-    box-sizing: border-box;
-  }
-  .records td .btn{
-    margin-right: 6px;
-  }
-  .records td .btn:last-child{
-    margin-right: 0;
-  }

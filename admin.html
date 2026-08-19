@@ -1,4799 +1,641 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>CPSERC | Admin Dashboard</title>
-
-    <!-- EXTERNAL CSS ONLY -->
-    <link
-        rel="stylesheet"
-        href="css/admin.css"
-    >
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — CCS Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  /* ===== Inline edit fields for the students table ===== */
+  .editNameInput, .editSchoolIdInput{
+    width: 100%;
+    min-width: 120px;
+    padding: 6px 8px;
+    border: 1px solid #d8d2c0;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+  .records td .btn{
+    margin-right: 6px;
+  }
+  .records td .btn:last-child{
+    margin-right: 0;
+  }
+</style>
 </head>
-
-
 <body>
 
-    <!-- =====================================================
-         SIDEBAR
-    ====================================================== -->
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CCS Attendance — Admin</div>
+  <nav>
+    <span class="who">Admin</span>
+    <a href="qr.html">QR Codes</a>
+    <a href="me.html">Records</a>
+    <button id="logoutBtn">Log out</button>
+  </nav>
+</div>
 
-    <aside
-        class="sidebar"
-        id="sidebar"
-    >
+<div class="wrap">
 
-        <div class="sidebar-brand">
+  <div class="card" style="margin-bottom:24px;">
+    <p class="eyebrow">Admin Dashboard</p>
+    <h1 class="page-title">Good day, Admin!</h1>
+    <p class="page-sub">Here you can manage students and view all attendance records.</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a class="btn gold" href="qr.html">View QR Codes</a>
+      <a class="btn outline" href="me.html">View Records / Download</a>
+    </div>
+  </div>
 
-            <div class="brand-logo">
-                CPSERC
-            </div>
+  <div class="card" style="margin-bottom:24px;">
+    <p class="eyebrow">Attendance Schedule</p>
+    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Set the Attendance Date and Time</h2>
+    <p class="page-sub">
+      Students can only take attendance within the selected date and
+      time. Outside of this, the "Take Attendance" button cannot be
+      accessed until the admin sets a new schedule.
+    </p>
 
-            <div class="brand-subtitle">
-                PUBLIC SAFETY & RESPONSE CORPS
-            </div>
+    <div id="windowMsg" class="msg"></div>
+    <div id="currentWindowInfo" class="msg" style="display:none;"></div>
 
+    <form id="windowForm" style="max-width:420px;">
+      <div class="field">
+        <label for="attDate">Date</label>
+        <input type="date" id="attDate" required>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <div class="field" style="flex:1;">
+          <label for="attStart">Start Time</label>
+          <input type="time" id="attStart" required>
         </div>
-
-
-        <nav class="sidebar-nav">
-
-            <button
-                class="nav-item active"
-                data-section="dashboardSection"
-            >
-                <span>Dashboard</span>
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="membersSection"
-            >
-                <span>Members</span>
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="attendanceSection"
-            >
-                <span>Attendance Review</span>
-
-                <span
-                    class="nav-badge"
-                    id="sidebarPendingCount"
-                >
-                    0
-                </span>
-
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="timeSection"
-            >
-                <span>Attendance Time</span>
-            </button>
-
-
-            <a
-                href="download_attendance.html"
-                class="nav-item"
-            >
-                <span>Accepted Attendance</span>
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                class="logout-button"
-                id="logoutButton"
-            >
-                Logout
-            </button>
-
+        <div class="field" style="flex:1;">
+          <label for="attEnd">End Time</label>
+          <input type="time" id="attEnd" required>
         </div>
-
-    </aside>
-
-
-    <!-- =====================================================
-         MAIN CONTENT
-    ====================================================== -->
-
-    <main class="main-content">
-
-
-        <!-- TOPBAR -->
-
-        <header class="topbar">
-
-            <button
-                class="menu-button"
-                id="menuButton"
-                type="button"
-            >
-                ☰
-            </button>
-
-
-            <div class="topbar-title">
-
-                <div class="topbar-title-main">
-                    Admin Dashboard
-                </div>
-
-                <div class="topbar-title-sub">
-                    CPSERC Online Attendance System
-                </div>
-
-            </div>
-
-
-            <div class="admin-profile">
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-                <div class="admin-profile-info">
-
-                    <strong id="adminName">
-                        Administrator
-                    </strong>
-
-                    <small>
-                        System Administrator
-                    </small>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <!-- =================================================
-             DASHBOARD SECTION
-        ================================================== -->
-
-        <section
-            class="page-section active-section"
-            id="dashboardSection"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        CPSERC Dashboard
-                    </h1>
-
-                    <p>
-                        Manage members, attendance schedules,
-                        and attendance verification.
-                    </p>
-
-                </div>
-
-
-                <div class="heading-actions">
-
-                    <button
-                        class="primary-button"
-                        id="openEnrollButton"
-                        type="button"
-                    >
-                        + Enroll Member
-                    </button>
-
-
-                    <button
-                        class="secondary-button"
-                        id="openTimeButton"
-                        type="button"
-                    >
-                        Set Attendance Time
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- STATISTICS -->
-
-            <div class="stats-grid">
-
-
-                <div class="stat-card">
-
-                    <div class="stat-label">
-                        Enrolled Members
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        id="totalUsers"
-                    >
-                        0
-                    </div>
-
-                    <div class="stat-description">
-                        Active CPSERC members
-                    </div>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-label">
-                        Pending Attendance
-                    </div>
-
-                    <div
-                        class="stat-value warning"
-                        id="pendingAttendanceCount"
-                    >
-                        0
-                    </div>
-
-                    <div class="stat-description">
-                        Waiting for verification
-                    </div>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-label">
-                        Accepted Attendance
-                    </div>
-
-                    <div
-                        class="stat-value success"
-                        id="acceptedAttendanceCount"
-                    >
-                        0
-                    </div>
-
-                    <div class="stat-description">
-                        Approved records
-                    </div>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <div class="stat-label">
-                        Current Schedule
-                    </div>
-
-                    <div
-                        class="stat-value small-value"
-                        id="currentSchedule"
-                    >
-                        None
-                    </div>
-
-                    <div class="stat-description">
-                        Today's attendance window
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            <!-- QUICK ACTIONS -->
-
-            <div class="content-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <h2>
-                            Quick Actions
-                        </h2>
-
-                        <p>
-                            Frequently used administration tools.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="quick-actions">
-
-
-                    <button
-                        class="quick-action"
-                        id="quickEnrollButton"
-                        type="button"
-                    >
-
-                        <span class="quick-action-title">
-                            Enroll Member
-                        </span>
-
-                        <span class="quick-action-description">
-                            Create a new CPSERC member account.
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        class="quick-action"
-                        id="quickTimeButton"
-                        type="button"
-                    >
-
-                        <span class="quick-action-title">
-                            Set Attendance Time
-                        </span>
-
-                        <span class="quick-action-description">
-                            Open a Time In or Time Out window.
-                        </span>
-
-                    </button>
-
-
-                    <button
-                        class="quick-action"
-                        id="quickReviewButton"
-                        type="button"
-                    >
-
-                        <span class="quick-action-title">
-                            Review Attendance
-                        </span>
-
-                        <span class="quick-action-description">
-                            Check submitted member attendance.
-                        </span>
-
-                    </button>
-
-
-                    <a
-                        href="download_attendance.html"
-                        class="quick-action"
-                    >
-
-                        <span class="quick-action-title">
-                            Download Attendance
-                        </span>
-
-                        <span class="quick-action-description">
-                            View and export accepted attendance.
-                        </span>
-
-                    </a>
-
-
-                </div>
-
-            </div>
-
-
-        </section>
-
-
-        <!-- =================================================
-             MEMBERS SECTION
-        ================================================== -->
-
-        <section
-            class="page-section"
-            id="membersSection"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        Member Management
-                    </h1>
-
-                    <p>
-                        Search, view, and manage enrolled members.
-                    </p>
-
-                </div>
-
-
-                <button
-                    class="primary-button"
-                    id="membersEnrollButton"
-                    type="button"
-                >
-                    + Enroll Member
-                </button>
-
-            </div>
-
-
-            <div class="content-card">
-
-
-                <div class="search-container">
-
-                    <div class="search-label">
-                        Search Member
-                    </div>
-
-                    <input
-                        type="search"
-                        id="memberSearch"
-                        class="search-input"
-                        placeholder="Search by full name, username, or position..."
-                        autocomplete="off"
-                    >
-
-                </div>
-
-
-                <div
-                    class="member-list"
-                    id="memberList"
-                >
-
-                    <div class="loading-message">
-                        Loading members...
-                    </div>
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             ATTENDANCE REVIEW SECTION
-        ================================================== -->
-
-        <section
-            class="page-section"
-            id="attendanceSection"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        Attendance Review
-                    </h1>
-
-                    <p>
-                        Review submitted attendance before acceptance.
-                    </p>
-
-                </div>
-
-
-                <button
-                    class="secondary-button"
-                    id="refreshAttendanceButton"
-                    type="button"
-                >
-                    Refresh
-                </button>
-
-            </div>
-
-
-            <div class="content-card">
-
-
-                <div class="attendance-filter-row">
-
-                    <button
-                        class="filter-button active"
-                        data-attendance-filter="pending"
-                        type="button"
-                    >
-                        Pending
-                    </button>
-
-
-                    <button
-                        class="filter-button"
-                        data-attendance-filter="accepted"
-                        type="button"
-                    >
-                        Accepted
-                    </button>
-
-
-                    <button
-                        class="filter-button"
-                        data-attendance-filter="rejected"
-                        type="button"
-                    >
-                        Rejected
-                    </button>
-
-                </div>
-
-
-                <div
-                    class="attendance-list"
-                    id="attendanceList"
-                >
-
-                    <div class="loading-message">
-                        Loading attendance records...
-                    </div>
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             ATTENDANCE TIME SECTION
-        ================================================== -->
-
-        <section
-            class="page-section"
-            id="timeSection"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        Attendance Schedule
-                    </h1>
-
-                    <p>
-                        Set the date and time when members are
-                        allowed to submit attendance.
-                    </p>
-
-                </div>
-
-
-                <button
-                    class="primary-button"
-                    id="timePageButton"
-                    type="button"
-                >
-                    + Set New Schedule
-                </button>
-
-            </div>
-
-
-            <div class="content-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <h2>
-                            Attendance Windows
-                        </h2>
-
-                        <p>
-                            Active and previous attendance schedules.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    class="schedule-list"
-                    id="scheduleList"
-                >
-
-                    <div class="loading-message">
-                        Loading schedules...
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-    </main>
-
-
-    <!-- =====================================================
-         GENERAL MODAL
-    ====================================================== -->
-
-    <div
-        class="modal-overlay"
-        id="modalOverlay"
-    >
-
-        <div
-            class="modal-box"
-            id="modalBox"
-        >
-
-            <button
-                class="modal-close"
-                id="modalClose"
-                type="button"
-            >
-                ×
-            </button>
-
-
-            <div id="modalContent"></div>
-
-        </div>
-
+      </div>
+      <button type="submit" class="btn gold" id="saveWindowBtn">Save Schedule</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-bottom:24px;">
+    <p class="eyebrow">Student Accounts</p>
+    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Add a Student</h2>
+    <p class="page-sub">The name is the username, and the School ID is the password when the student logs in.</p>
+
+    <div id="addMsg" class="msg"></div>
+
+    <form id="addStudentForm" style="max-width:420px;">
+      <div class="field">
+        <label for="sName">Student Name</label>
+        <input type="text" id="sName" required placeholder="e.g. Juan Dela Cruz">
+      </div>
+      <div class="field">
+        <label for="sId">Password</label>
+        <input type="text" id="sId" required placeholder="e.g. COL-00789">
+      </div>
+      <div class="field">
+        <label for="sCourse">Course</label>
+        <input type="text" id="sCourse" required placeholder="e.g. BS Computer Science">
+      </div>
+      <div class="field">
+        <label for="sYearLevel">Year Level</label>
+        <select id="sYearLevel" required>
+          <option value="" disabled selected>Select Year Level</option>
+          <option value="1st Year">1st Year</option>
+          <option value="2nd Year">2nd Year</option>
+          <option value="3rd Year">3rd Year</option>
+          <option value="4th Year">4th Year</option>
+          
+        </select>
+      </div>
+      <button type="submit" class="btn gold" id="addBtn">Add</button>
+    </form>
+
+    <div class="field" id="studentSearchWrap" style="display:none; max-width:320px; margin-top:26px; margin-bottom:0;">
+      <label for="studentSearch">Search by Name</label>
+      <input type="text" id="studentSearch" placeholder="Type a name to search...">
     </div>
 
-
-    <!-- =====================================================
-         TOAST
-    ====================================================== -->
-
-    <div
-        class="toast"
-        id="toast"
-    >
-
-        <div
-            class="toast-title"
-            id="toastTitle"
-        >
-            Notification
-        </div>
-
-        <div
-            class="toast-message"
-            id="toastMessage"
-        >
-            -
-        </div>
-
+    <div class="table-scroll" id="studentsTableWrap" style="display:none; margin-top:14px;">
+      <table class="records" id="studentsTable">
+        <thead><tr><th>#</th><th>Name</th><th>Password</th><th>Course</th><th>Year Level</th><th>Action</th></tr></thead>
+        <tbody id="studentsBody"></tbody>
+      </table>
     </div>
-
-
-    <!-- =====================================================
-         FIREBASE JAVASCRIPT
-         NO CSS HERE
-    ====================================================== -->
-
-    <script type="module">
-
-
-        // =================================================
-        // FIREBASE IMPORTS
-        // =================================================
-
-        import {
-            initializeApp
-        }
-        from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-
-
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut,
-            createUserWithEmailAndPassword,
-            sendPasswordResetEmail
-        }
-        from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-
-
-        import {
-            getFirestore,
-            collection,
-            doc,
-            getDoc,
-            getDocs,
-            addDoc,
-            updateDoc,
-            query,
-            where,
-            orderBy,
-            serverTimestamp
-        }
-        from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-
-
-        // =================================================
-        // FIREBASE CONFIG
-        // =================================================
-        //
-        // REPLACE THESE WITH YOUR FIREBASE CONFIG.
-        //
-        // Firebase Console:
-        //
-        // Project Settings
-        //       ↓
-        // Your apps
-        //       ↓
-        // Web App
-        //       ↓
-        // SDK setup and configuration
-        //
-        // =================================================
-
-        const firebaseConfig = {
-
-            apiKey:
-                "YOUR_API_KEY",
-
-            authDomain:
-                "YOUR_PROJECT_ID.firebaseapp.com",
-
-            projectId:
-                "YOUR_PROJECT_ID",
-
-            storageBucket:
-                "YOUR_PROJECT_ID.firebasestorage.app",
-
-            messagingSenderId:
-                "YOUR_MESSAGING_SENDER_ID",
-
-            appId:
-                "YOUR_APP_ID"
-
-        };
-
-
-        // =================================================
-        // INITIALIZE FIREBASE
-        // =================================================
-
-        const app =
-            initializeApp(firebaseConfig);
-
-
-        const auth =
-            getAuth(app);
-
-
-        const db =
-            getFirestore(app);
-
-
-        // =================================================
-        // GLOBAL VARIABLES
-        // =================================================
-
-        let currentAdmin = null;
-
-        let allMembers = [];
-
-        let allAttendance = [];
-
-        let allSchedules = [];
-
-        let currentAttendanceFilter = "pending";
-
-
-        // =================================================
-        // DOM ELEMENTS
-        // =================================================
-
-        const modalOverlay =
-            document.getElementById(
-                "modalOverlay"
-            );
-
-
-        const modalContent =
-            document.getElementById(
-                "modalContent"
-            );
-
-
-        const modalClose =
-            document.getElementById(
-                "modalClose"
-            );
-
-
-        const toast =
-            document.getElementById(
-                "toast"
-            );
-
-
-        const toastTitle =
-            document.getElementById(
-                "toastTitle"
-            );
-
-
-        const toastMessage =
-            document.getElementById(
-                "toastMessage"
-            );
-
-
-        // =================================================
-        // MODAL
-        // =================================================
-
-        function openModal(content) {
-
-            modalContent.innerHTML =
-                content;
-
-            modalOverlay.classList.add(
-                "show"
-            );
-
-        }
-
-
-        function closeModal() {
-
-            modalOverlay.classList.remove(
-                "show"
-            );
-
-            modalContent.innerHTML =
-                "";
-
-        }
-
-
-        modalClose.addEventListener(
-            "click",
-            closeModal
-        );
-
-
-        modalOverlay.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target ===
-                    modalOverlay
-                ) {
-
-                    closeModal();
-
-                }
-
-            }
-        );
-
-
-        // =================================================
-        // TOAST
-        // =================================================
-
-        function showToast(
-            title,
-            message,
-            type = "normal"
-        ) {
-
-            toastTitle.textContent =
-                title;
-
-            toastMessage.textContent =
-                message;
-
-
-            toast.dataset.type =
-                type;
-
-
-            toast.classList.add(
-                "show"
-            );
-
-
-            setTimeout(
-                () => {
-
-                    toast.classList.remove(
-                        "show"
-                    );
-
-                },
-                3500
-            );
-
-        }
-
-
-        // =================================================
-        // AUTHENTICATION
-        // =================================================
-
-        onAuthStateChanged(
-            auth,
-            async user => {
-
-                if (!user) {
-
-                    window.location.href =
-                        "login.html";
-
-                    return;
-
-                }
-
-
-                try {
-
-                    const adminRef =
-                        doc(
-                            db,
-                            "users",
-                            user.uid
-                        );
-
-
-                    const adminSnapshot =
-                        await getDoc(
-                            adminRef
-                        );
-
-
-                    if (
-                        !adminSnapshot.exists()
-                    ) {
-
-                        showToast(
-                            "Access Denied",
-                            "Administrator profile was not found.",
-                            "error"
-                        );
-
-
-                        await signOut(
-                            auth
-                        );
-
-
-                        window.location.href =
-                            "login.html";
-
-
-                        return;
-
-                    }
-
-
-                    const adminData =
-                        adminSnapshot.data();
-
-
-                    if (
-                        adminData.role !==
-                        "admin"
-                    ) {
-
-                        showToast(
-                            "Access Denied",
-                            "Administrator privileges are required.",
-                            "error"
-                        );
-
-
-                        await signOut(
-                            auth
-                        );
-
-
-                        window.location.href =
-                            "login.html";
-
-
-                        return;
-
-                    }
-
-
-                    currentAdmin = {
-
-                        uid:
-                            user.uid,
-
-                        email:
-                            user.email,
-
-                        ...adminData
-
-                    };
-
-
-                    document
-                        .getElementById(
-                            "adminName"
-                        )
-                        .textContent =
-                        adminData.fullName ||
-                        "Administrator";
-
-
-                    await loadDashboard();
-
-                }
-
-                catch (error) {
-
-                    console.error(
-                        error
-                    );
-
-
-                    showToast(
-                        "Error",
-                        "Unable to verify administrator account.",
-                        "error"
-                    );
-
-                }
-
-            }
-        );
-
-
-        // =================================================
-        // DASHBOARD LOADER
-        // =================================================
-
-        async function loadDashboard() {
-
-            await Promise.all([
-
-                loadMembers(),
-
-                loadAttendance(),
-
-                loadSchedules()
-
-            ]);
-
-
-            updateDashboardStatistics();
-
-        }
-
-
-        // =================================================
-        // LOAD MEMBERS
-        // =================================================
-
-        async function loadMembers() {
-
-            const list =
-                document.getElementById(
-                    "memberList"
-                );
-
-
-            list.innerHTML =
-                `
-                    <div class="loading-message">
-                        Loading members...
-                    </div>
-                `;
-
-
-            try {
-
-                const snapshot =
-                    await getDocs(
-                        collection(
-                            db,
-                            "users"
-                        )
-                    );
-
-
-                allMembers = [];
-
-
-                snapshot.forEach(
-                    item => {
-
-                        const data =
-                            item.data();
-
-
-                        if (
-                            data.role !==
-                            "admin"
-                        ) {
-
-                            allMembers.push({
-
-                                id:
-                                    item.id,
-
-                                ...data
-
-                            });
-
-                        }
-
-                    }
-                );
-
-
-                allMembers.sort(
-                    (a, b) =>
-                        String(
-                            a.fullName || ""
-                        ).localeCompare(
-                            String(
-                                b.fullName || ""
-                            )
-                        )
-                );
-
-
-                displayMembers(
-                    allMembers
-                );
-
-
-                document
-                    .getElementById(
-                        "totalUsers"
-                    )
-                    .textContent =
-                    allMembers.length;
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                list.innerHTML =
-                    `
-                        <div class="error-message">
-                            Unable to load members.
-                        </div>
-                    `;
-
-            }
-
-        }
-
-
-        // =================================================
-        // DISPLAY MEMBERS
-        // =================================================
-
-        function displayMembers(
-            members
-        ) {
-
-            const list =
-                document.getElementById(
-                    "memberList"
-                );
-
-
-            if (
-                !members.length
-            ) {
-
-                list.innerHTML =
-                    `
-                        <div class="empty-message">
-                            No enrolled members found.
-                        </div>
-                    `;
-
-                return;
-
-            }
-
-
-            list.innerHTML =
-                members
-                    .map(
-                        member => `
-
-                            <div
-                                class="member-row"
-                            >
-
-                                <div
-                                    class="member-avatar"
-                                >
-                                    ${escapeHTML(
-                                        getInitials(
-                                            member.fullName
-                                        )
-                                    )}
-                                </div>
-
-
-                                <div
-                                    class="member-information"
-                                >
-
-                                    <div
-                                        class="member-name"
-                                    >
-                                        ${escapeHTML(
-                                            member.fullName ||
-                                            "Unnamed Member"
-                                        )}
-                                    </div>
-
-
-                                    <div
-                                        class="member-meta"
-                                    >
-
-                                        <span>
-                                            ${escapeHTML(
-                                                member.username ||
-                                                "No username"
-                                            )}
-                                        </span>
-
-                                        <span>
-                                            ${escapeHTML(
-                                                member.position ||
-                                                "No position"
-                                            )}
-                                        </span>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div
-                                    class="member-status"
-                                >
-
-                                    <span
-                                        class="status-badge active"
-                                    >
-                                        Active
-                                    </span>
-
-                                </div>
-
-
-                                <div
-                                    class="member-actions"
-                                >
-
-                                    <button
-                                        class="small-button view-button"
-                                        type="button"
-                                        data-member-view="${member.id}"
-                                    >
-                                        View
-                                    </button>
-
-
-                                    <button
-                                        class="small-button edit-button"
-                                        type="button"
-                                        data-member-edit="${member.id}"
-                                    >
-                                        Edit
-                                    </button>
-
-                                </div>
-
-                            </div>
-
-                        `
-                    )
-                    .join("");
-
-
-            document
-                .querySelectorAll(
-                    "[data-member-view]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                viewMember(
-                                    button.dataset.memberView
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-
-            document
-                .querySelectorAll(
-                    "[data-member-edit]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                editMember(
-                                    button.dataset.memberEdit
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-        }
-
-
-        // =================================================
-        // SEARCH MEMBERS
-        // =================================================
-
-        document
-            .getElementById(
-                "memberSearch"
-            )
-            .addEventListener(
-                "input",
-                event => {
-
-                    const search =
-                        event.target.value
-                            .trim()
-                            .toLowerCase();
-
-
-                    const filtered =
-                        allMembers.filter(
-                            member => {
-
-                                const fullName =
-                                    String(
-                                        member.fullName ||
-                                        ""
-                                    )
-                                    .toLowerCase();
-
-
-                                const username =
-                                    String(
-                                        member.username ||
-                                        ""
-                                    )
-                                    .toLowerCase();
-
-
-                                const position =
-                                    String(
-                                        member.position ||
-                                        ""
-                                    )
-                                    .toLowerCase();
-
-
-                                return (
-
-                                    fullName.includes(
-                                        search
-                                    )
-
-                                    ||
-
-                                    username.includes(
-                                        search
-                                    )
-
-                                    ||
-
-                                    position.includes(
-                                        search
-                                    )
-
-                                );
-
-                            }
-                        );
-
-
-                    displayMembers(
-                        filtered
-                    );
-
-                }
-            );
-
-
-        // =================================================
-        // VIEW MEMBER
-        // =================================================
-
-        async function viewMember(
-            memberId
-        ) {
-
-            const member =
-                allMembers.find(
-                    item =>
-                        item.id ===
-                        memberId
-                );
-
-
-            if (!member) {
-
-                showToast(
-                    "Member Not Found",
-                    "The selected member could not be found.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Member Credentials
-                    </h2>
-
-                    <p>
-                        Member account information.
-                    </p>
-
-                </div>
-
-
-                <div class="credential-grid">
-
-
-                    <div class="credential-item">
-
-                        <span>
-                            Full Name
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                member.fullName ||
-                                "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="credential-item">
-
-                        <span>
-                            Position
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                member.position ||
-                                "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="credential-item">
-
-                        <span>
-                            Username
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                member.username ||
-                                "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div class="credential-item">
-
-                        <span>
-                            Email
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                member.email ||
-                                "-"
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                </div>
-
-
-                <div class="password-notice">
-
-                    <strong>
-                        Password Security
-                    </strong>
-
-                    <p>
-                        Firebase Authentication does not allow
-                        administrators to read or display a user's
-                        existing password.
-                    </p>
-
-                    <p>
-                        Use the password reset function to let the
-                        member create a new password.
-                    </p>
-
-                </div>
-
-
-                <div class="modal-actions">
-
-                    <button
-                        class="secondary-button"
-                        type="button"
-                        id="modalEditMember"
-                    >
-                        Edit Member
-                    </button>
-
-
-                    <button
-                        class="primary-button"
-                        type="button"
-                        id="modalResetPassword"
-                    >
-                        Send Password Reset
-                    </button>
-
-                </div>
-
-            `);
-
-
-            document
-                .getElementById(
-                    "modalEditMember"
-                )
-                .addEventListener(
-                    "click",
-                    () => {
-
-                        closeModal();
-
-                        editMember(
-                            memberId
-                        );
-
-                    }
-                );
-
-
-            document
-                .getElementById(
-                    "modalResetPassword"
-                )
-                .addEventListener(
-                    "click",
-                    async () => {
-
-                        if (
-                            !member.email
-                        ) {
-
-                            showToast(
-                                "No Email",
-                                "This member has no registered email address.",
-                                "error"
-                            );
-
-                            return;
-
-                        }
-
-
-                        try {
-
-                            await sendPasswordResetEmail(
-                                auth,
-                                member.email
-                            );
-
-
-                            showToast(
-                                "Password Reset Sent",
-                                "A password reset email has been sent.",
-                                "success"
-                            );
-
-
-                            closeModal();
-
-                        }
-
-                        catch (error) {
-
-                            console.error(
-                                error
-                            );
-
-
-                            showToast(
-                                "Reset Failed",
-                                getFirebaseError(
-                                    error
-                                ),
-                                "error"
-                            );
-
-                        }
-
-                    }
-                );
-
-        }
-
-
-        // =================================================
-        // EDIT MEMBER
-        // =================================================
-
-        function editMember(
-            memberId
-        ) {
-
-            const member =
-                allMembers.find(
-                    item =>
-                        item.id ===
-                        memberId
-                );
-
-
-            if (!member) {
-
-                return;
-
-            }
-
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Edit Member
-                    </h2>
-
-                    <p>
-                        Update member profile information.
-                    </p>
-
-                </div>
-
-
-                <form
-                    id="editMemberForm"
-                >
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Username
-                        </label>
-
-                        <input
-                            type="text"
-                            value="${escapeHTML(
-                                member.username ||
-                                ""
-                            )}"
-                            disabled
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editFullName"
-                            value="${escapeHTML(
-                                member.fullName ||
-                                ""
-                            )}"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Position
-                        </label>
-
-                        <input
-                            type="text"
-                            id="editPosition"
-                            value="${escapeHTML(
-                                member.position ||
-                                ""
-                            )}"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            value="${escapeHTML(
-                                member.email ||
-                                ""
-                            )}"
-                            disabled
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Account Status
-                        </label>
-
-                        <select
-                            id="editStatus"
-                        >
-
-                            <option
-                                value="active"
-                                ${member.status === "active"
-                                    ? "selected"
-                                    : ""}
-                            >
-                                Active
-                            </option>
-
-
-                            <option
-                                value="inactive"
-                                ${member.status === "inactive"
-                                    ? "selected"
-                                    : ""}
-                            >
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="modal-actions">
-
-                        <button
-                            class="secondary-button"
-                            type="button"
-                            id="cancelEditButton"
-                        >
-                            Cancel
-                        </button>
-
-
-                        <button
-                            class="primary-button"
-                            type="submit"
-                        >
-                            Save Changes
-                        </button>
-
-                    </div>
-
-
-                </form>
-
-            `);
-
-
-            document
-                .getElementById(
-                    "cancelEditButton"
-                )
-                .addEventListener(
-                    "click",
-                    closeModal
-                );
-
-
-            document
-                .getElementById(
-                    "editMemberForm"
-                )
-                .addEventListener(
-                    "submit",
-                    async event => {
-
-                        event.preventDefault();
-
-
-                        const fullName =
-                            document
-                                .getElementById(
-                                    "editFullName"
-                                )
-                                .value
-                                .trim();
-
-
-                        const position =
-                            document
-                                .getElementById(
-                                    "editPosition"
-                                )
-                                .value
-                                .trim();
-
-
-                        const status =
-                            document
-                                .getElementById(
-                                    "editStatus"
-                                )
-                                .value;
-
-
-                        if (
-                            !fullName ||
-                            !position
-                        ) {
-
-                            showToast(
-                                "Incomplete Form",
-                                "Please complete all required fields.",
-                                "error"
-                            );
-
-                            return;
-
-                        }
-
-
-                        try {
-
-                            await updateDoc(
-
-                                doc(
-                                    db,
-                                    "users",
-                                    memberId
-                                ),
-
-                                {
-
-                                    fullName,
-
-                                    position,
-
-                                    status,
-
-                                    updatedAt:
-                                        serverTimestamp()
-
-                                }
-
-                            );
-
-
-                            showToast(
-                                "Member Updated",
-                                "Member information was successfully updated.",
-                                "success"
-                            );
-
-
-                            closeModal();
-
-
-                            await loadMembers();
-
-
-                            updateDashboardStatistics();
-
-                        }
-
-                        catch (error) {
-
-                            console.error(
-                                error
-                            );
-
-
-                            showToast(
-                                "Update Failed",
-                                getFirebaseError(
-                                    error
-                                ),
-                                "error"
-                            );
-
-                        }
-
-                    }
-                );
-
-        }
-
-
-        // =================================================
-        // ENROLL MEMBER
-        // =================================================
-
-        function openEnrollmentModal() {
-
-            const usernamePreview =
-                "Generating...";
-
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Enroll New Member
-                    </h2>
-
-                    <p>
-                        Create a CPSERC member account.
-                    </p>
-
-                </div>
-
-
-                <form
-                    id="enrollForm"
-                >
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="enrollFullName"
-                            placeholder="Enter full name"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Position
-                        </label>
-
-                        <input
-                            type="text"
-                            id="enrollPosition"
-                            placeholder="Example: Rescue Officer"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Email Address
-                        </label>
-
-                        <input
-                            type="email"
-                            id="enrollEmail"
-                            placeholder="member@example.com"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Automatic Username
-                        </label>
-
-                        <input
-                            type="text"
-                            id="enrollUsername"
-                            value="${usernamePreview}"
-                            readonly
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Password
-                        </label>
-
-                        <input
-                            type="password"
-                            id="enrollPassword"
-                            minlength="6"
-                            placeholder="Minimum 6 characters"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-note">
-
-                        The password will be stored securely by
-                        Firebase Authentication. It will not be
-                        stored as readable text in Firestore.
-
-                    </div>
-
-
-                    <div class="modal-actions">
-
-                        <button
-                            class="secondary-button"
-                            type="button"
-                            id="cancelEnrollButton"
-                        >
-                            Cancel
-                        </button>
-
-
-                        <button
-                            class="primary-button"
-                            type="submit"
-                        >
-                            Create Member
-                        </button>
-
-                    </div>
-
-
-                </form>
-
-            `);
-
-
-            generateUsernamePreview();
-
-
-            document
-                .getElementById(
-                    "cancelEnrollButton"
-                )
-                .addEventListener(
-                    "click",
-                    closeModal
-                );
-
-
-            document
-                .getElementById(
-                    "enrollForm"
-                )
-                .addEventListener(
-                    "submit",
-                    enrollMember
-                );
-
-        }
-
-
-        // =================================================
-        // GENERATE USERNAME
-        // =================================================
-
-        function generateUsernamePreview() {
-
-            let highest =
-                0;
-
-
-            allMembers.forEach(
-                member => {
-
-                    const username =
-                        String(
-                            member.username ||
-                            ""
-                        )
-                        .toUpperCase();
-
-
-                    const match =
-                        username.match(
-                            /^CPSERC-(\d+)$/
-                        );
-
-
-                    if (match) {
-
-                        const number =
-                            parseInt(
-                                match[1],
-                                10
-                            );
-
-
-                        if (
-                            number >
-                            highest
-                        ) {
-
-                            highest =
-                                number;
-
-                        }
-
-                    }
-
-                }
-            );
-
-
-            const nextNumber =
-                highest + 1;
-
-
-            const username =
-                "CPSERC-" +
-                String(
-                    nextNumber
-                )
-                .padStart(
-                    5,
-                    "0"
-                );
-
-
-            const usernameInput =
-                document
-                    .getElementById(
-                        "enrollUsername"
-                    );
-
-
-            if (
-                usernameInput
-            ) {
-
-                usernameInput.value =
-                    username;
-
-            }
-
-        }
-
-
-        // =================================================
-        // ENROLL MEMBER
-        // =================================================
-
-        async function enrollMember(
-            event
-        ) {
-
-            event.preventDefault();
-
-
-            const fullName =
-                document
-                    .getElementById(
-                        "enrollFullName"
-                    )
-                    .value
-                    .trim();
-
-
-            const position =
-                document
-                    .getElementById(
-                        "enrollPosition"
-                    )
-                    .value
-                    .trim();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "enrollEmail"
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        "enrollPassword"
-                    )
-                    .value;
-
-
-            const username =
-                document
-                    .getElementById(
-                        "enrollUsername"
-                    )
-                    .value;
-
-
-            if (
-                !fullName ||
-                !position ||
-                !email ||
-                !password
-            ) {
-
-                showToast(
-                    "Incomplete Form",
-                    "Please complete all required fields.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                password.length <
-                6
-            ) {
-
-                showToast(
-                    "Weak Password",
-                    "Password must contain at least 6 characters.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * A secondary Firebase app is used here.
-                 *
-                 * This allows the administrator to create a
-                 * member Firebase Authentication account without
-                 * logging the administrator out.
-                 */
-
-
-                const secondaryApp =
-                    initializeApp(
-                        firebaseConfig,
-                        "EnrollmentApp-" +
-                        Date.now()
-                    );
-
-
-                const secondaryAuth =
-                    getAuth(
-                        secondaryApp
-                    );
-
-
-                const credential =
-                    await createUserWithEmailAndPassword(
-
-                        secondaryAuth,
-
-                        email,
-
-                        password
-
-                    );
-
-
-                const memberUID =
-                    credential
-                        .user
-                        .uid;
-
-
-                /*
-                 * Create Firestore profile.
-                 */
-
-                await updateDoc(
-                    doc(
-                        db,
-                        "users",
-                        memberUID
-                    ),
-                    {
-
-                        fullName,
-
-                        position,
-
-                        username,
-
-                        email,
-
-                        role:
-                            "user",
-
-                        status:
-                            "active",
-
-                        createdAt:
-                            serverTimestamp(),
-
-                        updatedAt:
-                            serverTimestamp()
-
-                    }
-                )
-                .catch(
-                    async () => {
-
-                        /*
-                         * If the user document does not exist,
-                         * create it.
-                         */
-
-                        await addDoc(
-                            collection(
-                                db,
-                                "users"
-                            ),
-                            {
-
-                                uid:
-                                    memberUID,
-
-                                fullName,
-
-                                position,
-
-                                username,
-
-                                email,
-
-                                role:
-                                    "user",
-
-                                status:
-                                    "active",
-
-                                createdAt:
-                                    serverTimestamp(),
-
-                                updatedAt:
-                                    serverTimestamp()
-
-                            }
-                        );
-
-                    }
-                );
-
-
-                /*
-                 * Sign out the secondary authentication session.
-                 */
-
-                await signOut(
-                    secondaryAuth
-                );
-
-
-                showToast(
-                    "Member Created",
-                    `${username} was successfully enrolled.`,
-                    "success"
-                );
-
-
-                closeModal();
-
-
-                await loadMembers();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    "Enrollment Failed",
-                    getFirebaseError(
-                        error
-                    ),
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // ATTENDANCE
-        // =================================================
-
-        async function loadAttendance() {
-
-            const list =
-                document.getElementById(
-                    "attendanceList"
-                );
-
-
-            list.innerHTML =
-                `
-                    <div class="loading-message">
-                        Loading attendance...
-                    </div>
-                `;
-
-
-            try {
-
-                const snapshot =
-                    await getDocs(
-                        collection(
-                            db,
-                            "attendance"
-                        )
-                    );
-
-
-                allAttendance = [];
-
-
-                snapshot.forEach(
-                    item => {
-
-                        allAttendance.push({
-
-                            id:
-                                item.id,
-
-                            ...item.data()
-
-                        });
-
-                    }
-                );
-
-
-                allAttendance.sort(
-                    (a, b) => {
-
-                        const aTime =
-                            getTimestampMillis(
-                                a.createdAt
-                            );
-
-
-                        const bTime =
-                            getTimestampMillis(
-                                b.createdAt
-                            );
-
-
-                        return bTime - aTime;
-
-                    }
-                );
-
-
-                displayAttendance();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                list.innerHTML =
-                    `
-                        <div class="error-message">
-                            Unable to load attendance records.
-                        </div>
-                    `;
-
-            }
-
-        }
-
-
-        // =================================================
-        // DISPLAY ATTENDANCE
-        // =================================================
-
-        function displayAttendance() {
-
-            const list =
-                document.getElementById(
-                    "attendanceList"
-                );
-
-
-            const records =
-                allAttendance.filter(
-                    record =>
-                        (
-                            record.status ||
-                            "pending"
-                        ) ===
-                        currentAttendanceFilter
-                );
-
-
-            if (
-                !records.length
-            ) {
-
-                list.innerHTML =
-                    `
-                        <div class="empty-message">
-                            No ${currentAttendanceFilter}
-                            attendance records found.
-                        </div>
-                    `;
-
-                return;
-
-            }
-
-
-            list.innerHTML =
-                records
-                    .map(
-                        record => {
-
-                            const photo =
-                                record.photoURL ||
-                                record.photoUrl ||
-                                "";
-
-
-                            const latitude =
-                                record.latitude;
-
-
-                            const longitude =
-                                record.longitude;
-
-
-                            return `
-
-                                <article
-                                    class="attendance-card"
-                                >
-
-
-                                    <div
-                                        class="attendance-photo-container"
-                                    >
-
-                                        ${
-                                            photo
-
-                                            ?
-
-                                            `
-                                                <img
-                                                    class="attendance-photo"
-                                                    src="${escapeHTML(
-                                                        photo
-                                                    )}"
-                                                    alt="Attendance Photo"
-                                                    data-photo="${escapeHTML(
-                                                        photo
-                                                    )}"
-                                                >
-                                            `
-
-                                            :
-
-                                            `
-                                                <div
-                                                    class="no-photo"
-                                                >
-                                                    No Photo
-                                                </div>
-                                            `
-                                        }
-
-                                    </div>
-
-
-                                    <div
-                                        class="attendance-information"
-                                    >
-
-                                        <div
-                                            class="attendance-name"
-                                        >
-                                            ${escapeHTML(
-                                                record.fullName ||
-                                                "Unknown Member"
-                                            )}
-                                        </div>
-
-
-                                        <div
-                                            class="attendance-username"
-                                        >
-                                            ${escapeHTML(
-                                                record.username ||
-                                                ""
-                                            )}
-                                        </div>
-
-
-                                        <div
-                                            class="attendance-details"
-                                        >
-
-                                            <div>
-                                                <strong>
-                                                    Type:
-                                                </strong>
-
-                                                ${escapeHTML(
-                                                    formatAttendanceType(
-                                                        record.type
-                                                    )
-                                                )}
-                                            </div>
-
-
-                                            <div>
-                                                <strong>
-                                                    Date:
-                                                </strong>
-
-                                                ${escapeHTML(
-                                                    record.date ||
-                                                    "-"
-                                                )}
-                                            </div>
-
-
-                                            <div>
-                                                <strong>
-                                                    Time:
-                                                </strong>
-
-                                                ${escapeHTML(
-                                                    record.time ||
-                                                    "-"
-                                                )}
-                                            </div>
-
-
-                                            <div>
-                                                <strong>
-                                                    Position:
-                                                </strong>
-
-                                                ${escapeHTML(
-                                                    record.position ||
-                                                    "-"
-                                                )}
-                                            </div>
-
-
-                                            <div>
-                                                <strong>
-                                                    Location:
-                                                </strong>
-
-                                                ${
-                                                    latitude !==
-                                                        undefined &&
-                                                    longitude !==
-                                                        undefined
-
-                                                    ?
-
-                                                    `
-                                                        ${escapeHTML(
-                                                            String(
-                                                                latitude
-                                                            )
-                                                        )},
-
-                                                        ${escapeHTML(
-                                                            String(
-                                                                longitude
-                                                            )
-                                                        )}
-                                                    `
-
-                                                    :
-
-                                                    "Not available"
-                                                }
-
-                                            </div>
-
-
-                                            <div>
-                                                <strong>
-                                                    Accuracy:
-                                                </strong>
-
-                                                ${
-                                                    record.locationAccuracy
-                                                        !==
-                                                        undefined
-
-                                                    ?
-
-                                                    escapeHTML(
-                                                        String(
-                                                            record.locationAccuracy
-                                                        )
-                                                    ) +
-                                                    " meters"
-
-                                                    :
-
-                                                    "Not available"
-                                                }
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <span
-                                            class="status-badge ${escapeHTML(
-                                                record.status ||
-                                                "pending"
-                                            )}"
-                                        >
-                                            ${escapeHTML(
-                                                capitalize(
-                                                    record.status ||
-                                                    "pending"
-                                                )
-                                            )}
-                                        </span>
-
-                                    </div>
-
-
-                                    <div
-                                        class="attendance-actions"
-                                    >
-
-                                        ${
-                                            record.status ===
-                                            "pending"
-
-                                            ?
-
-                                            `
-
-                                                <button
-                                                    class="accept-button"
-                                                    type="button"
-                                                    data-accept-attendance="${record.id}"
-                                                >
-                                                    Accept
-                                                </button>
-
-
-                                                <button
-                                                    class="reject-button"
-                                                    type="button"
-                                                    data-reject-attendance="${record.id}"
-                                                >
-                                                    Reject
-                                                </button>
-
-                                            `
-
-                                            :
-
-                                            ""
-
-                                        }
-
-
-                                        ${
-                                            latitude !==
-                                                undefined &&
-                                            longitude !==
-                                                undefined
-
-                                            ?
-
-                                            `
-
-                                                <button
-                                                    class="small-button"
-                                                    type="button"
-                                                    data-location-id="${record.id}"
-                                                >
-                                                    View Location
-                                                </button>
-
-                                            `
-
-                                            :
-
-                                            ""
-
-                                        }
-
-                                    </div>
-
-                                </article>
-
-                            `;
-
-                        }
-                    )
-                    .join("");
-
-
-            // PHOTO CLICK
-
-            list
-                .querySelectorAll(
-                    "[data-photo]"
-                )
-                .forEach(
-                    image => {
-
-                        image.addEventListener(
-                            "click",
-                            () => {
-
-                                openPhoto(
-                                    image.dataset.photo
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-
-            // ACCEPT
-
-            list
-                .querySelectorAll(
-                    "[data-accept-attendance]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                reviewAttendance(
-                                    button.dataset.acceptAttendance,
-                                    "accepted"
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-
-            // REJECT
-
-            list
-                .querySelectorAll(
-                    "[data-reject-attendance]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                reviewAttendance(
-                                    button.dataset.rejectAttendance,
-                                    "rejected"
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-
-            // LOCATION
-
-            list
-                .querySelectorAll(
-                    "[data-location-id]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                const record =
-                                    allAttendance.find(
-                                        item =>
-                                            item.id ===
-                                            button.dataset.locationId
-                                    );
-
-
-                                if (
-                                    record
-                                ) {
-
-                                    openLocation(
-                                        record
-                                    );
-
-                                }
-
-                            }
-                        );
-
-                    }
-                );
-
-        }
-
-
-        // =================================================
-        // PHOTO VIEW
-        // =================================================
-
-        function openPhoto(
-            photoURL
-        ) {
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Attendance Photo
-                    </h2>
-
-                </div>
-
-
-                <div class="large-photo-container">
-
-                    <img
-                        src="${escapeHTML(
-                            photoURL
-                        )}"
-                        alt="Attendance Photo"
-                        class="large-attendance-photo"
-                    >
-
-                </div>
-
-            `);
-
-        }
-
-
-        // =================================================
-        // LOCATION VIEW
-        // =================================================
-
-        function openLocation(
-            record
-        ) {
-
-            const latitude =
-                Number(
-                    record.latitude
-                );
-
-
-            const longitude =
-                Number(
-                    record.longitude
-                );
-
-
-            if (
-                !Number.isFinite(
-                    latitude
-                )
-                ||
-                !Number.isFinite(
-                    longitude
-                )
-            ) {
-
-                showToast(
-                    "Location Unavailable",
-                    "Valid GPS coordinates were not submitted.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const mapsURL =
-                "https://www.google.com/maps?q=" +
-                encodeURIComponent(
-                    `${latitude},${longitude}`
-                );
-
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Attendance Location
-                    </h2>
-
-                    <p>
-                        GPS information submitted by the member.
-                    </p>
-
-                </div>
-
-
-                <div class="location-details">
-
-                    <div>
-                        <span>
-                            Latitude
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                String(
-                                    latitude
-                                )
-                            )}
-                        </strong>
-                    </div>
-
-
-                    <div>
-                        <span>
-                            Longitude
-                        </span>
-
-                        <strong>
-                            ${escapeHTML(
-                                String(
-                                    longitude
-                                )
-                            )}
-                        </strong>
-                    </div>
-
-
-                    <div>
-                        <span>
-                            Accuracy
-                        </span>
-
-                        <strong>
-                            ${
-                                record.locationAccuracy !==
-                                undefined
-
-                                ?
-
-                                escapeHTML(
-                                    String(
-                                        record.locationAccuracy
-                                    )
-                                ) +
-                                " meters"
-
-                                :
-
-                                "Not available"
-                            }
-                        </strong>
-                    </div>
-
-                </div>
-
-
-                <div class="modal-actions">
-
-                    <a
-                        href="${mapsURL}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="primary-button"
-                    >
-                        Open in Google Maps
-                    </a>
-
-                </div>
-
-            `);
-
-        }
-
-
-        // =================================================
-        // REVIEW ATTENDANCE
-        // =================================================
-
-        async function reviewAttendance(
-            attendanceId,
-            status
-        ) {
-
-            const record =
-                allAttendance.find(
-                    item =>
-                        item.id ===
-                        attendanceId
-                );
-
-
-            if (!record) {
-
-                return;
-
-            }
-
-
-            const actionText =
-                status ===
-                "accepted"
-                    ? "accept"
-                    : "reject";
-
-
-            const confirmed =
-                window.confirm(
-                    `Are you sure you want to ${actionText} this attendance record?`
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            try {
-
-                await updateDoc(
-
-                    doc(
-                        db,
-                        "attendance",
-                        attendanceId
-                    ),
-
-                    {
-
-                        status,
-
-                        reviewedBy:
-                            currentAdmin.uid,
-
-                        reviewedByName:
-                            currentAdmin.fullName ||
-                            "Administrator",
-
-                        reviewedAt:
-                            serverTimestamp()
-
-                    }
-
-                );
-
-
-                showToast(
-                    status ===
-                        "accepted"
-                        ? "Attendance Accepted"
-                        : "Attendance Rejected",
-                    status ===
-                        "accepted"
-                        ? "The attendance has been added to accepted records."
-                        : "The attendance has been rejected.",
-                    status ===
-                        "accepted"
-                        ? "success"
-                        : "normal"
-                );
-
-
-                await loadAttendance();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    "Review Failed",
-                    getFirebaseError(
-                        error
-                    ),
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // ATTENDANCE FILTER
-        // =================================================
-
-        document
-            .querySelectorAll(
-                "[data-attendance-filter]"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            currentAttendanceFilter =
-                                button.dataset.attendanceFilter;
-
-
-                            document
-                                .querySelectorAll(
-                                    "[data-attendance-filter]"
-                                )
-                                .forEach(
-                                    item =>
-                                        item.classList.remove(
-                                            "active"
-                                        )
-                                );
-
-
-                            button.classList.add(
-                                "active"
-                            );
-
-
-                            displayAttendance();
-
-                        }
-                    );
-
-                }
-            );
-
-
-        // =================================================
-        // ATTENDANCE SCHEDULES
-        // =================================================
-
-        async function loadSchedules() {
-
-            const list =
-                document.getElementById(
-                    "scheduleList"
-                );
-
-
-            list.innerHTML =
-                `
-                    <div class="loading-message">
-                        Loading schedules...
-                    </div>
-                `;
-
-
-            try {
-
-                const snapshot =
-                    await getDocs(
-                        collection(
-                            db,
-                            "attendanceWindows"
-                        )
-                    );
-
-
-                allSchedules = [];
-
-
-                snapshot.forEach(
-                    item => {
-
-                        allSchedules.push({
-
-                            id:
-                                item.id,
-
-                            ...item.data()
-
-                        });
-
-                    }
-                );
-
-
-                allSchedules.sort(
-                    (a, b) =>
-                        String(
-                            b.date || ""
-                        ).localeCompare(
-                            String(
-                                a.date || ""
-                            )
-                        )
-                );
-
-
-                displaySchedules();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                list.innerHTML =
-                    `
-                        <div class="error-message">
-                            Unable to load attendance schedules.
-                        </div>
-                    `;
-
-            }
-
-        }
-
-
-        // =================================================
-        // DISPLAY SCHEDULES
-        // =================================================
-
-        function displaySchedules() {
-
-            const list =
-                document.getElementById(
-                    "scheduleList"
-                );
-
-
-            if (
-                !allSchedules.length
-            ) {
-
-                list.innerHTML =
-                    `
-                        <div class="empty-message">
-                            No attendance schedules found.
-                        </div>
-                    `;
-
-                return;
-
-            }
-
-
-            list.innerHTML =
-                allSchedules
-                    .map(
-                        schedule => `
-
-                            <div
-                                class="schedule-row"
-                            >
-
-                                <div
-                                    class="schedule-date"
-                                >
-
-                                    <strong>
-                                        ${escapeHTML(
-                                            schedule.date ||
-                                            "-"
-                                        )}
-                                    </strong>
-
-                                </div>
-
-
-                                <div
-                                    class="schedule-information"
-                                >
-
-                                    <div>
-                                        ${escapeHTML(
-                                            formatAttendanceType(
-                                                schedule.type
-                                            )
-                                        )}
-                                    </div>
-
-                                    <small>
-                                        ${escapeHTML(
-                                            schedule.startTime ||
-                                            "-"
-                                        )}
-                                        -
-                                        ${escapeHTML(
-                                            schedule.endTime ||
-                                            "-"
-                                        )}
-                                    </small>
-
-                                </div>
-
-
-                                <div>
-
-                                    <span
-                                        class="status-badge ${
-                                            schedule.active
-                                                ? "active"
-                                                : "inactive"
-                                        }"
-                                    >
-                                        ${
-                                            schedule.active
-                                                ? "Active"
-                                                : "Inactive"
-                                        }
-                                    </span>
-
-                                </div>
-
-
-                                <div
-                                    class="schedule-actions"
-                                >
-
-                                    ${
-                                        schedule.active
-
-                                        ?
-
-                                        `
-                                            <button
-                                                class="small-button deactivate-button"
-                                                type="button"
-                                                data-deactivate-schedule="${schedule.id}"
-                                            >
-                                                Disable
-                                            </button>
-                                        `
-
-                                        :
-
-                                        ""
-                                    }
-
-                                </div>
-
-                            </div>
-
-                        `
-                    )
-                    .join("");
-
-
-            list
-                .querySelectorAll(
-                    "[data-deactivate-schedule]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            () => {
-
-                                deactivateSchedule(
-                                    button.dataset.deactivateSchedule
-                                );
-
-                            }
-                        );
-
-                    }
-                );
-
-        }
-
-
-        // =================================================
-        // SET ATTENDANCE TIME MODAL
-        // =================================================
-
-        function openAttendanceTimeModal() {
-
-            const today =
-                getLocalDate();
-
-
-            openModal(`
-
-                <div class="modal-heading">
-
-                    <h2>
-                        Set Attendance Time
-                    </h2>
-
-                    <p>
-                        Create a new attendance window for members.
-                    </p>
-
-                </div>
-
-
-                <form
-                    id="attendanceTimeForm"
-                >
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Attendance Type
-                        </label>
-
-                        <select
-                            id="attendanceType"
-                            required
-                        >
-
-                            <option
-                                value="time_in"
-                            >
-                                Time In
-                            </option>
-
-
-                            <option
-                                value="time_out"
-                            >
-                                Time Out
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Date
-                        </label>
-
-                        <input
-                            type="date"
-                            id="attendanceDate"
-                            value="${today}"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            Start Time
-                        </label>
-
-                        <input
-                            type="time"
-                            id="attendanceStartTime"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label>
-                            End Time
-                        </label>
-
-                        <input
-                            type="time"
-                            id="attendanceEndTime"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="form-note">
-
-                        Members will only be able to submit attendance
-                        during the selected time window.
-
-                    </div>
-
-
-                    <div class="modal-actions">
-
-                        <button
-                            class="secondary-button"
-                            type="button"
-                            id="cancelTimeButton"
-                        >
-                            Cancel
-                        </button>
-
-
-                        <button
-                            class="primary-button"
-                            type="submit"
-                        >
-                            Done
-                        </button>
-
-                    </div>
-
-
-                </form>
-
-            `);
-
-
-            document
-                .getElementById(
-                    "cancelTimeButton"
-                )
-                .addEventListener(
-                    "click",
-                    closeModal
-                );
-
-
-            document
-                .getElementById(
-                    "attendanceTimeForm"
-                )
-                .addEventListener(
-                    "submit",
-                    saveAttendanceSchedule
-                );
-
-        }
-
-
-        // =================================================
-        // SAVE ATTENDANCE SCHEDULE
-        // =================================================
-
-        async function saveAttendanceSchedule(
-            event
-        ) {
-
-            event.preventDefault();
-
-
-            const type =
-                document
-                    .getElementById(
-                        "attendanceType"
-                    )
-                    .value;
-
-
-            const date =
-                document
-                    .getElementById(
-                        "attendanceDate"
-                    )
-                    .value;
-
-
-            const startTime =
-                document
-                    .getElementById(
-                        "attendanceStartTime"
-                    )
-                    .value;
-
-
-            const endTime =
-                document
-                    .getElementById(
-                        "attendanceEndTime"
-                    )
-                    .value;
-
-
-            if (
-                !date ||
-                !startTime ||
-                !endTime
-            ) {
-
-                showToast(
-                    "Incomplete Form",
-                    "Please complete all attendance time fields.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                endTime <=
-                startTime
-            ) {
-
-                showToast(
-                    "Invalid Time",
-                    "End time must be later than start time.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                /*
-                 * Disable existing schedules with same
-                 * date/type before creating the new one.
-                 */
-
-                const existing =
-                    allSchedules.filter(
-                        schedule =>
-                            schedule.date ===
-                                date
-                            &&
-                            schedule.type ===
-                                type
-                            &&
-                            schedule.active ===
-                                true
-                    );
-
-
-                for (
-                    const schedule
-                    of existing
-                ) {
-
-                    await updateDoc(
-
-                        doc(
-                            db,
-                            "attendanceWindows",
-                            schedule.id
-                        ),
-
-                        {
-
-                            active:
-                                false,
-
-                            disabledAt:
-                                serverTimestamp(),
-
-                            disabledBy:
-                                currentAdmin.uid
-
-                        }
-
-                    );
-
-                }
-
-
-                await addDoc(
-
-                    collection(
-                        db,
-                        "attendanceWindows"
-                    ),
-
-                    {
-
-                        type,
-
-                        date,
-
-                        startTime,
-
-                        endTime,
-
-                        active:
-                            true,
-
-                        createdBy:
-                            currentAdmin.uid,
-
-                        createdByName:
-                            currentAdmin.fullName ||
-                            "Administrator",
-
-                        createdAt:
-                            serverTimestamp()
-
-                    }
-
-                );
-
-
-                showToast(
-                    "Schedule Created",
-                    "The attendance time has been successfully set.",
-                    "success"
-                );
-
-
-                closeModal();
-
-
-                await loadSchedules();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    "Schedule Failed",
-                    getFirebaseError(
-                        error
-                    ),
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // DEACTIVATE SCHEDULE
-        // =================================================
-
-        async function deactivateSchedule(
-            scheduleId
-        ) {
-
-            const confirmed =
-                window.confirm(
-                    "Disable this attendance schedule?"
-                );
-
-
-            if (!confirmed) {
-
-                return;
-
-            }
-
-
-            try {
-
-                await updateDoc(
-
-                    doc(
-                        db,
-                        "attendanceWindows",
-                        scheduleId
-                    ),
-
-                    {
-
-                        active:
-                            false,
-
-                        disabledAt:
-                            serverTimestamp(),
-
-                        disabledBy:
-                            currentAdmin.uid
-
-                    }
-
-                );
-
-
-                showToast(
-                    "Schedule Disabled",
-                    "The attendance schedule has been disabled.",
-                    "success"
-                );
-
-
-                await loadSchedules();
-
-
-                updateDashboardStatistics();
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showToast(
-                    "Update Failed",
-                    getFirebaseError(
-                        error
-                    ),
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        // =================================================
-        // DASHBOARD STATISTICS
-        // =================================================
-
-        function updateDashboardStatistics() {
-
-            const pending =
-                allAttendance.filter(
-                    item =>
-                        (
-                            item.status ||
-                            "pending"
-                        ) ===
-                        "pending"
-                ).length;
-
-
-            const accepted =
-                allAttendance.filter(
-                    item =>
-                        item.status ===
-                        "accepted"
-                ).length;
-
-
-            document
-                .getElementById(
-                    "totalUsers"
-                )
-                .textContent =
-                allMembers.length;
-
-
-            document
-                .getElementById(
-                    "pendingAttendanceCount"
-                )
-                .textContent =
-                pending;
-
-
-            document
-                .getElementById(
-                    "acceptedAttendanceCount"
-                )
-                .textContent =
-                accepted;
-
-
-            document
-                .getElementById(
-                    "sidebarPendingCount"
-                )
-                .textContent =
-                pending;
-
-
-            const today =
-                getLocalDate();
-
-
-            const activeToday =
-                allSchedules.find(
-                    schedule =>
-                        schedule.active ===
-                            true
-                        &&
-                        schedule.date ===
-                            today
-                );
-
-
-            const scheduleText =
-                activeToday
-
-                ?
-
-                formatAttendanceType(
-                    activeToday.type
-                )
-
-                + " • "
-
-                +
-                activeToday.startTime
-
-                +
-                " - "
-
-                +
-                activeToday.endTime
-
-                :
-
-                "None";
-
-
-            document
-                .getElementById(
-                    "currentSchedule"
-                )
-                .textContent =
-                scheduleText;
-
-        }
-
-
-        // =================================================
-        // NAVIGATION
-        // =================================================
-
-        document
-            .querySelectorAll(
-                "[data-section]"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        () => {
-
-                            const sectionId =
-                                button.dataset.section;
-
-
-                            showSection(
-                                sectionId
-                            );
-
-
-                            document
-                                .querySelectorAll(
-                                    ".nav-item"
-                                )
-                                .forEach(
-                                    item =>
-                                        item.classList.remove(
-                                            "active"
-                                        )
-                                );
-
-
-                            button.classList.add(
-                                "active"
-                            );
-
-
-                            if (
-                                sectionId ===
-                                "membersSection"
-                            ) {
-
-                                loadMembers();
-
-                            }
-
-
-                            if (
-                                sectionId ===
-                                "attendanceSection"
-                            ) {
-
-                                loadAttendance();
-
-                            }
-
-
-                            if (
-                                sectionId ===
-                                "timeSection"
-                            ) {
-
-                                loadSchedules();
-
-                            }
-
-                        }
-                    );
-
-                }
-            );
-
-
-        function showSection(
-            sectionId
-        ) {
-
-            document
-                .querySelectorAll(
-                    ".page-section"
-                )
-                .forEach(
-                    section => {
-
-                        section.classList.remove(
-                            "active-section"
-                        );
-
-                    }
-                );
-
-
-            const section =
-                document.getElementById(
-                    sectionId
-                );
-
-
-            if (
-                section
-            ) {
-
-                section.classList.add(
-                    "active-section"
-                );
-
-            }
-
-
-            document
-                .getElementById(
-                    "sidebar"
-                )
-                .classList.remove(
-                    "mobile-open"
-                );
-
-        }
-
-
-        // =================================================
-        // MOBILE MENU
-        // =================================================
-
-        document
-            .getElementById(
-                "menuButton"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    document
-                        .getElementById(
-                            "sidebar"
-                        )
-                        .classList.toggle(
-                            "mobile-open"
-                        );
-
-                }
-            );
-
-
-        // =================================================
-        // BUTTON EVENTS
-        // =================================================
-
-        document
-            .getElementById(
-                "openEnrollButton"
-            )
-            .addEventListener(
-                "click",
-                openEnrollmentModal
-            );
-
-
-        document
-            .getElementById(
-                "membersEnrollButton"
-            )
-            .addEventListener(
-                "click",
-                openEnrollmentModal
-            );
-
-
-        document
-            .getElementById(
-                "quickEnrollButton"
-            )
-            .addEventListener(
-                "click",
-                openEnrollmentModal
-            );
-
-
-        document
-            .getElementById(
-                "openTimeButton"
-            )
-            .addEventListener(
-                "click",
-                openAttendanceTimeModal
-            );
-
-
-        document
-            .getElementById(
-                "quickTimeButton"
-            )
-            .addEventListener(
-                "click",
-                openAttendanceTimeModal
-            );
-
-
-        document
-            .getElementById(
-                "timePageButton"
-            )
-            .addEventListener(
-                "click",
-                openAttendanceTimeModal
-            );
-
-
-        document
-            .getElementById(
-                "quickReviewButton"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    showSection(
-                        "attendanceSection"
-                    );
-
-
-                    document
-                        .querySelectorAll(
-                            ".nav-item"
-                        )
-                        .forEach(
-                            item =>
-                                item.classList.remove(
-                                    "active"
-                                )
-                        );
-
-
-                    document
-                        .querySelector(
-                            '[data-section="attendanceSection"]'
-                        )
-                        .classList.add(
-                            "active"
-                        );
-
-
-                    loadAttendance();
-
-                }
-            );
-
-
-        document
-            .getElementById(
-                "refreshAttendanceButton"
-            )
-            .addEventListener(
-                "click",
-                async () => {
-
-                    await loadAttendance();
-
-                    showToast(
-                        "Refreshed",
-                        "Attendance records have been refreshed.",
-                        "success"
-                    );
-
-                }
-            );
-
-
-        // =================================================
-        // LOGOUT
-        // =================================================
-
-        document
-            .getElementById(
-                "logoutButton"
-            )
-            .addEventListener(
-                "click",
-                async () => {
-
-                    const confirmed =
-                        window.confirm(
-                            "Are you sure you want to logout?"
-                        );
-
-
-                    if (
-                        !confirmed
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    try {
-
-                        await signOut(
-                            auth
-                        );
-
-
-                        window.location.href =
-                            "login.html";
-
-                    }
-
-                    catch (error) {
-
-                        console.error(
-                            error
-                        );
-
-
-                        showToast(
-                            "Logout Failed",
-                            "Unable to logout.",
-                            "error"
-                        );
-
-                    }
-
-                }
-            );
-
-
-        // =================================================
-        // HELPER FUNCTIONS
-        // =================================================
-
-        function escapeHTML(
-            value
-        ) {
-
-            return String(
-                value ??
-                ""
-            )
-            .replace(
-                /[&<>"']/g,
-                character => {
-
-                    const entities = {
-
-                        "&":
-                            "&amp;",
-
-                        "<":
-                            "&lt;",
-
-                        ">":
-                            "&gt;",
-
-                        '"':
-                            "&quot;",
-
-                        "'":
-                            "&#039;"
-
-                    };
-
-
-                    return entities[
-                        character
-                    ];
-
-                }
-            );
-
-        }
-
-
-        function getInitials(
-            name
-        ) {
-
-            const words =
-                String(
-                    name ||
-                    "Member"
-                )
-                .trim()
-                .split(
-                    /\s+/
-                );
-
-
-            if (
-                words.length ===
-                1
-            ) {
-
-                return words[0]
-                    .substring(
-                        0,
-                        2
-                    )
-                    .toUpperCase();
-
-            }
-
-
-            return (
-
-                words[0][0] +
-
-                words[
-                    words.length - 1
-                ][0]
-
-            )
-            .toUpperCase();
-
-        }
-
-
-        function capitalize(
-            value
-        ) {
-
-            const text =
-                String(
-                    value ||
-                    ""
-                );
-
-
-            return text
-                .charAt(0)
-                .toUpperCase()
-                +
-                text.slice(1);
-
-        }
-
-
-        function formatAttendanceType(
-            type
-        ) {
-
-            if (
-                type ===
-                "time_in"
-            ) {
-
-                return "Time In";
-
-            }
-
-
-            if (
-                type ===
-                "time_out"
-            ) {
-
-                return "Time Out";
-
-            }
-
-
-            return (
-                String(
-                    type ||
-                    "Attendance"
-                )
-                .replace(
-                    /_/g,
-                    " "
-                )
-            );
-
-        }
-
-
-        function getLocalDate() {
-
-            const now =
-                new Date();
-
-
-            const year =
-                now.getFullYear();
-
-
-            const month =
-                String(
-                    now.getMonth() + 1
-                )
-                .padStart(
-                    2,
-                    "0"
-                );
-
-
-            const day =
-                String(
-                    now.getDate()
-                )
-                .padStart(
-                    2,
-                    "0"
-                );
-
-
-            return (
-                year +
-                "-" +
-                month +
-                "-" +
-                day
-            );
-
-        }
-
-
-        function getTimestampMillis(
-            timestamp
-        ) {
-
-            if (
-                !timestamp
-            ) {
-
-                return 0;
-
-            }
-
-
-            if (
-                typeof timestamp.toMillis ===
-                "function"
-            ) {
-
-                return timestamp.toMillis();
-
-            }
-
-
-            if (
-                timestamp.seconds
-            ) {
-
-                return (
-                    timestamp.seconds *
-                    1000
-                );
-
-            }
-
-
-            return 0;
-
-        }
-
-
-        function getFirebaseError(
-            error
-        ) {
-
-            const code =
-                error?.code ||
-                "";
-
-
-            const messages = {
-
-                "auth/email-already-in-use":
-                    "This email address is already registered.",
-
-                "auth/invalid-email":
-                    "The email address is invalid.",
-
-                "auth/weak-password":
-                    "The password is too weak.",
-
-                "auth/network-request-failed":
-                    "Network connection failed.",
-
-                "permission-denied":
-                    "Firebase permission denied.",
-
-                "unavailable":
-                    "Firebase service is temporarily unavailable."
-
-            };
-
-
-            return (
-                messages[code] ||
-                error?.message ||
-                "An unexpected error occurred."
-            );
-
-        }
-
-
-    </script>
-
+    <div id="studentsCountInfo" class="page-sub" style="display:none; margin-top:10px; margin-bottom:0;"></div>
+    <button type="button" class="btn outline" id="seeMoreBtn" style="display:none; margin-top:14px;">See more</button>
+    <div id="noSearchResults" class="empty" style="display:none;">No students match your search.</div>
+    <div id="emptyState" class="empty" style="display:none;">No students registered yet.</div>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Storage Cleanup</p>
+    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Delete Old Records</h2>
+    <p class="page-sub">
+      This action is <b>permanent and cannot be undone</b>. It deletes
+      all attendance records (including photos) older than the chosen
+      number of days — along with any related QR codes and Shared
+      Records. Use this to avoid hitting the 1&nbsp;GB storage limit on
+      the Firebase Spark plan.
+    </p>
+
+   
+
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection, addDoc, getDocs, getDoc, setDoc, updateDoc, query, orderBy, where, deleteDoc, doc, Timestamp, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// used to check for a duplicate username when adding a student
+async function nameExists(name){
+  const q = query(collection(db, "students"), where("name", "==", name));
+  const snap = await getDocs(q);
+  return !snap.empty;
+}
+
+// simple escape so a student's name/ID with special characters (", <, >, &)
+// can't break the table's HTML when we insert it via innerHTML
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/'/g, "&#39;");
+}
+
+// ---- Auth guard ----
+const role = sessionStorage.getItem("role");
+if(role !== "admin"){
+  window.location.href = "login.html";
+}
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.clear();
+  window.location.href = "login.html";
+});
+
+const addMsg = document.getElementById("addMsg");
+const addBtn = document.getElementById("addBtn");
+const studentsTableWrap = document.getElementById("studentsTableWrap");
+const studentsBody = document.getElementById("studentsBody");
+const studentsCountInfo = document.getElementById("studentsCountInfo");
+const seeMoreBtn = document.getElementById("seeMoreBtn");
+const emptyState = document.getElementById("emptyState");
+const studentSearchWrap = document.getElementById("studentSearchWrap");
+const studentSearchInput = document.getElementById("studentSearch");
+const noSearchResults = document.getElementById("noSearchResults");
+
+// ---- Pagination state for the student roster ----
+// We keep every student in memory (allStudents) and only render
+// the first `visibleCount` rows. "See more" reveals another page
+// without needing to re-query Firestore.
+const PAGE_SIZE = 10;
+let allStudents = [];
+let visibleCount = PAGE_SIZE;
+let searchTerm = "";
+
+// Returns allStudents filtered by the current search term (case-insensitive,
+// matches anywhere in the name). Returns everyone if the search box is empty.
+function getFilteredStudents(){
+  if(!searchTerm) return allStudents;
+  const term = searchTerm.toLowerCase();
+  return allStudents.filter(s => (s.data.name || "").toLowerCase().includes(term));
+}
+
+function renderStudentRow(docId, data, index){
+  const tr = document.createElement("tr");
+  tr.dataset.id = docId;
+  tr.innerHTML = `
+    <td>${index}</td>
+    <td>${escapeHtml(data.name)}</td>
+    <td>${escapeHtml(data.schoolId)}</td>
+    <td>${escapeHtml(data.course || "—")}</td>
+    <td>${escapeHtml(data.yearLevel || "—")}</td>
+    <td>
+      <button type="button" class="btn outline editStudentBtn" data-id="${docId}">Edit</button>
+      <button type="button" class="btn outline deleteStudentBtn" data-id="${docId}" data-name="${escapeHtml(data.name)}">Delete</button>
+    </td>
+  `;
+  return tr;
+}
+
+// Same row, but Name and School ID become editable input fields,
+// and the action buttons become Save / Cancel.
+function renderStudentEditRow(docId, data, index){
+  const tr = document.createElement("tr");
+  tr.dataset.id = docId;
+  tr.innerHTML = `
+    <td>${index}</td>
+    <td><input type="text" class="editNameInput" value="${escapeHtml(data.name)}"></td>
+    <td><input type="text" class="editSchoolIdInput" value="${escapeHtml(data.schoolId)}"></td>
+    <td>${escapeHtml(data.course || "—")}</td>
+    <td>${escapeHtml(data.yearLevel || "—")}</td>
+    <td>
+      <button type="button" class="btn gold saveStudentBtn" data-id="${docId}">Save</button>
+      <button type="button" class="btn outline cancelStudentBtn" data-id="${docId}">Cancel</button>
+    </td>
+  `;
+  return tr;
+}
+
+function renderVisibleStudents(){
+  const filtered = getFilteredStudents();
+  studentsBody.innerHTML = "";
+  const slice = filtered.slice(0, visibleCount);
+  slice.forEach((s, idx) => {
+    studentsBody.appendChild(renderStudentRow(s.id, s.data, idx + 1));
+  });
+
+  const total = filtered.length;
+  const shown = slice.length;
+
+  // "No matching students" only applies while searching; if there's no
+  // search term at all, the normal emptyState already covers zero students.
+  if(searchTerm && total === 0){
+    noSearchResults.style.display = "block";
+    studentsTableWrap.style.display = "none";
+    studentsCountInfo.style.display = "none";
+    seeMoreBtn.style.display = "none";
+    return;
+  }
+  noSearchResults.style.display = "none";
+  studentsTableWrap.style.display = "block";
+
+  if(total > PAGE_SIZE || (searchTerm && allStudents.length > total)){
+    studentsCountInfo.textContent = searchTerm
+      ? `Showing ${shown} of ${total} matching student(s).`
+      : `Showing ${shown} of ${total} student(s).`;
+    studentsCountInfo.style.display = "block";
+  } else {
+    studentsCountInfo.style.display = "none";
+  }
+
+  // only show "See more" while there are still hidden rows left
+  seeMoreBtn.style.display = shown < total ? "inline-flex" : "none";
+}
+
+seeMoreBtn.addEventListener("click", () => {
+  visibleCount += PAGE_SIZE;
+  renderVisibleStudents();
+});
+
+async function loadStudents(){
+  const q = query(collection(db, "students"), orderBy("name"));
+  const snap = await getDocs(q);
+
+  if(snap.empty){
+    allStudents = [];
+    emptyState.style.display = "block";
+    studentSearchWrap.style.display = "none";
+    noSearchResults.style.display = "none";
+    studentsTableWrap.style.display = "none";
+    studentsCountInfo.style.display = "none";
+    seeMoreBtn.style.display = "none";
+    return;
+  }
+
+  emptyState.style.display = "none";
+  studentSearchWrap.style.display = "block";
+  studentsTableWrap.style.display = "block";
+
+  allStudents = [];
+  snap.forEach(docSnap => {
+    allStudents.push({ id: docSnap.id, data: docSnap.data() });
+  });
+
+  // reset back to the first page whenever the roster is (re)loaded,
+  // e.g. right after adding, editing, or deleting a student
+  visibleCount = PAGE_SIZE;
+  renderVisibleStudents();
+}
+
+// ---- Search-by-name filter ----
+studentSearchInput.addEventListener("input", () => {
+  searchTerm = studentSearchInput.value.trim();
+  visibleCount = PAGE_SIZE; // start back at the first page for every new search
+  renderVisibleStudents();
+});
+
+// ---- Table actions: Edit, Save, Cancel, Delete (event delegation) ----
+studentsBody.addEventListener("click", async (e) => {
+  const deleteBtn = e.target.closest(".deleteStudentBtn");
+  const editBtn = e.target.closest(".editStudentBtn");
+  const saveBtn = e.target.closest(".saveStudentBtn");
+  const cancelBtn = e.target.closest(".cancelStudentBtn");
+
+  // ---- Delete ----
+  if(deleteBtn){
+    const studentId = deleteBtn.dataset.id;
+    const studentName = deleteBtn.dataset.name;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${studentName}? This cannot be undone, and they will be permanently removed from the database.`
+    );
+    if(!confirmed) return;
+
+    deleteBtn.disabled = true;
+    deleteBtn.textContent = "...";
+
+    try{
+      await deleteDoc(doc(db, "students", studentId));
+      addMsg.textContent = `${studentName} has been deleted.`;
+      addMsg.className = "msg ok show";
+      loadStudents();
+    }catch(err){
+      console.error(err);
+      addMsg.textContent = `There was a problem deleting ${studentName}.`;
+      addMsg.className = "msg error show";
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = "Delete";
+    }
+    return;
+  }
+
+  // ---- Enter edit mode ----
+  if(editBtn){
+    const studentId = editBtn.dataset.id;
+    const student = allStudents.find(s => s.id === studentId);
+    if(!student) return;
+
+    const tr = editBtn.closest("tr");
+    const index = tr.children[0].textContent;
+    const editTr = renderStudentEditRow(studentId, student.data, index);
+    tr.replaceWith(editTr);
+    editTr.querySelector(".editNameInput").focus();
+    return;
+  }
+
+  // ---- Cancel edit mode (revert back, no changes saved) ----
+  if(cancelBtn){
+    const studentId = cancelBtn.dataset.id;
+    const student = allStudents.find(s => s.id === studentId);
+    if(!student) return;
+
+    const tr = cancelBtn.closest("tr");
+    const index = tr.children[0].textContent;
+    const normalTr = renderStudentRow(studentId, student.data, index);
+    tr.replaceWith(normalTr);
+    return;
+  }
+
+  // ---- Save the edited Name / School ID ----
+  if(saveBtn){
+    const studentId = saveBtn.dataset.id;
+    const tr = saveBtn.closest("tr");
+    const nameInput = tr.querySelector(".editNameInput");
+    const schoolIdInput = tr.querySelector(".editSchoolIdInput");
+    const newName = nameInput.value.trim();
+    const newSchoolId = schoolIdInput.value.trim();
+
+    if(!newName || !newSchoolId){
+      alert("Name and School ID cannot be empty.");
+      return;
+    }
+
+    const student = allStudents.find(s => s.id === studentId);
+    if(!student) return;
+
+    saveBtn.disabled = true;
+    const cancelBtnEl = tr.querySelector(".cancelStudentBtn");
+    if(cancelBtnEl) cancelBtnEl.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner"></span>';
+
+    try{
+      // Only check for a duplicate name if the name actually changed,
+      // so re-saving with the same name doesn't falsely block itself.
+      if(newName !== student.data.name && await nameExists(newName)){
+        alert(`A student is already registered with the name "${newName}". Please use a different name.`);
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save";
+        if(cancelBtnEl) cancelBtnEl.disabled = false;
+        return;
+      }
+
+      await updateDoc(doc(db, "students", studentId), {
+        name: newName,
+        schoolId: newSchoolId
+      });
+
+      addMsg.textContent = `${newName} has been updated.`;
+      addMsg.className = "msg ok show";
+      loadStudents();
+    }catch(err){
+      console.error(err);
+      alert("There was a problem updating the student. Please try again.");
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save";
+      if(cancelBtnEl) cancelBtnEl.disabled = false;
+    }
+    return;
+  }
+});
+
+document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("sName").value.trim();
+  const schoolId = document.getElementById("sId").value.trim();
+  const course = document.getElementById("sCourse").value.trim();
+  const yearLevel = document.getElementById("sYearLevel").value;
+  if(!name || !schoolId || !course || !yearLevel) return;
+
+  addBtn.disabled = true;
+  addBtn.innerHTML = '<span class="spinner"></span>';
+  addMsg.className = "msg";
+
+  try{
+    // First check if a student with the same name/username is already registered
+    if(await nameExists(name)){
+      addMsg.textContent = `A student is already registered with the name "${name}". Use a different name or delete the old one first.`;
+      addMsg.className = "msg error show";
+      addBtn.disabled = false;
+      addBtn.textContent = "Add";
+      return;
+    }
+
+    await addDoc(collection(db, "students"), { name, schoolId, course, yearLevel });
+    addMsg.textContent = `${name} has been added.`;
+    addMsg.className = "msg ok show";
+    document.getElementById("addStudentForm").reset();
+    loadStudents();
+  }catch(err){
+    console.error(err);
+    addMsg.textContent = "There was a problem adding the student.";
+    addMsg.className = "msg error show";
+  }finally{
+    addBtn.disabled = false;
+    addBtn.textContent = "Add";
+  }
+});
+
+loadStudents();
+
+// ---- Attendance Schedule: set by the admin for when the "Take Attendance" button is available ----
+const windowForm = document.getElementById("windowForm");
+const attDate = document.getElementById("attDate");
+const attStart = document.getElementById("attStart");
+const attEnd = document.getElementById("attEnd");
+const windowMsg = document.getElementById("windowMsg");
+const currentWindowInfo = document.getElementById("currentWindowInfo");
+const saveWindowBtn = document.getElementById("saveWindowBtn");
+
+function formatWindowDisplay(startDate, endDate){
+  const dateStr = startDate.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+  const startStr = startDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+  const endStr = endDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+  return `${dateStr}, ${startStr} – ${endStr}`;
+}
+
+async function loadCurrentWindow(){
+  try{
+    const snap = await getDoc(doc(db, "settings", "attendanceWindow"));
+    if(snap.exists()){
+      const data = snap.data();
+      const startDate = data.startAt.toDate();
+      const endDate = data.endAt.toDate();
+
+      currentWindowInfo.textContent = `Current schedule: ${formatWindowDisplay(startDate, endDate)}`;
+      currentWindowInfo.className = "msg ok show";
+      currentWindowInfo.style.display = "block";
+
+      // prefill the form based on the current setting so it's easy to edit
+      const pad = n => String(n).padStart(2, "0");
+      attDate.value = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
+      attStart.value = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
+      attEnd.value = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+    } else {
+      currentWindowInfo.style.display = "none";
+    }
+  }catch(err){
+    console.error("Failed to load attendance window:", err);
+  }
+}
+loadCurrentWindow();
+
+windowForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const dateVal = attDate.value;
+  const startVal = attStart.value;
+  const endVal = attEnd.value;
+  if(!dateVal || !startVal || !endVal) return;
+
+  const startDate = new Date(`${dateVal}T${startVal}:00`);
+  const endDate = new Date(`${dateVal}T${endVal}:00`);
+
+  if(endDate <= startDate){
+    windowMsg.className = "msg error show";
+    windowMsg.textContent = "The End Time must be later than the Start Time.";
+    return;
+  }
+
+  saveWindowBtn.disabled = true;
+  saveWindowBtn.innerHTML = '<span class="spinner"></span>';
+  windowMsg.className = "msg";
+  windowMsg.textContent = "";
+
+  try{
+    await setDoc(doc(db, "settings", "attendanceWindow"), {
+      startAt: Timestamp.fromDate(startDate),
+      endAt: Timestamp.fromDate(endDate),
+      updatedAt: serverTimestamp()
+    });
+    windowMsg.textContent = `Schedule has been set: ${formatWindowDisplay(startDate, endDate)}`;
+    windowMsg.className = "msg ok show";
+    loadCurrentWindow();
+  }catch(err){
+    console.error(err);
+    windowMsg.className = "msg error show";
+    windowMsg.textContent = "There was a problem setting the schedule.";
+  }finally{
+    saveWindowBtn.disabled = false;
+    saveWindowBtn.textContent = "Save Schedule";
+  }
+});
+const cleanupBtn = document.getElementById("cleanupBtn");
+const cleanupDaysInput = document.getElementById("cleanupDays");
+const cleanupMsg = document.getElementById("cleanupMsg");
+
+cleanupBtn.addEventListener("click", async () => {
+  const days = parseInt(cleanupDaysInput.value, 10);
+  if(!days || days < 1){
+    cleanupMsg.className = "msg error show";
+    cleanupMsg.textContent = "Please enter a valid number of days.";
+    return;
+  }
+
+  const confirmed = window.confirm(
+    `Are you sure you want to permanently delete all records older than ${days} day(s)? This cannot be undone.`
+  );
+  if(!confirmed) return;
+
+  cleanupBtn.disabled = true;
+  cleanupBtn.innerHTML = '<span class="spinner"></span>';
+  cleanupMsg.className = "msg";
+  cleanupMsg.textContent = "";
+
+  try{
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    const cutoffTs = Timestamp.fromDate(cutoff);
+
+    // 1. Get all old attendance records
+    const attQ = query(collection(db, "attendance"), where("timestamp", "<", cutoffTs));
+    const attSnap = await getDocs(attQ);
+
+    if(attSnap.empty){
+      cleanupMsg.textContent = "There are no records older than the selected number of days.";
+      cleanupMsg.className = "msg ok show";
+      return;
+    }
+
+    const oldAttendanceIds = new Set();
+    attSnap.forEach(d => oldAttendanceIds.add(d.id));
+
+    // 2. Find and delete the QR records linked to the old attendance
+    const qrSnap = await getDocs(collection(db, "qr"));
+    const qrDeletes = [];
+    qrSnap.forEach(d => {
+      const data = d.data();
+      if(oldAttendanceIds.has(data.attendanceId)){
+        qrDeletes.push(deleteDoc(doc(db, "qr", d.id)));
+      }
+    });
+
+    // 3. Find and delete the Shared Records linked to the old attendance
+    const sharedSnap = await getDocs(collection(db, "sharedRecords"));
+    const sharedDeletes = [];
+    sharedSnap.forEach(d => {
+      const data = d.data();
+      if(oldAttendanceIds.has(data.attendanceId)){
+        sharedDeletes.push(deleteDoc(doc(db, "sharedRecords", d.id)));
+      }
+    });
+
+    // 4. Delete the attendance records themselves (this is where the photos are)
+    const attDeletes = [];
+    attSnap.forEach(d => attDeletes.push(deleteDoc(doc(db, "attendance", d.id))));
+
+    await Promise.all([...qrDeletes, ...sharedDeletes, ...attDeletes]);
+
+    cleanupMsg.textContent =
+      `${attDeletes.length} attendance record(s) deleted (along with ${qrDeletes.length} related QR record(s) and ${sharedDeletes.length} related shared record(s)).`;
+    cleanupMsg.className = "msg ok show";
+  }catch(err){
+    console.error(err);
+    cleanupMsg.className = "msg error show";
+    cleanupMsg.textContent = "There was an error clearing the old records.";
+  }finally{
+    cleanupBtn.disabled = false;
+    cleanupBtn.textContent = "Clear old records";
+  }
+});
+</script>
 </body>
-
 </html>

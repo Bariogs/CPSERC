@@ -1,819 +1,588 @@
-/* =========================================================
-   CPSERC LOGIN PAGE
-   login.css
-========================================================= */
+/* ===========================================================
+   CCS Attendance — Admin Console
+   A "scan console" aesthetic: parchment paper tones, brass/navy
+   badge palette, and corner-bracket viewfinder marks that nod to
+   the QR-scan system this whole app runs on.
+   =========================================================== */
 
+:root{
+  /* --- color tokens --- */
+  --navy-deep:  #0E1A33;
+  --navy:       #16264A;
+  --navy-soft:  #29385C;
 
-/* =========================================================
-   RESET
-========================================================= */
+  --gold:       #C89B3C;
+  --gold-deep:  #A87F2A;
+  --gold-pale:  #E9D6A2;
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  --paper:      #F6F1E4;
+  --paper-alt:  #EFE7D3;
+  --paper-line: #DCD2B8;
+
+  --ink:        #1B1F27;
+  --ink-soft:   #5B5F6B;
+  --ink-faint:  #8B8E97;
+
+  --ok:         #2F7A4F;
+  --ok-bg:      #E4F2E8;
+  --ok-line:    #BFDFC9;
+
+  --err:        #B3402B;
+  --err-bg:     #FBEAE4;
+  --err-line:   #EFC7B8;
+
+  /* --- type --- */
+  --font-display: "Poppins", "Inter", sans-serif;
+  --font-body: "Inter", "Poppins", sans-serif;
+
+  /* --- shape / motion --- */
+  --radius: 10px;
+  --radius-sm: 6px;
+  --ease: cubic-bezier(.22,.9,.28,1);
 }
 
-
-html {
-    min-height: 100%;
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
 
+*, *::before, *::after{ box-sizing: border-box; }
 
-body {
-    min-height: 100vh;
-
-    font-family:
-        Inter,
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
-    color: #e7f1f8;
-
-    background:
-        #050e18;
-
-    overflow-x: hidden;
+html{
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%; /* stop Android Chrome auto-bumping text size */
+  text-size-adjust: 100%;
 }
 
-
-/* =========================================================
-   BACKGROUND
-========================================================= */
-
-.background-grid {
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    background-image:
-        linear-gradient(
-            rgba(52, 96, 124, 0.045) 1px,
-            transparent 1px
-        ),
-        linear-gradient(
-            90deg,
-            rgba(52, 96, 124, 0.045) 1px,
-            transparent 1px
-        );
-
-    background-size:
-        45px 45px;
-
-    opacity: 0.65;
+body{
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 480px at 100% -10%, rgba(200,155,60,.08), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(27,31,39,.025) 0 1px, transparent 1px 26px),
+    var(--paper);
+  min-height: 100vh;
+  min-height: 100dvh; /* accounts for the Android nav/URL bar showing & hiding */
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent; /* remove the gray flash on tap */
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
 }
 
+::selection{ background: var(--gold-pale); color: var(--navy-deep); }
 
-.background-grid::after {
-    content: "";
-
-    position: absolute;
-
-    inset: 0;
-
-    background:
-        radial-gradient(
-            circle at center,
-            rgba(19, 70, 100, 0.18),
-            transparent 55%
-        );
+/* focus ring used everywhere for keyboard accessibility */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+  outline: 2px solid var(--gold-deep);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-
-/* =========================================================
-   PAGE
-========================================================= */
-
-.login-page {
-    position: relative;
-
-    min-height: 100vh;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 25px;
-
-    z-index: 1;
+/* ===========================================================
+   Topbar — the "badge strip"
+   =========================================================== */
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 28px;
+  background: var(--navy-deep);
+  color: var(--paper);
+  border-bottom: 3px solid var(--gold);
+  flex-wrap: wrap;
 }
 
-
-/* =========================================================
-   LOGIN CARD
-========================================================= */
-
-.login-card {
-    width: min(
-        440px,
-        100%
-    );
-
-    padding: 38px 35px 28px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #0a1c2c,
-            #071522
-        );
-
-    border:
-        1px solid #1c3b52;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 25px 80px
-        rgba(
-            0,
-            0,
-            0,
-            0.42
-        );
+.brand{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: .01em;
 }
 
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.login-header {
-    text-align: center;
-
-    margin-bottom: 30px;
+/* the scanner "ready light" — pulses gently, pauses under reduced motion */
+.dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 0 rgba(200,155,60,.55);
+  animation: scan-pulse 2.4s var(--ease) infinite;
+  flex-shrink: 0;
+}
+@keyframes scan-pulse{
+  0%   { box-shadow: 0 0 0 0 rgba(200,155,60,.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(200,155,60,0); }
+  100% { box-shadow: 0 0 0 0 rgba(200,155,60,0); }
 }
 
-
-.logo-circle {
-    width: 68px;
-    height: 68px;
-
-    margin: 0 auto 17px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    background:
-        #12354b;
-
-    border:
-        1px solid #2c5d78;
-
-    color: #eef8ff;
-
-    font-size: 17px;
-    font-weight: 900;
-
-    letter-spacing: 1px;
-
-    box-shadow:
-        0 8px 30px
-        rgba(
-            5,
-            20,
-            31,
-            0.5
-        );
+.topbar nav{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-
-.login-header h1 {
-    color: #f1f7fb;
-
-    font-size: 28px;
-    font-weight: 900;
-
-    letter-spacing: 2px;
+.topbar nav a{
+  color: var(--paper);
+  text-decoration: none;
+  font-size: .92rem;
+  font-weight: 500;
+  opacity: .85;
+  padding: 6px 2px;
+  border-bottom: 1px solid transparent;
+  transition: opacity .15s var(--ease), border-color .15s var(--ease);
+}
+.topbar nav a:hover{
+  opacity: 1;
+  border-color: var(--gold);
 }
 
-
-.organization-name {
-    margin-top: 6px;
-
-    color: #7895aa;
-
-    font-size: 10px;
-
-    line-height: 1.5;
+.who{
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--gold-pale);
+  border: 1px solid rgba(233,214,162,.35);
+  padding: 4px 10px;
+  border-radius: 999px;
 }
 
+#logoutBtn{
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--navy-deep);
+  background: var(--gold);
+  border: none;
+  padding: 8px 16px;
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .15s var(--ease), transform .1s var(--ease);
+}
+#logoutBtn:hover{ background: var(--gold-deep); }
+#logoutBtn:active{ transform: translateY(1px); }
 
-.security-line {
-    width: fit-content;
-
-    margin: 13px auto 0;
-
-    padding: 6px 10px;
-
-    border:
-        1px solid #24475e;
-
-    border-radius: 5px;
-
-    background: #091a28;
-
-    color: #7795aa;
-
-    font-size: 8px;
-    font-weight: 800;
-
-    letter-spacing: 1.2px;
+/* ===========================================================
+   Page shell
+   =========================================================== */
+.wrap{
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
 }
 
-
-/* =========================================================
-   FORM
-========================================================= */
-
-.form-group {
-    margin-bottom: 19px;
+/* ===========================================================
+   Card — an "index card" with viewfinder corner brackets
+   =========================================================== */
+.card{
+  position: relative;
+  background: var(--paper-alt);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius);
+  padding: 28px 30px;
+  box-shadow: 0 1px 2px rgba(14,26,51,.04), 0 10px 24px -18px rgba(14,26,51,.35);
 }
 
-
-.form-group label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: #91aabd;
-
-    font-size: 11px;
-    font-weight: 700;
-
-    letter-spacing: 0.3px;
+/* corner brackets: only rendered via ::before/::after on two opposite corners
+   to keep it quiet — a hint of a scan-target, not a frame */
+.card::before,
+.card::after{
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: .55;
+  transition: opacity .2s var(--ease), width .2s var(--ease), height .2s var(--ease);
+}
+.card::before{
+  top: 10px; left: 10px;
+  border-width: 2px 0 0 2px;
+  border-top-left-radius: 4px;
+}
+.card::after{
+  bottom: 10px; right: 10px;
+  border-width: 0 2px 2px 0;
+  border-bottom-right-radius: 4px;
+}
+.card:hover::before,
+.card:hover::after{
+  opacity: 1;
+  width: 20px;
+  height: 20px;
 }
 
+.eyebrow{
+  margin: 0 0 6px;
+  font-family: var(--font-body);
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--gold-deep);
+}
 
-.form-group input {
+.page-title{
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.9rem;
+  color: var(--navy-deep);
+  letter-spacing: -.01em;
+}
+
+.page-sub{
+  margin: 0 0 18px;
+  color: var(--ink-soft);
+  font-size: .96rem;
+  line-height: 1.55;
+  max-width: 60ch;
+}
+
+.card h2{
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+
+/* ===========================================================
+   Buttons
+   =========================================================== */
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: .92rem;
+  text-decoration: none;
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease), transform .1s var(--ease);
+  line-height: 1;
+}
+.btn:active{ transform: translateY(1px); }
+
+.btn.gold{
+  background: var(--gold);
+  color: var(--navy-deep);
+}
+.btn.gold:hover{ background: var(--gold-deep); }
+
+.btn.outline{
+  background: transparent;
+  border-color: var(--navy-soft);
+  color: var(--navy-deep);
+}
+.btn.outline:hover{
+  background: var(--navy-deep);
+  color: var(--paper);
+  border-color: var(--navy-deep);
+}
+
+.btn:disabled{
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* inline loading spinner shown inside buttons while saving */
+.spinner{
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.25);
+  border-top-color: currentColor;
+  display: inline-block;
+  animation: spin .7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce){
+  .spinner{ animation: none; opacity: .7; }
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* ===========================================================
+   Forms
+   =========================================================== */
+form{ margin-top: 4px; }
+
+.field{
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label{
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--navy-deep);
+  letter-spacing: .01em;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select{
+  font-family: var(--font-body);
+  font-size: .94rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--paper-line);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+}
+
+input::placeholder{ color: var(--ink-faint); }
+
+input:hover, select:hover{ border-color: var(--gold-deep); }
+
+input:focus-visible, select:focus-visible{
+  border-color: var(--gold-deep);
+  box-shadow: 0 0 0 3px rgba(200,155,60,.18);
+}
+
+select{ cursor: pointer; }
+
+/* ===========================================================
+   Status messages
+   =========================================================== */
+.msg{
+  display: none;
+  font-size: .88rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  margin-bottom: 14px;
+}
+.msg.show{ display: block; }
+
+.msg.ok{
+  background: var(--ok-bg);
+  color: var(--ok);
+  border-color: var(--ok-line);
+}
+
+.msg.error{
+  background: var(--err-bg);
+  color: var(--err);
+  border-color: var(--err-line);
+}
+
+/* ===========================================================
+   Table — the roster / attendance ledger
+   Wrapped in its own horizontal-scroll strip so it never forces
+   the whole page to scroll sideways on a phone screen.
+   =========================================================== */
+.table-scroll{
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -2px;
+  border-radius: var(--radius-sm);
+}
+
+.records{
+  width: 100%;
+  min-width: 560px; /* keeps columns legible; scrolls under this width */
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+
+.records thead th{
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--navy-deep);
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--gold);
+}
+
+.records tbody td{
+  padding: 11px 12px;
+  border-bottom: 1px dashed var(--paper-line);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  vertical-align: middle;
+}
+
+.records tbody tr:hover{ background: rgba(200,155,60,.08); }
+
+.records tbody td:first-child{ color: var(--ink-faint); width: 32px; }
+
+.records .btn.outline{
+  padding: 6px 12px;
+  font-size: .8rem;
+  min-height: 38px; /* smaller than the global 46px so table rows stay compact */
+}
+
+/* empty state — an invitation to act, not just a placeholder */
+.empty{
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--ink-soft);
+  font-size: .92rem;
+  border: 1px dashed var(--paper-line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+/* ===========================================================
+   Touch targets — comfortable on a phone regardless of screen size
+   =========================================================== */
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select,
+.btn{
+  min-height: 46px; /* Android's own guidance is 48dp; this plus padding lands there */
+}
+
+/* iOS/Android both skip the zoom-on-focus jump when inputs are >=16px */
+input, select{ font-size: 16px; }
+
+/* ===========================================================
+   Responsive — tablet
+   =========================================================== */
+@media (max-width: 640px){
+  .topbar{
+    padding: 12px 16px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .wrap{
+    padding: 24px 14px 60px;
+    padding-left: max(14px, env(safe-area-inset-left));
+    padding-right: max(14px, env(safe-area-inset-right));
+    padding-bottom: max(60px, env(safe-area-inset-bottom));
+  }
+  .card{ padding: 20px 16px; }
+  .page-title{ font-size: 1.5rem; }
+  .page-sub{ font-size: .92rem; }
+  .topbar nav{ gap: 12px; }
+  .records{ font-size: .84rem; }
+  .records thead th, .records tbody td{ padding: 8px 8px; }
+
+  /* schedule form: start/end time stack instead of squeezing side by side */
+  #windowForm > div[style*="display:flex"]{
+    flex-direction: column;
+    gap: 0 !important;
+  }
+}
+
+/* ===========================================================
+   Responsive — narrow Android phones (~360–400px, common in PH)
+   =========================================================== */
+@media (max-width: 400px){
+  .brand{ font-size: .92rem; }
+  .who{ display: none; } /* redundant with "Admin" greeting already on the page */
+  .topbar nav{
     width: 100%;
-    height: 48px;
+    justify-content: space-between;
+  }
+  .page-title{ font-size: 1.3rem; }
 
-    padding:
-        0 14px;
-
-    border:
-        1px solid #23465d;
-
-    border-radius: 9px;
-
-    outline: none;
-
-    background:
-        #061522;
-
-    color: #e9f4fa;
-
-    font-size: 13px;
-
-    transition:
-        border-color 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-
-.form-group input::placeholder {
-    color: #506c81;
-}
-
-
-.form-group input:focus {
-    border-color: #3b6c88;
-
-    background:
-        #081a2a;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(
-            52,
-            105,
-            136,
-            0.10
-        );
-}
-
-
-/* =========================================================
-   PASSWORD
-========================================================= */
-
-.password-wrapper {
-    position: relative;
-}
-
-
-.password-wrapper input {
-    padding-right: 70px;
-}
-
-
-.password-toggle {
-    position: absolute;
-
-    top: 50%;
-    right: 9px;
-
-    transform:
-        translateY(-50%);
-
-    min-width: 48px;
-    height: 30px;
-
-    padding: 0 7px;
-
-    border:
-        1px solid #29485d;
-
-    border-radius: 6px;
-
-    background:
-        #0c2131;
-
-    color: #82a0b5;
-
-    font-size: 9px;
-    font-weight: 700;
-}
-
-
-.password-toggle:hover {
-    color: #e6f2f9;
-
-    background:
-        #123047;
-}
-
-
-/* =========================================================
-   LOGIN BUTTON
-========================================================= */
-
-.login-button {
+  /* primary action buttons go full-width so they're easy to hit one-handed */
+  .card > div[style*="display:flex"] > .btn,
+  form .btn{
     width: 100%;
-    height: 49px;
+  }
+  .card > div[style*="display:flex"]{
+    flex-direction: column;
+  }
 
-    margin-top: 4px;
-
-    border:
-        1px solid #2c5b76;
-
-    border-radius: 9px;
-
-    background:
-        #16435e;
-
-    color: #f2f8fc;
-
-    font-size: 12px;
-    font-weight: 800;
-
-    letter-spacing: 0.7px;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.15s ease;
+  /* cleanup row: stack the day input above the button */
+  .card > div[style*="align-items:flex-end"]{
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  .card > div[style*="align-items:flex-end"] .field{
+    max-width: none !important;
+  }
 }
 
+/* ===========================================================
+   Login screen — the "ID scanner" doorway
+   Reuses .card, .eyebrow, .page-title, .field, .msg, .btn, .spinner
+   from above; this section only adds what's specific to logging in.
+   =========================================================== */
 
-.login-button:hover {
-    background:
-        #1b5271;
-
-    border-color:
-        #3d7693;
-
-    transform:
-        translateY(-1px);
+/* full-viewport centering stage; keeps the same paper/scan-console
+   background as the rest of the app so it reads as one system */
+.center-screen{
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  padding-top: max(24px, env(safe-area-inset-top));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
 }
 
-
-.login-button:active {
-    transform:
-        translateY(0);
+/* the login card gets a touch more lift than an inline dashboard card,
+   since it's the only thing on the screen */
+.center-screen .card{
+  box-shadow: 0 4px 10px rgba(14,26,51,.06), 0 24px 48px -24px rgba(14,26,51,.45);
 }
 
-
-.login-button:disabled {
-    opacity: 0.6;
-
-    cursor: not-allowed;
-
-    transform: none;
+/* full-width primary button for single-column forms like this one */
+.btn.block{
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
 }
 
-
-/* =========================================================
-   STATUS
-========================================================= */
-
-.login-status {
-    min-height: 20px;
-
-    margin-top: 13px;
-
-    font-size: 10px;
-
-    line-height: 1.5;
-
-    text-align: center;
+/* School ID acts like a keycard number: monospace + letter-spacing
+   makes it read as an ID rather than a generic secret */
+#password{
+  font-family: "SFMono-Regular", ui-monospace, Menlo, Consolas, monospace;
+  letter-spacing: .04em;
 }
 
-
-.login-status.error {
-    color: #e3a1a8;
+/* wrong-credentials feedback gets a brief, contained shake so the
+   error registers without feeling alarming */
+.msg.error.show{
+  animation: msg-shake .32s var(--ease);
+}
+@keyframes msg-shake{
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce){
+  .msg.error.show{ animation: none; }
 }
 
-
-.login-status.success {
-    color: #83d1a5;
+/* on very short phone screens (landscape, or small devices with the
+   keyboard up) let the card scroll instead of clipping the button */
+@media (max-height: 560px){
+  .center-screen{
+    align-items: flex-start;
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
 }
 
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.login-footer {
-    margin-top: 25px;
-
-    padding-top: 18px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 7px;
-
-    border-top:
-        1px solid #183448;
-
-    color: #536f83;
-
-    font-size: 8px;
-
-    text-align: center;
-}
-
-
-.separator {
-    color: #315269;
-}
-
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-.modal-overlay {
-    position: fixed;
-
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background:
-        rgba(
-            2,
-            8,
-            14,
-            0.82
-        );
-
-    backdrop-filter:
-        blur(7px);
-
-    opacity: 0;
-
-    visibility: hidden;
-
-    transition:
-        opacity 0.2s ease,
-        visibility 0.2s ease;
-
-    z-index: 1000;
-}
-
-
-.modal-overlay.show {
-    opacity: 1;
-
-    visibility: visible;
-}
-
-
-.modal-box {
-    position: relative;
-
-    width: min(
-        390px,
-        100%
-    );
-
-    padding: 32px 28px;
-
-    background:
-        linear-gradient(
-            145deg,
-            #0c1f30,
-            #081522
-        );
-
-    border:
-        1px solid #29465d;
-
-    border-radius: 14px;
-
-    text-align: center;
-
-    box-shadow:
-        0 25px 70px
-        rgba(
-            0,
-            0,
-            0,
-            0.5
-        );
-
-    transform:
-        translateY(10px)
-        scale(0.98);
-
-    transition:
-        transform 0.2s ease;
-}
-
-
-.modal-overlay.show
-.modal-box {
-    transform:
-        translateY(0)
-        scale(1);
-}
-
-
-/* =========================================================
-   MODAL CLOSE
-========================================================= */
-
-.modal-close {
-    position: absolute;
-
-    top: 11px;
-    right: 12px;
-
-    width: 33px;
-    height: 33px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border:
-        1px solid #29465b;
-
-    border-radius: 7px;
-
-    background:
-        #0a1b2a;
-
-    color: #7791a4;
-
-    font-size: 21px;
-
-    line-height: 1;
-}
-
-
-.modal-close:hover {
-    background:
-        #142c3e;
-
-    color: #ffffff;
-}
-
-
-/* =========================================================
-   MODAL ICON
-========================================================= */
-
-.modal-icon {
-    width: 52px;
-    height: 52px;
-
-    margin: 0 auto 17px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 50%;
-
-    font-size: 22px;
-    font-weight: 900;
-}
-
-
-.error-icon {
-    background:
-        #38191e;
-
-    border:
-        1px solid #68343b;
-
-    color:
-        #eaa4aa;
-}
-
-
-.warning-icon {
-    background:
-        #392d15;
-
-    border:
-        1px solid #695326;
-
-    color:
-        #e3bd6b;
-}
-
-
-/* =========================================================
-   MODAL TEXT
-========================================================= */
-
-.modal-box h2 {
-    color:
-        #edf5fa;
-
-    font-size: 18px;
-    font-weight: 800;
-}
-
-
-.modal-box p {
-    margin-top: 9px;
-
-    color:
-        #718da2;
-
-    font-size: 11px;
-
-    line-height: 1.7;
-}
-
-
-/* =========================================================
-   MODAL BUTTON
-========================================================= */
-
-.modal-button {
-    width: 100%;
-    height: 43px;
-
-    margin-top: 21px;
-
-    border:
-        1px solid #2b5973;
-
-    border-radius: 8px;
-
-    background:
-        #143c56;
-
-    color:
-        #eaf4f9;
-
-    font-size: 11px;
-    font-weight: 800;
-
-    letter-spacing: 0.5px;
-}
-
-
-.modal-button:hover {
-    background:
-        #1a4d6a;
-
-    border-color:
-        #3a7391;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
-
-@media (max-width: 500px) {
-
-    .login-page {
-        padding: 15px;
-    }
-
-
-    .login-card {
-        padding:
-            30px 21px 23px;
-
-        border-radius: 13px;
-    }
-
-
-    .logo-circle {
-        width: 60px;
-        height: 60px;
-
-        margin-bottom: 14px;
-    }
-
-
-    .login-header h1 {
-        font-size: 24px;
-    }
-
-
-    .organization-name {
-        font-size: 9px;
-    }
-
-
-    .login-footer {
-        flex-direction: column;
-
-        gap: 3px;
-    }
-
-
-    .separator {
-        display: none;
-    }
-
-}
-
-
-@media (max-width: 350px) {
-
-    .login-card {
-        padding:
-            26px 16px 20px;
-    }
-
-
-    .login-header {
-        margin-bottom: 23px;
-    }
-
-
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-
-    .modal-box {
-        padding:
-            28px 20px;
-    }
-
-}
-
-
-/* =========================================================
-   ACCESSIBILITY
-========================================================= */
-
-button:focus-visible,
-input:focus-visible {
-    outline:
-        2px solid #4a819f;
-
-    outline-offset: 2px;
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-
-        transition: none !important;
-    }
-
+@media (max-width: 400px){
+  .center-screen .card{ padding: 24px 20px; }
 }

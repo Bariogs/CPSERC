@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shared Records — CCS Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="me.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  /* Year level filter tabs */
+  .yearTabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin: 16px 0;
+  }
+  .yearTab{
+    border:1px solid #dfdbd0;
+    background:#fff;
+    padding:8px 16px;
+    border-radius:999px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    color:var(--navy-deep, #1c2b4a);
+  }
+  .yearTab.active{
+    background:var(--navy-deep, #1c2b4a);
+    color:#fff;
+    border-color:var(--navy-deep, #1c2b4a);
+  }
+  .yearTab .count{
+    opacity:0.7;
+    margin-left:4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CCS Attendance</div>
+  <nav>
+    <span class="who" id="whoLabel"></span>
+    <a href="#" id="dashLink">Dashboard</a>
+    <a href="qr.html">QR Code</a>
+    <button id="logoutBtn">Log out</button>
+  </nav>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <p class="eyebrow">Shared Records</p>
+    <h1 class="page-title">Shared Records</h1>
+    <p class="page-sub">This list contains records shared from the QR Code page. Downloading clears this list — it will only show new records shared after that.</p>
+
+    <div class="yearTabs" id="yearTabs" style="display:none;"></div>
+
+    <button class="btn gold" id="downloadBtn" style="display:none;"><span id="downloadBtnText">⬇ Download as Excel</span></button>
+    <div id="downloadMsg" class="msg"></div>
+
+    <div class="table-scroll" id="recordsTableWrap" style="display:none;">
+      <table class="records" id="recordsTable">
+        <thead>
+          <tr><th>#</th><th>Name</th><th>Course</th><th>Year Level</th><th>Address</th><th>Date &amp; Time</th></tr>
+        </thead>
+        <tbody id="recordsBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="empty" style="display:none;">No shared records available.</div>
+    <div id="filteredEmptyState" class="empty" style="display:none;">No shared records for this year level.</div>
+  </div>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection, getDocs, query, orderBy, deleteDoc, doc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ---- Auth guard ----
+const role = sessionStorage.getItem("role");
+const displayName = sessionStorage.getItem("displayName");
+if(!role){
+  window.location.href = "login.html";
+}
+document.getElementById("whoLabel").textContent = displayName || "";
+document.getElementById("dashLink").href = role === "admin" ? "admin_dashboard.html" : "student_dashboard.html";
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.clear();
+  window.location.href = "login.html";
+});
+
+// Only admin can download the Excel file
+if(role === "admin"){
+  document.getElementById("downloadBtn").style.display = "inline-flex";
+}
+
+const downloadBtn = document.getElementById("downloadBtn");
+const downloadBtnText = document.getElementById("downloadBtnText");
+const downloadMsg = document.getElementById("downloadMsg");
+const recordsBody = document.getElementById("recordsBody");
+const recordsTableWrap = document.getElementById("recordsTableWrap");
+const emptyState = document.getElementById("emptyState");
+const filteredEmptyState = document.getElementById("filteredEmptyState");
+const yearTabs = document.getElementById("yearTabs");
+
+// ---- Year level grouping ----
+// Fixed order so the tabs always line up the same way, regardless of
+// which year levels actually have records right now.
+const YEAR_LEVELS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year"];
+let activeYear = "All";
+
+// allRecords: every shared record currently loaded (raw data, used for
+// both the Excel export and re-filtering the table without re-querying
+// Firestore every time the admin switches tabs).
+// docIds: the Firestore doc IDs behind allRecords, kept in the same
+// order, so we still know exactly what to delete after a download.
+let allRecords = [];
+let docIds = [];
+
+function formatTime(ts){
+  if(!ts || !ts.toDate) return "—";
+  return ts.toDate().toLocaleString();
+}
+
+function showEmpty(){
+  recordsBody.innerHTML = "";
+  recordsTableWrap.style.display = "none";
+  emptyState.style.display = "block";
+  filteredEmptyState.style.display = "none";
+  yearTabs.style.display = "none";
+  allRecords = [];
+  docIds = [];
+}
+
+function buildYearTabs(){
+  // count how many records belong to each year level so it's shown
+  // beside each tab, e.g. "1st Year (4)"
+  const counts = { All: allRecords.length };
+  YEAR_LEVELS.forEach(y => counts[y] = 0);
+  allRecords.forEach(r => {
+    const y = r.yearLevel || "";
+    if(counts.hasOwnProperty(y)) counts[y]++;
+  });
+
+  const tabsToShow = ["All", ...YEAR_LEVELS];
+  yearTabs.innerHTML = "";
+  tabsToShow.forEach(y => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "yearTab" + (y === activeYear ? " active" : "");
+    btn.innerHTML = `${y}<span class="count">(${counts[y] || 0})</span>`;
+    btn.addEventListener("click", () => {
+      activeYear = y;
+      buildYearTabs();
+      renderRecords();
+    });
+    yearTabs.appendChild(btn);
+  });
+  yearTabs.style.display = "flex";
+}
+
+function renderRecords(){
+  const filtered = activeYear === "All"
+    ? allRecords
+    : allRecords.filter(r => (r.yearLevel || "") === activeYear);
+
+  recordsBody.innerHTML = "";
+
+  if(filtered.length === 0){
+    recordsTableWrap.style.display = "none";
+    filteredEmptyState.style.display = "block";
+    return;
+  }
+
+  filteredEmptyState.style.display = "none";
+  recordsTableWrap.style.display = "block";
+
+  filtered.forEach((r, idx) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td>${r.name}</td>
+      <td>${r.course || "—"}</td>
+      <td>${r.yearLevel || "—"}</td>
+      <td>${r.address || ""}</td>
+      <td>${r.timeDisplay}</td>
+    `;
+    recordsBody.appendChild(tr);
+  });
+}
+
+async function loadRecords(){
+  const q = query(collection(db, "sharedRecords"), orderBy("timestamp", "desc"));
+  const snap = await getDocs(q);
+
+  if(snap.empty){
+    showEmpty();
+    return;
+  }
+
+  emptyState.style.display = "none";
+
+  allRecords = [];
+  docIds = [];
+
+  snap.forEach(docSnap => {
+    const data = docSnap.data();
+    docIds.push(docSnap.id);
+    allRecords.push({
+      name: data.name,
+      course: data.course || "",
+      yearLevel: data.yearLevel || "",
+      address: data.address || "",
+      timeDisplay: formatTime(data.timestamp)
+    });
+  });
+
+  // reset back to "All" whenever the list is (re)loaded, e.g. right
+  // after a download clears it out
+  activeYear = "All";
+  buildYearTabs();
+  renderRecords();
+}
+
+downloadBtn.addEventListener("click", async () => {
+  if(allRecords.length === 0){
+    alert("No data to download.");
+    return;
+  }
+
+  downloadBtn.disabled = true;
+  downloadBtnText.innerHTML = '<span class="spinner"></span>';
+  downloadMsg.className = "msg";
+  downloadMsg.textContent = "";
+
+  try{
+    // 1. Generate and save the Excel file first — the list should
+    //    only be cleared once the download has actually gone through.
+    //    Everything is exported (not just the currently-filtered tab)
+    //    so the file always contains all year levels.
+    const rows = allRecords.map((r, i) => ({
+      "#": i + 1,
+      "Name": r.name,
+      "Course": r.course,
+      "Year Level": r.yearLevel,
+      "Address": r.address,
+      "Date & Time": r.timeDisplay
+    }));
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Attendance");
+    const fileName = `CCS-Attendance-${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    // 2. Delete every shared record that was included in this download,
+    //    so the names disappear from the list until new ones are shared.
+    await Promise.all(docIds.map(id => deleteDoc(doc(db, "sharedRecords", id))));
+
+    downloadMsg.textContent = "Downloaded and cleared. The list will refill as new records are shared.";
+    downloadMsg.className = "msg ok show";
+
+    showEmpty();
+  }catch(err){
+    console.error("Failed to clear shared records after download:", err);
+    downloadMsg.textContent = "Downloaded, but there was a problem clearing the list. Please try again.";
+    downloadMsg.className = "msg error show";
+    // reload from Firestore so the table reflects whatever did or
+    // didn't actually get deleted, instead of guessing
+    loadRecords();
+  }finally{
+    downloadBtn.disabled = false;
+    downloadBtnText.textContent = "⬇ Download as Excel";
+  }
+});
+
+loadRecords();
+</script>
+</body>
+</html>

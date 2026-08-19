@@ -1,3302 +1,831 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>CPSERC | Member Dashboard</title>
-
-    <link
-        rel="stylesheet"
-        href="css/user.css"
-    >
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard — CCS Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/user.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<!-- Face detection library for liveness check (look left / look right / look up) -->
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 </head>
-
 <body>
 
-    <!-- =====================================================
-         MOBILE OVERLAY
-    ====================================================== -->
-
-    <div
-        id="sidebarOverlay"
-        class="sidebar-overlay"
-    ></div>
-
-
-    <!-- =====================================================
-         SIDEBAR
-    ====================================================== -->
-
-    <aside
-        id="sidebar"
-        class="sidebar"
-    >
-
-        <div class="sidebar-brand">
-
-            <div class="brand-logo">
-                CPSERC
-            </div>
-
-            <div class="brand-subtitle">
-                CSFJ PUBLIC SAFETY AND RESPONSE CORPS
-            </div>
-
-        </div>
-
-
-        <nav class="sidebar-nav">
-
-            <button
-                class="nav-item active"
-                data-section="dashboardSection"
-            >
-                <span>
-                    Dashboard
-                </span>
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="attendanceSection"
-            >
-                <span>
-                    Attendance
-                </span>
-            </button>
-
-
-            <button
-                class="nav-item"
-                data-section="profileSection"
-            >
-                <span>
-                    My Profile
-                </span>
-            </button>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                id="logoutButton"
-                class="logout-button"
-            >
-                Sign Out
-            </button>
-
-        </div>
-
-    </aside>
-
-
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
-
-    <main class="main-content">
-
-
-        <!-- =================================================
-             TOPBAR
-        ================================================== -->
-
-        <header class="topbar">
-
-            <button
-                id="menuButton"
-                class="menu-button"
-                type="button"
-            >
-                ☰
-            </button>
-
-
-            <div class="topbar-title">
-
-                <div class="topbar-title-main">
-                    Member Dashboard
-                </div>
-
-                <div class="topbar-title-sub">
-                    CPSERC Attendance System
-                </div>
-
-            </div>
-
-
-            <div class="user-mini-profile">
-
-                <div
-                    id="topAvatar"
-                    class="user-avatar small-avatar"
-                >
-                    U
-                </div>
-
-                <div class="top-user-info">
-
-                    <strong id="topUserName">
-                        Member
-                    </strong>
-
-                    <small id="topUserPosition">
-                        CPSERC Member
-                    </small>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-        <!-- =================================================
-             DASHBOARD SECTION
-        ================================================== -->
-
-        <section
-            id="dashboardSection"
-            class="page-section active-section"
-        >
-
-            <div class="welcome-area">
-
-                <div>
-
-                    <div class="welcome-label">
-                        MEMBER ACCESS
-                    </div>
-
-                    <h1>
-                        Welcome,
-                        <span id="welcomeName">
-                            Member
-                        </span>
-                    </h1>
-
-                    <p>
-                        Stay ready. Stay alert. Be prepared to
-                        respond when help is needed.
-                    </p>
-
-                </div>
-
-
-                <div
-                    id="dashboardStatus"
-                    class="account-status active"
-                >
-                    ACTIVE MEMBER
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 ATTENDANCE WINDOW CARD
-            ================================================== -->
-
-            <div class="attendance-window-card">
-
-                <div class="window-left">
-
-                    <div class="section-label">
-                        CURRENT ATTENDANCE WINDOW
-                    </div>
-
-                    <h2 id="attendanceWindowTitle">
-                        Checking attendance schedule...
-                    </h2>
-
-                    <p id="attendanceWindowDescription">
-                        Please wait while the system checks
-                        the active attendance schedule.
-                    </p>
-
-                </div>
-
-
-                <div class="countdown-box">
-
-                    <span class="countdown-label">
-                        TIME REMAINING
-                    </span>
-
-                    <strong id="countdown">
-                        --:--:--
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 STAT CARDS
-            ================================================== -->
-
-            <div class="stats-grid">
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Attendance Status
-                    </span>
-
-                    <strong
-                        id="attendanceStatus"
-                        class="stat-value"
-                    >
-                        Not Recorded
-                    </strong>
-
-                    <small>
-                        Current attendance period
-                    </small>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Position
-                    </span>
-
-                    <strong
-                        id="positionValue"
-                        class="stat-value small-stat"
-                    >
-                        —
-                    </strong>
-
-                    <small>
-                        CPSERC role
-                    </small>
-
-                </div>
-
-
-                <div class="stat-card">
-
-                    <span class="stat-label">
-                        Username
-                    </span>
-
-                    <strong
-                        id="usernameValue"
-                        class="stat-value small-stat"
-                    >
-                        —
-                    </strong>
-
-                    <small>
-                        Member identification
-                    </small>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 ATTENDANCE ACTION
-            ================================================== -->
-
-            <div class="content-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <h2>
-                            Attendance
-                        </h2>
-
-                        <p>
-                            Your location and photo are required
-                            before attendance can be submitted.
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="attendanceActionArea"
-                    class="attendance-action-area"
-                >
-
-                    <div class="action-information">
-
-                        <div class="action-icon">
-                            A
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Ready for Attendance
-                            </strong>
-
-                            <p>
-                                Click the button below to begin.
-                                Location permission is required.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        id="takeAttendanceButton"
-                        class="primary-button"
-                        type="button"
-                    >
-                        TAKE ATTENDANCE
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 INSTRUCTIONS
-            ================================================== -->
-
-            <div class="content-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <h2>
-                            Attendance Procedure
-                        </h2>
-
-                    </div>
-
-                </div>
-
-
-                <div class="procedure-grid">
-
-                    <div class="procedure-item">
-
-                        <div class="procedure-number">
-                            01
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Allow Location
-                            </strong>
-
-                            <p>
-                                Allow the system to access
-                                your current location.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="procedure-item">
-
-                        <div class="procedure-number">
-                            02
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Take Photo
-                            </strong>
-
-                            <p>
-                                Take a clear photo for attendance
-                                verification.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="procedure-item">
-
-                        <div class="procedure-number">
-                            03
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Review
-                            </strong>
-
-                            <p>
-                                Retake the photo if you are not
-                                satisfied with it.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="procedure-item">
-
-                        <div class="procedure-number">
-                            04
-                        </div>
-
-                        <div>
-
-                            <strong>
-                                Submit
-                            </strong>
-
-                            <p>
-                                Submit once. You cannot submit
-                                again for the same schedule.
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             ATTENDANCE SECTION
-        ================================================== -->
-
-        <section
-            id="attendanceSection"
-            class="page-section"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        Attendance
-                    </h1>
-
-                    <p>
-                        View your current attendance information.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="content-card">
-
-                <div class="card-heading">
-
-                    <div>
-
-                        <h2>
-                            Current Schedule
-                        </h2>
-
-                    </div>
-
-                </div>
-
-
-                <div class="attendance-detail-grid">
-
-                    <div class="detail-box">
-
-                        <span>
-                            Attendance Type
-                        </span>
-
-                        <strong id="detailType">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail-box">
-
-                        <span>
-                            Date
-                        </span>
-
-                        <strong id="detailDate">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail-box">
-
-                        <span>
-                            Start Time
-                        </span>
-
-                        <strong id="detailStart">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail-box">
-
-                        <span>
-                            End Time
-                        </span>
-
-                        <strong id="detailEnd">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail-box">
-
-                        <span>
-                            Submission
-                        </span>
-
-                        <strong id="detailSubmission">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="detail-box">
-
-                        <span>
-                            Admin Verification
-                        </span>
-
-                        <strong id="detailVerification">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- =================================================
-             PROFILE SECTION
-        ================================================== -->
-
-        <section
-            id="profileSection"
-            class="page-section"
-        >
-
-            <div class="page-heading">
-
-                <div>
-
-                    <h1>
-                        My Profile
-                    </h1>
-
-                    <p>
-                        Your CPSERC member information.
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="profile-card">
-
-                <div class="profile-header">
-
-                    <div
-                        id="profileAvatar"
-                        class="user-avatar large-avatar"
-                    >
-                        U
-                    </div>
-
-                    <div>
-
-                        <h2 id="profileName">
-                            Member
-                        </h2>
-
-                        <p id="profilePosition">
-                            CPSERC Member
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="profile-grid">
-
-                    <div class="profile-field">
-
-                        <span>
-                            Full Name
-                        </span>
-
-                        <strong id="profileFullName">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="profile-field">
-
-                        <span>
-                            Position
-                        </span>
-
-                        <strong id="profilePositionValue">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="profile-field">
-
-                        <span>
-                            Username
-                        </span>
-
-                        <strong id="profileUsername">
-                            —
-                        </strong>
-
-                    </div>
-
-
-                    <div class="profile-field">
-
-                        <span>
-                            Account Status
-                        </span>
-
-                        <strong id="profileStatus">
-                            —
-                        </strong>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================================
-         ATTENDANCE MODAL
-    ====================================================== -->
-
-    <div
-        id="attendanceModal"
-        class="modal-overlay"
-    >
-
-        <div class="attendance-modal">
-
-            <button
-                id="closeAttendanceModal"
-                class="modal-close"
-                type="button"
-            >
-                ×
-            </button>
-
-
-            <div class="modal-heading">
-
-                <div class="modal-icon">
-                    A
-                </div>
-
-                <h2>
-                    Attendance Verification
-                </h2>
-
-                <p>
-                    Your location must be verified before
-                    taking an attendance photo.
-                </p>
-
-            </div>
-
-
-            <!-- LOCATION STEP -->
-
-            <div
-                id="locationStep"
-                class="attendance-step"
-            >
-
-                <div class="step-status-icon">
-                    L
-                </div>
-
-                <h3>
-                    Location Verification
-                </h3>
-
-                <p id="locationMessage">
-                    Click the button below to verify
-                    your current location.
-                </p>
-
-
-                <button
-                    id="locationButton"
-                    class="primary-button"
-                    type="button"
-                >
-                    ALLOW LOCATION
-                </button>
-
-
-                <div
-                    id="locationResult"
-                    class="location-result"
-                >
-
-                    <div>
-                        Latitude:
-                        <strong id="latitudeValue">
-                            —
-                        </strong>
-                    </div>
-
-                    <div>
-                        Longitude:
-                        <strong id="longitudeValue">
-                            —
-                        </strong>
-                    </div>
-
-                    <div>
-                        Accuracy:
-                        <strong id="accuracyValue">
-                            —
-                        </strong>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- CAMERA STEP -->
-
-            <div
-                id="cameraStep"
-                class="attendance-step hidden"
-            >
-
-                <div class="step-status-icon">
-                    C
-                </div>
-
-                <h3>
-                    Take Attendance Photo
-                </h3>
-
-                <p>
-                    Make sure your face is clearly visible.
-                </p>
-
-
-                <div class="camera-container">
-
-                    <video
-                        id="cameraVideo"
-                        autoplay
-                        playsinline
-                        muted
-                    ></video>
-
-
-                    <canvas
-                        id="photoCanvas"
-                        class="hidden"
-                    ></canvas>
-
-
-                    <img
-                        id="photoPreview"
-                        class="photo-preview hidden"
-                        alt="Attendance preview"
-                    >
-
-                </div>
-
-
-                <div class="camera-buttons">
-
-                    <button
-                        id="captureButton"
-                        class="primary-button"
-                        type="button"
-                    >
-                        TAKE PHOTO
-                    </button>
-
-
-                    <button
-                        id="retakeButton"
-                        class="secondary-button hidden"
-                        type="button"
-                    >
-                        RETAKE
-                    </button>
-
-
-                    <button
-                        id="submitAttendanceButton"
-                        class="accept-button hidden"
-                        type="button"
-                    >
-                        SUBMIT ATTENDANCE
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- SUCCESS STEP -->
-
-            <div
-                id="successStep"
-                class="attendance-step hidden"
-            >
-
-                <div class="success-icon">
-                    ✓
-                </div>
-
-                <h3>
-                    Attendance Submitted
-                </h3>
-
-                <p>
-                    Your attendance has been submitted
-                    successfully and is waiting for
-                    administrator verification.
-                </p>
-
-
-                <button
-                    id="finishAttendanceButton"
-                    class="primary-button"
-                    type="button"
-                >
-                    DONE
-                </button>
-
-            </div>
-
-        </div>
-
+<div class="topbar">
+  <div class="brand"><span class="dot"></span> CCS Attendance</div>
+  <nav>
+    <span class="who" id="whoLabel"></span>
+    <button id="tutorialBtn" class="btn outline" type="button">Tutorial</button>
+    <button id="logoutBtn">Log out</button>
+  </nav>
+</div>
+
+<!-- Tutorial Modal: guide for enabling Location access on Chrome -->
+<div class="modal-bg" id="tutorialModalBg">
+  <div class="modal tutorial-modal">
+    <button class="close" id="closeTutorialModal" type="button">✕</button>
+    <p class="eyebrow" style="margin:0;">Help</p>
+    <h2 class="tutorial-title">How to Enable Location &amp; Camera Access</h2>
+    <p class="page-sub">
+      You must enable your <b>Location</b> and <b>Camera</b> to fetch data
+      and take your attendance photo. If it doesn't work, it will still say
+      that you must enable your location/camera. Here's how to fix it:
+    </p>
+    <ol class="tutorial-steps">
+      <li>Go to the site (this page) and click the <b>3-dot menu (⋮)</b> at the top-right of Chrome.</li>
+      <li>Find and click <b>"Site controls"</b> (also called "Site settings").</li>
+      <li>Find <b>"Permissions"</b> and click it.</li>
+      <li>Find the <b>Location</b> button and set it to <b>"Allowed"</b>.</li>
+      <li>Find the <b>Camera</b> button and set it to <b>"Allowed"</b> too.</li>
+      <li>Refresh this page, then try taking attendance again.</li>
+    </ol>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <p class="eyebrow">Student Dashboard</p>
+    <h1 class="page-title" id="greeting">Good Day!</h1>
+    <p class="page-sub" id="courseYearLine" style="display:none;"></p>
+    <p class="page-sub">Just click the button below to take attendance for today.</p>
+
+    <!-- STEP 0: start -->
+    <div id="stepStart" class="attend-flow">
+      <div id="scheduleMsg" class="msg" style="display:none;"></div>
+      <button class="btn gold" id="startBtn" disabled>Checking schedule...</button>
     </div>
 
-
-    <!-- =====================================================
-         GENERAL MESSAGE MODAL
-    ====================================================== -->
-
-    <div
-        id="messageModal"
-        class="modal-overlay"
-    >
-
-        <div class="message-modal">
-
-            <button
-                id="closeMessageModal"
-                class="modal-close"
-                type="button"
-            >
-                ×
-            </button>
-
-
-            <div
-                id="messageIcon"
-                class="message-icon"
-            >
-                !
-            </div>
-
-
-            <h2 id="messageTitle">
-                Notice
-            </h2>
-
-
-            <p id="messageText">
-                —
-            </p>
-
-
-            <button
-                id="messageButton"
-                class="primary-button"
-                type="button"
-            >
-                OK
-            </button>
-
-        </div>
-
+    <!-- STEP 1: location check -->
+    <div id="stepLocation" class="attend-flow" style="display:none;">
+      <div class="status-line">
+        <span class="status-dot" id="locDot"></span>
+        <span id="locText">Getting location...</span>
+      </div>
+      <div id="locError" class="msg error"></div>
     </div>
 
+    <!-- STEP 2: camera -->
+    <div id="stepCamera" class="attend-flow" style="display:none;">
+      <div class="status-line" style="justify-content:center;">
+        <span class="status-dot on"></span>
+        <span id="addressText">Address: —</span>
+      </div>
 
-    <!-- =====================================================
-         FIREBASE + JAVASCRIPT
-    ====================================================== -->
+      <div class="camera-wrap" id="cameraWrap">
+        <video id="video" autoplay playsinline></video>
+        <div class="direction-guide" id="directionGuide">
+          <svg class="arrow-icon" id="directionArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="19" x2="12" y2="5"></line>
+            <polyline points="5 12 12 5 19 12"></polyline>
+          </svg>
+          <span class="direction-label" id="directionLabel">Look Up</span>
+        </div>
+        <div class="liveness-status" id="livenessStatus">Loading... preparing face check</div>
+      </div>
+      <canvas id="canvas" style="display:none;"></canvas>
 
-    <script type="module">
+      <div class="liveness-checklist" id="livenessChecklist">
+        <div class="liveness-item" id="checkLeft" data-step="left"><span class="icon">1</span> Look Left</div>
+        <div class="liveness-item" id="checkRight" data-step="right"><span class="icon">2</span> Look Right</div>
+        <div class="liveness-item" id="checkUp" data-step="up"><span class="icon">3</span> Look Up</div>
+      </div>
 
-        import {
-            initializeApp
-        } from
-        "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+      <div class="liveness-fallback-msg" id="livenessFallbackMsg">
+        Automatic face check is not available right now (possibly a connection issue). Please use the button below to take the picture manually.
+      </div>
+
+      <br>
+      <button class="btn gold" id="captureBtn">Capture Picture</button>
+      <button class="btn outline" id="cancelBtn">Cancel</button>
+      <div class="capture-manual-hint">Having trouble with auto-capture? You can click "Capture Picture" to take it manually.</div>
+    </div>
+
+    <!-- STEP 3: preview / submit -->
+    <div id="stepPreview" class="attend-flow" style="display:none;">
+      <canvas id="photoPreview" class="preview"></canvas>
+      <div style="margin-top:14px;">
+        <button class="btn gold" id="submitBtn">Submit Attendance</button>
+        <button class="btn outline" id="retakeBtn">Retake</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: success -->
+    <div id="stepDone" class="attend-flow" style="display:none;">
+      <div class="msg ok show">Attendance submitted successfully! Returning to dashboard...</div>
+      <div id="qrHolder" style="display:flex; justify-content:center; margin:16px 0;"></div>
+      
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+import { db } from "./firebase.js";
+import {
+  collection, addDoc, getDocs, getDoc, doc, query, where, limit, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+// ---- Auth guard ----
+const role = sessionStorage.getItem("role");
+const displayName = sessionStorage.getItem("displayName");
+if(role !== "student" || !displayName){
+  window.location.href = "login.html";
+}
+document.getElementById("whoLabel").textContent = displayName || "";
+document.getElementById("greeting").textContent = `Good day, ${displayName}!`;
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  sessionStorage.clear();
+  window.location.href = "login.html";
+});
+
+// ---- Tutorial modal: guide for enabling Location access ----
+const tutorialBtn = document.getElementById("tutorialBtn");
+const tutorialModalBg = document.getElementById("tutorialModalBg");
+const closeTutorialModal = document.getElementById("closeTutorialModal");
+
+tutorialBtn.addEventListener("click", () => {
+  tutorialModalBg.classList.add("show");
+});
+closeTutorialModal.addEventListener("click", () => {
+  tutorialModalBg.classList.remove("show");
+});
+tutorialModalBg.addEventListener("click", (e) => {
+  if(e.target === tutorialModalBg) tutorialModalBg.classList.remove("show");
+});
+
+// ---- Fetch the Course and Year Level of the logged-in student ----
+const courseYearLine = document.getElementById("courseYearLine");
+
+async function loadCourseAndYear(){
+  try{
+    const q = query(collection(db, "students"), where("name", "==", displayName), limit(1));
+    const snap = await getDocs(q);
+    if(!snap.empty){
+      const data = snap.docs[0].data();
+      const course = data.course || "—";
+      const yearLevel = data.yearLevel || "—";
+      courseYearLine.textContent = `${course} • ${yearLevel}`;
+      courseYearLine.style.display = "block";
+
+      
+      sessionStorage.setItem("course", course);
+      sessionStorage.setItem("yearLevel", yearLevel);
+    }
+  }catch(err){
+    console.error("Failed to load course/year level:", err);
+  }
+}
+loadCourseAndYear();
 
 
-        import {
-            getFirestore,
-            collection,
-            query,
-            where,
-            getDocs,
-            addDoc,
-            doc,
-            getDoc,
-            limit,
-            serverTimestamp
-        } from
-        "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+const scheduleMsg = document.getElementById("scheduleMsg");
+let attendanceWindow = null; // { start: Date, end: Date }
 
+function formatWindowDisplay(startDate, endDate){
+  const dateStr = startDate.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
+  const startStr = startDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+  const endStr = endDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+  return `${dateStr}, ${startStr} – ${endStr}`;
+}
 
-        /*
-        ========================================================
-        FIREBASE CONFIG
-        ========================================================
-        */
+function setStartButtonState(enabled, text){
+  const startBtnEl = document.getElementById("startBtn");
+  startBtnEl.disabled = !enabled;
+  startBtnEl.textContent = text;
+}
 
-        const firebaseConfig = {
+function showScheduleMsg(text, ok){
+  scheduleMsg.textContent = text;
+  scheduleMsg.className = ok ? "msg ok show" : "msg error show";
+  scheduleMsg.style.display = "block";
+}
 
-            apiKey:
-                "YOUR_API_KEY",
+// ---- NEW: check kung naka-attend na ang student niini nga schedule window ----
+// Nag-query sa "attendance" collection para tan-awon kung naa nay record
+// niining studyante nga ang timestamp naa sulod sa (start, end) window nga
+// gi-set sa admin. Kung naa na, dili na tugotan mo-attend pag-usab
+// (para dili ma double entry).
+async function hasExistingAttendance(start, end){
+  try{
+    // Note: query lang ta pinaagi sa "name" (single-field, walay kinahanglan
+    // og composite index sa Firestore). Ang pag-compare sa timestamp range
+    // himuon na lang dinhi sa JavaScript aron dili na kinahanglan mo-setup
+    // og index pa sa Firebase console.
+    const q = query(collection(db, "attendance"), where("name", "==", displayName));
+    const snap = await getDocs(q);
 
-            authDomain:
-                "YOUR_PROJECT.firebaseapp.com",
+    for(const docSnap of snap.docs){
+      const data = docSnap.data();
+      if(!data.timestamp || typeof data.timestamp.toDate !== "function") continue;
+      const ts = data.timestamp.toDate();
+      if(ts >= start && ts <= end){
+        return true;
+      }
+    }
+    return false;
+  }catch(err){
+    console.error("Failed to check existing attendance:", err);
+    // Kung ma-error ang check (e.g. connection issue), i-treat nato nga
+    // wala pa siya naka-attend aron dili ma-block ang tinuod nga user,
+    // pero naa gihapoy final re-check sa submit para segurado.
+    return false;
+  }
+}
 
-            projectId:
-                "YOUR_PROJECT_ID",
+async function checkAttendanceWindow(){
+  try{
+    const snap = await getDoc(doc(db, "settings", "attendanceWindow"));
+    if(!snap.exists()){
+      attendanceWindow = null;
+      showScheduleMsg("Schedule not found. Please refresh the page.", false);
+      setStartButtonState(false, "Not Available");
+      return;
+    }
 
-            storageBucket:
-                "YOUR_PROJECT.firebasestorage.app",
+    const data = snap.data();
+    const start = data.startAt.toDate();
+    const end = data.endAt.toDate();
+    attendanceWindow = { start, end };
 
-            messagingSenderId:
-                "YOUR_MESSAGING_SENDER_ID",
+    const now = new Date();
+    if(now < start){
+      showScheduleMsg(`Available : ${formatWindowDisplay(start, end)}`, false);
+      setStartButtonState(false, "Not Available");
+    } else if(now > end){
+      showScheduleMsg(`Attendance time has ended (${formatWindowDisplay(start, end)}). Wait for the schedule.`, false);
+      setStartButtonState(false, "Not Available");
+    } else {
+      // NEW: sa sulod pa gyud sa available window, susihon una kung
+      // naka-attend na ba ang student niini nga schedule.
+      const alreadyAttended = await hasExistingAttendance(start, end);
+      if(alreadyAttended){
+        showScheduleMsg(`You have already taken attendance for this schedule (${formatWindowDisplay(start, end)}).`, true);
+        setStartButtonState(false, "Already Attended");
+      } else {
+        showScheduleMsg(`Available until ${end.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" })}.`, true);
+        setStartButtonState(true, "📷 Take Attendance");
+      }
+    }
+  }catch(err){
+    console.error("Failed to check attendance window:", err);
+    attendanceWindow = null;
+    showScheduleMsg("Schedule not found. Please refresh the page.", false);
+    setStartButtonState(false, "Not Available");
+  }
+}
 
-            appId:
-                "YOUR_APP_ID"
+checkAttendanceWindow();
+// recheck every 30 seconds so it automatically enables/disables
+// even if the student doesn't reload the page
+setInterval(checkAttendanceWindow, 30000);
 
-        };
+// ---- Elements ----
+const stepStart = document.getElementById("stepStart");
+const stepLocation = document.getElementById("stepLocation");
+const stepCamera = document.getElementById("stepCamera");
+const stepPreview = document.getElementById("stepPreview");
+const stepDone = document.getElementById("stepDone");
 
+const startBtn = document.getElementById("startBtn");
+const captureBtn = document.getElementById("captureBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const submitBtn = document.getElementById("submitBtn");
+const retakeBtn = document.getElementById("retakeBtn");
 
-        const app =
-            initializeApp(
-                firebaseConfig
-            );
+const locDot = document.getElementById("locDot");
+const locText = document.getElementById("locText");
+const locError = document.getElementById("locError");
+const addressText = document.getElementById("addressText");
 
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const photoPreview = document.getElementById("photoPreview");
 
-        const db =
-            getFirestore(app);
+// ---- Liveness UI elements ----
+const directionGuide = document.getElementById("directionGuide");
+const directionArrow = document.getElementById("directionArrow");
+const directionLabel = document.getElementById("directionLabel");
+const livenessStatus = document.getElementById("livenessStatus");
+const livenessChecklist = document.getElementById("livenessChecklist");
+const livenessFallbackMsg = document.getElementById("livenessFallbackMsg");
+const checkItems = {
+  left: document.getElementById("checkLeft"),
+  right: document.getElementById("checkRight"),
+  up: document.getElementById("checkUp")
+};
 
+let stream = null;
+let capturedDataUrl = null;
+let locationData = null; // { lat, lng, address }
 
-        /*
-        ========================================================
-        USER SESSION
-        ========================================================
-        */
+function showStep(step){
+  [stepStart, stepLocation, stepCamera, stepPreview, stepDone].forEach(s => s.style.display = "none");
+  step.style.display = "block";
+}
 
-        const savedSession =
-            sessionStorage.getItem(
-                "cpsercUser"
-            );
+// ---- Step 1: request geolocation, then reverse-geocode ----
+async function reverseGeocode(lat, lng){
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const data = await res.json();
+    return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  }catch(err){
+    return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+  }
+}
 
+startBtn.addEventListener("click", async () => {
+  
 
-        if (!savedSession) {
+  const now = new Date();
+  if(!attendanceWindow || now < attendanceWindow.start || now > attendanceWindow.end){
+    alert("The attendance window is not available.");
+    checkAttendanceWindow();
+    return;
+  }
 
-            window.location.href =
-                "login.html";
+  // NEW: last-second re-check (in case naka-attend na ang student sa
+  // laing tab/device samtang naa sa page) aron dili gyud ma double entry.
+  const alreadyAttended = await hasExistingAttendance(attendanceWindow.start, attendanceWindow.end);
+  if(alreadyAttended){
+    alert("You have already taken attendance for this schedule.");
+    checkAttendanceWindow();
+    return;
+  }
 
-            throw new Error(
-                "No active user session."
-            );
+  showStep(stepLocation);
+  locDot.className = "status-dot";
+  locText.textContent = "Getting location...";
+  locError.className = "msg error";
 
+  if(!navigator.geolocation){
+    locDot.className = "status-dot off";
+    locText.textContent = "No location support.";
+    locError.textContent = "You cannot take attendance without enabling location services.";
+    locError.classList.add("show");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    const lat = pos.coords.latitude;
+    const lng = pos.coords.longitude;
+    locText.textContent = "Location obtained. Fetching address...";
+    const address = await reverseGeocode(lat, lng);
+
+    locationData = { lat, lng, address };
+    locDot.className = "status-dot on";
+    locText.textContent = "Location OK!";
+
+    // proceed to camera
+    await startCamera();
+  }, (err) => {
+    locDot.className = "status-dot off";
+    locText.textContent = "Location not enabled.";
+    locError.textContent = "Location services are required to take attendance. Please enable location access and try again.";
+    locError.classList.add("show");
+  }, { enableHighAccuracy: true, timeout: 15000 });
+});
+
+// ---- Step 2: camera ----
+async function startCamera(){
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+    video.srcObject = stream;
+    addressText.textContent = `Address: ${locationData.address}`;
+    showStep(stepCamera);
+
+    // Wait for the video to be ready before starting liveness detection
+    video.onloadedmetadata = () => {
+      startLivenessCheck();
+    };
+  }catch(err){
+    locDot.className = "status-dot off";
+    locText.textContent = "Camera not accessible.";
+    locError.textContent = "Camera access is required to take attendance. Please allow camera access and try again.";
+    locError.classList.add("show");
+  }
+}
+
+function stopCamera(){
+  if(stream){
+    stream.getTracks().forEach(t => t.stop());
+    stream = null;
+  }
+  stopLivenessCheck();
+}
+
+cancelBtn.addEventListener("click", () => {
+  stopCamera();
+  showStep(stepStart);
+});
+
+/* =======================================================================
+   LIVENESS DETECTION (Look Left -> Look Right -> Look Up)
+   Once all steps are complete, the picture is captured automatically —
+   there's no need to click "Capture Picture" (that button is just a
+   fallback in case the face detection model fails to load, or if
+   detection has trouble on a specific device/camera).
+   Note: the "blink" step was removed because blinking happens too
+   quickly and can be missed by the camera's frame rate, causing delays
+   or missed detections. Left/Right/Up poses are more stable and easier
+   to detect accurately.
+   ======================================================================= */
+
+const MODEL_URL = "https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights";
+
+let faceApiReady = false;
+let modelLoadAttempted = false;
+
+// Threshold constants — adjust these to balance sensitivity
+// (smaller = more sensitive, triggers more easily)
+const YAW_DELTA = 0.10;    // deviation of yaw from the neutral pose
+const PITCH_DELTA = 0.14;  // deviation of pitch from the neutral pose
+const STABLE_FRAMES_NEEDED = 8; // how many frames before locking in the neutral baseline
+
+const livenessOrder = ["left", "right", "up"];
+let livenessIndex = 0;
+let livenessActive = false;
+let livenessLoopHandle = null;
+let autoCaptureTriggered = false;
+
+let baseline = null;        // { yaw, pitch } of the neutral/starting pose
+let stableFrameCount = 0;
+let detectionFailCount = 0;
+const MAX_DETECTION_FAILS = 40; // if detection keeps failing, fall back to manual mode
+
+async function loadFaceApiModels(){
+  if(modelLoadAttempted) return;
+  modelLoadAttempted = true;
+  try{
+    if(typeof faceapi === "undefined"){
+      throw new Error("face-api.js script not loaded");
+    }
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    faceApiReady = true;
+  }catch(err){
+    console.error("Face-api model load failed, switching to manual capture mode:", err);
+    faceApiReady = false;
+  }
+}
+// Preload right away while the location check is still happening, so the
+// camera step loads faster once it's reached.
+loadFaceApiModels();
+
+function resetLivenessUI(){
+  livenessIndex = 0;
+  autoCaptureTriggered = false;
+  baseline = null;
+  stableFrameCount = 0;
+  detectionFailCount = 0;
+  hideDirectionGuide();
+  livenessFallbackMsg.classList.remove("show");
+  livenessChecklist.style.display = "flex";
+  Object.values(checkItems).forEach(el => el.className = "liveness-item");
+  if(checkItems[livenessOrder[0]]) checkItems[livenessOrder[0]].classList.add("active");
+  livenessStatus.textContent = "Center your face in the camera...";
+}
+
+function markStepDone(stepName){
+  if(checkItems[stepName]){
+    checkItems[stepName].className = "liveness-item done";
+  }
+  livenessIndex++;
+  if(livenessIndex < livenessOrder.length){
+    const nextStep = livenessOrder[livenessIndex];
+    if(checkItems[nextStep]) checkItems[nextStep].classList.add("active");
+  } else {
+    triggerAutoCapture();
+  }
+}
+
+function computePose(landmarks, box){
+  const nose = landmarks.getNose();
+  const jaw = landmarks.getJawOutline();
+  const leftBrow = landmarks.getLeftEyeBrow();
+  const rightBrow = landmarks.getRightEyeBrow();
+
+  const noseTip = nose[3] || nose[nose.length - 1];
+  const chin = jaw[8]; // bottom-most jaw point
+  const browMidY = (leftBrow.reduce((s,p) => s + p.y, 0) / leftBrow.length +
+                     rightBrow.reduce((s,p) => s + p.y, 0) / rightBrow.length) / 2;
+
+  const boxCenterX = box.x + box.width / 2;
+  const yaw = (noseTip.x - boxCenterX) / box.width;
+
+  const upperDist = Math.max(1, noseTip.y - browMidY);
+  const lowerDist = Math.max(1, chin.y - noseTip.y);
+  const pitch = lowerDist / upperDist; // higher value = looking up
+
+  return { yaw, pitch };
+}
+
+const directionInfo = {
+  left:  { rotate: 90,  label: "Turn Left" },
+  right: { rotate: -90, label: "Turn Right" },
+  up:    { rotate: 0,   label: "Look Up" }
+};
+
+function showDirectionGuide(step){
+  const info = directionInfo[step];
+  if(!info){
+    directionGuide.classList.remove("show");
+    return;
+  }
+  directionArrow.style.transform = `rotate(${info.rotate}deg)`;
+  directionLabel.textContent = info.label;
+  directionGuide.classList.add("show");
+}
+
+function hideDirectionGuide(){
+  directionGuide.classList.remove("show");
+}
+
+async function detectFrame(){
+  if(!livenessActive || autoCaptureTriggered) return;
+
+  try{
+    const options = new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 });
+    const result = await faceapi.detectSingleFace(video, options).withFaceLandmarks();
+
+    if(!result){
+      hideDirectionGuide();
+      livenessStatus.textContent = "No face detected — center your face in the camera.";
+      detectionFailCount++;
+    } else {
+      detectionFailCount = 0;
+      const box = result.detection.box;
+
+      // Basic "posture" check: the face box needs to be a reasonable
+      // size (not too far, not too close) for accurate detection.
+      const widthRatio = box.width / video.videoWidth;
+      const wellSized = widthRatio > 0.18 && widthRatio < 0.85;
+
+      if(!wellSized){
+        hideDirectionGuide();
+        livenessStatus.textContent = widthRatio <= 0.18
+          ? "Move your face closer to the camera."
+          : "Move your face a bit farther from the camera.";
+      } else {
+        const pose = computePose(result.landmarks, box);
+
+        // Lock in the "neutral" baseline first before starting the challenges
+        if(!baseline){
+          hideDirectionGuide();
+          stableFrameCount++;
+          livenessStatus.textContent = "Hold still, calculating your neutral pose...";
+          if(stableFrameCount >= STABLE_FRAMES_NEEDED){
+            baseline = { yaw: pose.yaw, pitch: pose.pitch };
+            livenessStatus.textContent = "Great, now follow the arrow.";
+            showDirectionGuide(livenessOrder[livenessIndex]);
+          }
+        } else {
+          const currentStep = livenessOrder[livenessIndex];
+          showDirectionGuide(currentStep);
+
+          if(currentStep === "left"){
+            livenessStatus.textContent = "Turn your head left.";
+            if((pose.yaw - baseline.yaw) < -YAW_DELTA){
+              markStepDone("left");
+            }
+          } else if(currentStep === "right"){
+            livenessStatus.textContent = "Turn your head right.";
+            if((pose.yaw - baseline.yaw) > YAW_DELTA){
+              markStepDone("right");
+            }
+          } else if(currentStep === "up"){
+            livenessStatus.textContent = "Look up.";
+            if((pose.pitch - baseline.pitch) > PITCH_DELTA){
+              markStepDone("up");
+            }
+          }
         }
-
-
-        let currentUser;
-
-
-        try {
-
-            currentUser =
-                JSON.parse(
-                    savedSession
-                );
-
-        } catch {
-
-            sessionStorage.removeItem(
-                "cpsercUser"
-            );
-
-            window.location.href =
-                "login.html";
-
-            throw new Error(
-                "Invalid user session."
-            );
-
-        }
-
-
-        /*
-        ========================================================
-        ELEMENTS
-        ========================================================
-        */
-
-        const sidebar =
-            document.getElementById(
-                "sidebar"
-            );
-
-
-        const sidebarOverlay =
-            document.getElementById(
-                "sidebarOverlay"
-            );
-
-
-        const menuButton =
-            document.getElementById(
-                "menuButton"
-            );
-
-
-        const logoutButton =
-            document.getElementById(
-                "logoutButton"
-            );
-
-
-        const navItems =
-            document.querySelectorAll(
-                ".nav-item"
-            );
-
-
-        const pageSections =
-            document.querySelectorAll(
-                ".page-section"
-            );
-
-
-        /*
-        ========================================================
-        USER INFORMATION
-        ========================================================
-        */
-
-        const fullName =
-            currentUser.fullName ||
-            "Member";
-
-
-        const position =
-            currentUser.position ||
-            "CPSERC Member";
-
-
-        const username =
-            currentUser.username ||
-            "";
-
-
-        /*
-        ========================================================
-        INITIAL PROFILE
-        ========================================================
-        */
-
-        function getInitials(name) {
-
-            const words =
-                name
-                    .trim()
-                    .split(/\s+/)
-                    .filter(Boolean);
-
-
-            if (!words.length) {
-
-                return "U";
-
-            }
-
-
-            if (words.length === 1) {
-
-                return words[0]
-                    .substring(0, 2)
-                    .toUpperCase();
-
-            }
-
-
-            return (
-                words[0][0] +
-                words[words.length - 1][0]
-            ).toUpperCase();
-
-        }
-
-
-        const initials =
-            getInitials(
-                fullName
-            );
-
-
-        document.getElementById(
-            "welcomeName"
-        ).textContent =
-            fullName;
-
-
-        document.getElementById(
-            "topUserName"
-        ).textContent =
-            fullName;
-
-
-        document.getElementById(
-            "topUserPosition"
-        ).textContent =
-            position;
-
-
-        document.getElementById(
-            "positionValue"
-        ).textContent =
-            position;
-
-
-        document.getElementById(
-            "usernameValue"
-        ).textContent =
-            username;
-
-
-        document.getElementById(
-            "profileName"
-        ).textContent =
-            fullName;
-
-
-        document.getElementById(
-            "profilePosition"
-        ).textContent =
-            position;
-
-
-        document.getElementById(
-            "profileFullName"
-        ).textContent =
-            fullName;
-
-
-        document.getElementById(
-            "profilePositionValue"
-        ).textContent =
-            position;
-
-
-        document.getElementById(
-            "profileUsername"
-        ).textContent =
-            username;
-
-
-        document.getElementById(
-            "profileStatus"
-        ).textContent =
-            currentUser.status ||
-            "Active";
-
-
-        document.getElementById(
-            "topAvatar"
-        ).textContent =
-            initials;
-
-
-        document.getElementById(
-            "profileAvatar"
-        ).textContent =
-            initials;
-
-
-        /*
-        ========================================================
-        NAVIGATION
-        ========================================================
-        */
-
-        function showSection(
-            sectionId
-        ) {
-
-            pageSections.forEach(
-                section => {
-
-                    section.classList.remove(
-                        "active-section"
-                    );
-
-                }
-            );
-
-
-            navItems.forEach(
-                item => {
-
-                    item.classList.remove(
-                        "active"
-                    );
-
-                }
-            );
-
-
-            const target =
-                document.getElementById(
-                    sectionId
-                );
-
-
-            if (target) {
-
-                target.classList.add(
-                    "active-section"
-                );
-
-            }
-
-
-            navItems.forEach(
-                item => {
-
-                    if (
-                        item.dataset.section ===
-                        sectionId
-                    ) {
-
-                        item.classList.add(
-                            "active"
-                        );
-
-                    }
-
-                }
-            );
-
-
-            closeMobileSidebar();
-
-        }
-
-
-        navItems.forEach(
-            item => {
-
-                item.addEventListener(
-                    "click",
-                    () => {
-
-                        showSection(
-                            item.dataset.section
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-        /*
-        ========================================================
-        MOBILE SIDEBAR
-        ========================================================
-        */
-
-        function openMobileSidebar() {
-
-            sidebar.classList.add(
-                "mobile-open"
-            );
-
-            sidebarOverlay.classList.add(
-                "show"
-            );
-
-        }
-
-
-        function closeMobileSidebar() {
-
-            sidebar.classList.remove(
-                "mobile-open"
-            );
-
-            sidebarOverlay.classList.remove(
-                "show"
-            );
-
-        }
-
-
-        menuButton.addEventListener(
-            "click",
-            openMobileSidebar
-        );
-
-
-        sidebarOverlay.addEventListener(
-            "click",
-            closeMobileSidebar
-        );
-
-
-        /*
-        ========================================================
-        LOGOUT
-        ========================================================
-        */
-
-        logoutButton.addEventListener(
-            "click",
-            () => {
-
-                sessionStorage.removeItem(
-                    "cpsercUser"
-                );
-
-
-                window.location.href =
-                    "login.html";
-
-            }
-        );
-
-
-        /*
-        ========================================================
-        MODALS
-        ========================================================
-        */
-
-        const attendanceModal =
-            document.getElementById(
-                "attendanceModal"
-            );
-
-
-        const messageModal =
-            document.getElementById(
-                "messageModal"
-            );
-
-
-        function openAttendanceModal() {
-
-            attendanceModal.classList.add(
-                "show"
-            );
-
-        }
-
-
-        function closeAttendanceModal() {
-
-            attendanceModal.classList.remove(
-                "show"
-            );
-
-            stopCamera();
-
-        }
-
-
-        document.getElementById(
-            "closeAttendanceModal"
-        ).addEventListener(
-            "click",
-            closeAttendanceModal
-        );
-
-
-        function showMessage(
-            title,
-            message,
-            type = "error"
-        ) {
-
-            document.getElementById(
-                "messageTitle"
-            ).textContent =
-                title;
-
-
-            document.getElementById(
-                "messageText"
-            ).textContent =
-                message;
-
-
-            const icon =
-                document.getElementById(
-                    "messageIcon"
-                );
-
-
-            icon.className =
-                "message-icon " +
-                type;
-
-
-            icon.textContent =
-                type === "success"
-                    ? "✓"
-                    : "!";
-
-
-            messageModal.classList.add(
-                "show"
-            );
-
-        }
-
-
-        function closeMessage() {
-
-            messageModal.classList.remove(
-                "show"
-            );
-
-        }
-
-
-        document.getElementById(
-            "closeMessageModal"
-        ).addEventListener(
-            "click",
-            closeMessage
-        );
-
-
-        document.getElementById(
-            "messageButton"
-        ).addEventListener(
-            "click",
-            closeMessage
-        );
-
-
-        /*
-        ========================================================
-        ATTENDANCE VARIABLES
-        ========================================================
-        */
-
-        let activeSchedule = null;
-
-        let countdownTimer = null;
-
-        let cameraStream = null;
-
-        let capturedPhoto = null;
-
-        let currentLocation = null;
-
-
-        /*
-        ========================================================
-        DOM ATTENDANCE ELEMENTS
-        ========================================================
-        */
-
-        const attendanceStatus =
-            document.getElementById(
-                "attendanceStatus"
-            );
-
-
-        const attendanceWindowTitle =
-            document.getElementById(
-                "attendanceWindowTitle"
-            );
-
-
-        const attendanceWindowDescription =
-            document.getElementById(
-                "attendanceWindowDescription"
-            );
-
-
-        const countdown =
-            document.getElementById(
-                "countdown"
-            );
-
-
-        const takeAttendanceButton =
-            document.getElementById(
-                "takeAttendanceButton"
-            );
-
-
-        /*
-        ========================================================
-        FIRESTORE HELPERS
-        ========================================================
-        */
-
-
-        async function getActiveSchedules() {
-
-            const schedulesRef =
-                collection(
-                    db,
-                    "attendanceSchedules"
-                );
-
-
-            const scheduleQuery =
-                query(
-                    schedulesRef,
-                    where(
-                        "active",
-                        "==",
-                        true
-                    )
-                );
-
-
-            const snapshot =
-                await getDocs(
-                    scheduleQuery
-                );
-
-
-            return snapshot.docs.map(
-                item => ({
-                    id: item.id,
-                    ...item.data()
-                })
-            );
-
-        }
-
-
-        /*
-        ========================================================
-        PARSE FIRESTORE DATE / TIMESTAMP
-        ========================================================
-        */
-
-        function toDate(value) {
-
-            if (!value) {
-
-                return null;
-
-            }
-
-
-            if (
-                value instanceof Date
-            ) {
-
-                return value;
-
-            }
-
-
-            if (
-                typeof value.toDate ===
-                "function"
-            ) {
-
-                return value.toDate();
-
-            }
-
-
-            if (
-                typeof value ===
-                "string"
-            ) {
-
-                const date =
-                    new Date(value);
-
-
-                if (
-                    !Number.isNaN(
-                        date.getTime()
-                    )
-                ) {
-
-                    return date;
-
-                }
-
-            }
-
-
-            return null;
-
-        }
-
-
-        /*
-        ========================================================
-        CHECK SCHEDULE
-        ========================================================
-        */
-
-        async function loadAttendanceSchedule() {
-
-            try {
-
-                const schedules =
-                    await getActiveSchedules();
-
-
-                if (
-                    !schedules.length
-                ) {
-
-                    setNoActiveSchedule();
-
-                    return;
-
-                }
-
-
-                const now =
-                    new Date();
-
-
-                let selected =
-                    null;
-
-
-                for (
-                    const schedule
-                    of schedules
-                ) {
-
-                    const start =
-                        toDate(
-                            schedule.startDateTime
-                        );
-
-
-                    const end =
-                        toDate(
-                            schedule.endDateTime
-                        );
-
-
-                    if (
-                        start &&
-                        end &&
-                        now >= start &&
-                        now <= end
-                    ) {
-
-                        selected =
-                            schedule;
-
-                        break;
-
-                    }
-
-                }
-
-
-                if (!selected) {
-
-                    setNoActiveSchedule();
-
-                    return;
-
-                }
-
-
-                activeSchedule =
-                    selected;
-
-
-                updateScheduleDisplay();
-
-                startCountdown();
-
-                await checkExistingAttendance();
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                attendanceWindowTitle.textContent =
-                    "Unable to load schedule";
-
-
-                attendanceWindowDescription.textContent =
-                    "Please try again later.";
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        NO ACTIVE SCHEDULE
-        ========================================================
-        */
-
-        function setNoActiveSchedule() {
-
-            activeSchedule =
-                null;
-
-
-            attendanceWindowTitle.textContent =
-                "No Active Attendance Window";
-
-
-            attendanceWindowDescription.textContent =
-                "Attendance is currently unavailable. Please wait for the administrator to open a new attendance schedule.";
-
-
-            countdown.textContent =
-                "--:--:--";
-
-
-            attendanceStatus.textContent =
-                "Unavailable";
-
-
-            attendanceStatus.className =
-                "stat-value";
-
-
-            takeAttendanceButton.disabled =
-                true;
-
-
-            takeAttendanceButton.textContent =
-                "ATTENDANCE CLOSED";
-
-        }
-
-
-        /*
-        ========================================================
-        DISPLAY SCHEDULE
-        ========================================================
-        */
-
-        function updateScheduleDisplay() {
-
-            if (!activeSchedule) {
-
-                return;
-
-            }
-
-
-            const type =
-                activeSchedule.type ||
-                "Attendance";
-
-
-            const start =
-                toDate(
-                    activeSchedule.startDateTime
-                );
-
-
-            const end =
-                toDate(
-                    activeSchedule.endDateTime
-                );
-
-
-            attendanceWindowTitle.textContent =
-                type;
-
-
-            attendanceWindowDescription.textContent =
-                start && end
-                    ? `${formatDate(start)} • ${formatTime(start)} - ${formatTime(end)}`
-                    : "Attendance schedule is active.";
-
-
-            document.getElementById(
-                "detailType"
-            ).textContent =
-                type;
-
-
-            document.getElementById(
-                "detailDate"
-            ).textContent =
-                start
-                    ? formatDate(start)
-                    : "—";
-
-
-            document.getElementById(
-                "detailStart"
-            ).textContent =
-                start
-                    ? formatTime(start)
-                    : "—";
-
-
-            document.getElementById(
-                "detailEnd"
-            ).textContent =
-                end
-                    ? formatTime(end)
-                    : "—";
-
-        }
-
-
-        /*
-        ========================================================
-        DATE FORMATTING
-        ========================================================
-        */
-
-        function formatDate(
-            date
-        ) {
-
-            return date.toLocaleDateString(
-                "en-US",
-                {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                }
-            );
-
-        }
-
-
-        function formatTime(
-            date
-        ) {
-
-            return date.toLocaleTimeString(
-                "en-US",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                }
-            );
-
-        }
-
-
-        /*
-        ========================================================
-        COUNTDOWN
-        ========================================================
-        */
-
-        function startCountdown() {
-
-            if (
-                countdownTimer
-            ) {
-
-                clearInterval(
-                    countdownTimer
-                );
-
-            }
-
-
-            function update() {
-
-                if (
-                    !activeSchedule
-                ) {
-
-                    return;
-
-                }
-
-
-                const end =
-                    toDate(
-                        activeSchedule.endDateTime
-                    );
-
-
-                if (!end) {
-
-                    countdown.textContent =
-                        "--:--:--";
-
-                    return;
-
-                }
-
-
-                const now =
-                    new Date();
-
-
-                const difference =
-                    end.getTime() -
-                    now.getTime();
-
-
-                if (
-                    difference <= 0
-                ) {
-
-                    countdown.textContent =
-                        "00:00:00";
-
-
-                    clearInterval(
-                        countdownTimer
-                    );
-
-
-                    setNoActiveSchedule();
-
-                    return;
-
-                }
-
-
-                const totalSeconds =
-                    Math.floor(
-                        difference / 1000
-                    );
-
-
-                const hours =
-                    Math.floor(
-                        totalSeconds / 3600
-                    );
-
-
-                const minutes =
-                    Math.floor(
-                        (
-                            totalSeconds % 3600
-                        ) / 60
-                    );
-
-
-                const seconds =
-                    totalSeconds % 60;
-
-
-                countdown.textContent =
-                    String(hours).padStart(
-                        2,
-                        "0"
-                    )
-                    + ":"
-                    +
-                    String(minutes).padStart(
-                        2,
-                        "0"
-                    )
-                    + ":"
-                    +
-                    String(seconds).padStart(
-                        2,
-                        "0"
-                    );
-
-            }
-
-
-            update();
-
-
-            countdownTimer =
-                setInterval(
-                    update,
-                    1000
-                );
-
-        }
-
-
-        /*
-        ========================================================
-        CHECK EXISTING ATTENDANCE
-        ========================================================
-        */
-
-        async function checkExistingAttendance() {
-
-            if (
-                !activeSchedule
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                const attendanceRef =
-                    collection(
-                        db,
-                        "attendance"
-                    );
-
-
-                const attendanceQuery =
-                    query(
-                        attendanceRef,
-
-                        where(
-                            "userId",
-                            "==",
-                            currentUser.uid
-                        ),
-
-                        where(
-                            "scheduleId",
-                            "==",
-                            activeSchedule.id
-                        ),
-
-                        limit(1)
-                    );
-
-
-                const snapshot =
-                    await getDocs(
-                        attendanceQuery
-                    );
-
-
-                if (
-                    !snapshot.empty
-                ) {
-
-                    const data =
-                        snapshot.docs[0].data();
-
-
-                    setAttendanceAlreadySubmitted(
-                        data
-                    );
-
-                } else {
-
-                    setAttendanceReady();
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Attendance check error:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        ATTENDANCE STATES
-        ========================================================
-        */
-
-        function setAttendanceReady() {
-
-            attendanceStatus.textContent =
-                "Ready";
-
-
-            attendanceStatus.className =
-                "stat-value";
-
-
-            takeAttendanceButton.disabled =
-                false;
-
-
-            takeAttendanceButton.textContent =
-                "TAKE ATTENDANCE";
-
-
-            document.getElementById(
-                "detailSubmission"
-            ).textContent =
-                "Not Submitted";
-
-
-            document.getElementById(
-                "detailVerification"
-            ).textContent =
-                "Waiting";
-
-        }
-
-
-        function setAttendanceAlreadySubmitted(
-            data
-        ) {
-
-            attendanceStatus.textContent =
-                "Submitted";
-
-
-            attendanceStatus.className =
-                "stat-value success";
-
-
-            takeAttendanceButton.disabled =
-                true;
-
-
-            takeAttendanceButton.textContent =
-                "ATTENDANCE SUBMITTED";
-
-
-            document.getElementById(
-                "detailSubmission"
-            ).textContent =
-                "Submitted";
-
-
-            document.getElementById(
-                "detailVerification"
-            ).textContent =
-                data.status ||
-                "Pending";
-
-        }
-
-
-        /*
-        ========================================================
-        TAKE ATTENDANCE
-        ========================================================
-        */
-
-        takeAttendanceButton.addEventListener(
-            "click",
-            async () => {
-
-                if (
-                    !activeSchedule
-                ) {
-
-                    showMessage(
-                        "Attendance Closed",
-                        "There is currently no active attendance schedule.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                await checkExistingAttendance();
-
-
-                if (
-                    takeAttendanceButton.disabled
-                ) {
-
-                    return;
-
-                }
-
-
-                resetAttendanceModal();
-
-                openAttendanceModal();
-
-            }
-        );
-
-
-        /*
-        ========================================================
-        RESET ATTENDANCE MODAL
-        ========================================================
-        */
-
-        function resetAttendanceModal() {
-
-            currentLocation =
-                null;
-
-
-            capturedPhoto =
-                null;
-
-
-            stopCamera();
-
-
-            document.getElementById(
-                "locationStep"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "cameraStep"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "successStep"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "locationResult"
-            ).classList.remove(
-                "show"
-            );
-
-
-            document.getElementById(
-                "locationMessage"
-            ).textContent =
-                "Click the button below to verify your current location.";
-
-
-            document.getElementById(
-                "locationButton"
-            ).disabled =
-                false;
-
-
-            document.getElementById(
-                "locationButton"
-            ).textContent =
-                "ALLOW LOCATION";
-
-
-            document.getElementById(
-                "photoPreview"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "cameraVideo"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "captureButton"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "retakeButton"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "submitAttendanceButton"
-            ).classList.add(
-                "hidden"
-            );
-
-        }
-
-
-        /*
-        ========================================================
-        LOCATION
-        ========================================================
-        */
-
-        document.getElementById(
-            "locationButton"
-        ).addEventListener(
-            "click",
-            requestLocation
-        );
-
-
-        function requestLocation() {
-
-            const message =
-                document.getElementById(
-                    "locationMessage"
-                );
-
-
-            const button =
-                document.getElementById(
-                    "locationButton"
-                );
-
-
-            if (
-                !navigator.geolocation
-            ) {
-
-                message.textContent =
-                    "Geolocation is not supported by this browser.";
-
-                return;
-
-            }
-
-
-            button.disabled =
-                true;
-
-
-            button.textContent =
-                "LOCATING...";
-
-
-            message.textContent =
-                "Please allow location access when your browser asks for permission.";
-
-
-            navigator.geolocation.getCurrentPosition(
-
-                position => {
-
-                    currentLocation = {
-
-                        latitude:
-                            position.coords.latitude,
-
-                        longitude:
-                            position.coords.longitude,
-
-                        accuracy:
-                            position.coords.accuracy
-
-                    };
-
-
-                    document.getElementById(
-                        "latitudeValue"
-                    ).textContent =
-                        currentLocation.latitude
-                            .toFixed(6);
-
-
-                    document.getElementById(
-                        "longitudeValue"
-                    ).textContent =
-                        currentLocation.longitude
-                            .toFixed(6);
-
-
-                    document.getElementById(
-                        "accuracyValue"
-                    ).textContent =
-                        `${Math.round(currentLocation.accuracy)} meters`;
-
-
-                    document.getElementById(
-                        "locationResult"
-                    ).classList.add(
-                        "show"
-                    );
-
-
-                    message.textContent =
-                        "Location verified successfully. You may now take your attendance photo.";
-
-
-                    button.textContent =
-                        "LOCATION VERIFIED";
-
-
-                    button.disabled =
-                        true;
-
-
-                    setTimeout(
-                        () => {
-
-                            showCameraStep();
-
-                        },
-                        500
-                    );
-
-                },
-
-
-                error => {
-
-                    console.error(
-                        "Location error:",
-                        error
-                    );
-
-
-                    button.disabled =
-                        false;
-
-
-                    button.textContent =
-                        "TRY AGAIN";
-
-
-                    if (
-                        error.code ===
-                        error.PERMISSION_DENIED
-                    ) {
-
-                        message.textContent =
-                            "Location permission was denied. Please enable location permission in your browser settings and try again.";
-
-                    } else if (
-                        error.code ===
-                        error.POSITION_UNAVAILABLE
-                    ) {
-
-                        message.textContent =
-                            "Your location could not be determined. Please make sure location services are enabled.";
-
-                    } else {
-
-                        message.textContent =
-                            "Location request timed out. Please try again.";
-
-                    }
-
-                },
-
-                {
-                    enableHighAccuracy: true,
-
-                    timeout: 15000,
-
-                    maximumAge: 0
-
-                }
-
-            );
-
-        }
-
-
-        /*
-        ========================================================
-        CAMERA
-        ========================================================
-        */
-
-        async function showCameraStep() {
-
-            document.getElementById(
-                "locationStep"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "cameraStep"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            try {
-
-                cameraStream =
-                    await navigator.mediaDevices
-                        .getUserMedia({
-
-                            video: {
-
-                                facingMode:
-                                    "user",
-
-                                width: {
-                                    ideal: 1280
-                                },
-
-                                height: {
-                                    ideal: 720
-                                }
-
-                            },
-
-                            audio: false
-
-                        });
-
-
-                const video =
-                    document.getElementById(
-                        "cameraVideo"
-                    );
-
-
-                video.srcObject =
-                    cameraStream;
-
-
-            } catch (error) {
-
-                console.error(
-                    "Camera error:",
-                    error
-                );
-
-
-                showMessage(
-                    "Camera Access Required",
-                    "Camera access is required to take your attendance photo. Please allow camera permission and try again.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        STOP CAMERA
-        ========================================================
-        */
-
-        function stopCamera() {
-
-            if (
-                cameraStream
-            ) {
-
-                cameraStream
-                    .getTracks()
-                    .forEach(
-                        track => {
-                            track.stop();
-                        }
-                    );
-
-
-                cameraStream =
-                    null;
-
-            }
-
-
-            const video =
-                document.getElementById(
-                    "cameraVideo"
-                );
-
-
-            if (video) {
-
-                video.srcObject =
-                    null;
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        CAPTURE PHOTO
-        ========================================================
-        */
-
-        document.getElementById(
-            "captureButton"
-        ).addEventListener(
-            "click",
-            capturePhoto
-        );
-
-
-        function capturePhoto() {
-
-            const video =
-                document.getElementById(
-                    "cameraVideo"
-                );
-
-
-            const canvas =
-                document.getElementById(
-                    "photoCanvas"
-                );
-
-
-            if (
-                video.readyState <
-                2
-            ) {
-
-                showMessage(
-                    "Camera Not Ready",
-                    "Please wait for the camera to become ready.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            canvas.width =
-                video.videoWidth;
-
-
-            canvas.height =
-                video.videoHeight;
-
-
-            const context =
-                canvas.getContext(
-                    "2d"
-                );
-
-
-            context.drawImage(
-                video,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
-
-
-            capturedPhoto =
-                canvas.toDataURL(
-                    "image/jpeg",
-                    0.85
-                );
-
-
-            const preview =
-                document.getElementById(
-                    "photoPreview"
-                );
-
-
-            preview.src =
-                capturedPhoto;
-
-
-            preview.classList.remove(
-                "hidden"
-            );
-
-
-            video.classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "captureButton"
-            ).classList.add(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "retakeButton"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            document.getElementById(
-                "submitAttendanceButton"
-            ).classList.remove(
-                "hidden"
-            );
-
-
-            stopCamera();
-
-        }
-
-
-        /*
-        ========================================================
-        RETAKE
-        ========================================================
-        */
-
-        document.getElementById(
-            "retakeButton"
-        ).addEventListener(
-            "click",
-            async () => {
-
-                capturedPhoto =
-                    null;
-
-
-                document.getElementById(
-                    "photoPreview"
-                ).classList.add(
-                    "hidden"
-                );
-
-
-                document.getElementById(
-                    "cameraVideo"
-                ).classList.remove(
-                    "hidden"
-                );
-
-
-                document.getElementById(
-                    "captureButton"
-                ).classList.remove(
-                    "hidden"
-                );
-
-
-                document.getElementById(
-                    "retakeButton"
-                ).classList.add(
-                    "hidden"
-                );
-
-
-                document.getElementById(
-                    "submitAttendanceButton"
-                ).classList.add(
-                    "hidden"
-                );
-
-
-                await startCameraAgain();
-
-            }
-        );
-
-
-        async function startCameraAgain() {
-
-            try {
-
-                cameraStream =
-                    await navigator.mediaDevices
-                        .getUserMedia({
-
-                            video: {
-
-                                facingMode:
-                                    "user",
-
-                                width: {
-                                    ideal: 1280
-                                },
-
-                                height: {
-                                    ideal: 720
-                                }
-
-                            },
-
-                            audio: false
-
-                        });
-
-
-                document.getElementById(
-                    "cameraVideo"
-                ).srcObject =
-                    cameraStream;
-
-
-            } catch (error) {
-
-                console.error(
-                    error
-                );
-
-
-                showMessage(
-                    "Camera Error",
-                    "Unable to start the camera. Please check your browser permission.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        SUBMIT ATTENDANCE
-        ========================================================
-        */
-
-        document.getElementById(
-            "submitAttendanceButton"
-        ).addEventListener(
-            "click",
-            submitAttendance
-        );
-
-
-        async function submitAttendance() {
-
-            if (
-                !activeSchedule
-            ) {
-
-                showMessage(
-                    "Attendance Closed",
-                    "The attendance schedule is no longer active.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !currentLocation
-            ) {
-
-                showMessage(
-                    "Location Required",
-                    "Your location must be verified first.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (
-                !capturedPhoto
-            ) {
-
-                showMessage(
-                    "Photo Required",
-                    "Please take your attendance photo first.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const button =
-                document.getElementById(
-                    "submitAttendanceButton"
-                );
-
-
-            button.disabled =
-                true;
-
-
-            button.textContent =
-                "SUBMITTING...";
-
-
-            try {
-
-                /*
-                ================================================
-                CHECK AGAIN BEFORE INSERTING
-                ================================================
-                */
-
-                const attendanceRef =
-                    collection(
-                        db,
-                        "attendance"
-                    );
-
-
-                const duplicateQuery =
-                    query(
-
-                        attendanceRef,
-
-                        where(
-                            "userId",
-                            "==",
-                            currentUser.uid
-                        ),
-
-                        where(
-                            "scheduleId",
-                            "==",
-                            activeSchedule.id
-                        ),
-
-                        limit(1)
-
-                    );
-
-
-                const duplicateSnapshot =
-                    await getDocs(
-                        duplicateQuery
-                    );
-
-
-                if (
-                    !duplicateSnapshot.empty
-                ) {
-
-                    setAttendanceAlreadySubmitted(
-                        duplicateSnapshot.docs[0].data()
-                    );
-
-
-                    closeAttendanceModal();
-
-
-                    showMessage(
-                        "Already Submitted",
-                        "You have already submitted attendance for this schedule.",
-                        "error"
-                    );
-
-
-                    return;
-
-                }
-
-
-                /*
-                ================================================
-                FIRESTORE ATTENDANCE
-                ================================================
-                */
-
-                await addDoc(
-                    attendanceRef,
-                    {
-
-                        userId:
-                            currentUser.uid,
-
-                        fullName:
-                            fullName,
-
-                        username:
-                            username,
-
-                        position:
-                            position,
-
-                        scheduleId:
-                            activeSchedule.id,
-
-                        attendanceType:
-                            activeSchedule.type ||
-                            "Attendance",
-
-                        latitude:
-                            currentLocation.latitude,
-
-                        longitude:
-                            currentLocation.longitude,
-
-                        accuracy:
-                            currentLocation.accuracy,
-
-                        photo:
-                            capturedPhoto,
-
-                        status:
-                            "pending",
-
-                        adminAccepted:
-                            false,
-
-                        submittedAt:
-                            serverTimestamp()
-
-                    }
-                );
-
-
-                /*
-                ================================================
-                SUCCESS
-                ================================================
-                */
-
-                attendanceStatus.textContent =
-                    "Submitted";
-
-
-                attendanceStatus.className =
-                    "stat-value success";
-
-
-                takeAttendanceButton.disabled =
-                    true;
-
-
-                takeAttendanceButton.textContent =
-                    "ATTENDANCE SUBMITTED";
-
-
-                document.getElementById(
-                    "detailSubmission"
-                ).textContent =
-                    "Submitted";
-
-
-                document.getElementById(
-                    "detailVerification"
-                ).textContent =
-                    "Pending";
-
-
-                document.getElementById(
-                    "cameraStep"
-                ).classList.add(
-                    "hidden"
-                );
-
-
-                document.getElementById(
-                    "successStep"
-                ).classList.remove(
-                    "hidden"
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "Submit attendance error:",
-                    error
-                );
-
-
-                button.disabled =
-                    false;
-
-
-                button.textContent =
-                    "SUBMIT ATTENDANCE";
-
-
-                showMessage(
-                    "Submission Failed",
-                    "Your attendance could not be submitted. Please try again.",
-                    "error"
-                );
-
-            }
-
-        }
-
-
-        /*
-        ========================================================
-        FINISH ATTENDANCE
-        ========================================================
-        */
-
-        document.getElementById(
-            "finishAttendanceButton"
-        ).addEventListener(
-            "click",
-            () => {
-
-                closeAttendanceModal();
-
-                resetAttendanceModal();
-
-                showSection(
-                    "dashboardSection"
-                );
-
-            }
-        );
-
-
-        /*
-        ========================================================
-        MODAL OUTSIDE CLICK
-        ========================================================
-        */
-
-        attendanceModal.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target ===
-                    attendanceModal
-                ) {
-
-                    closeAttendanceModal();
-
-                }
-
-            }
-        );
-
-
-        messageModal.addEventListener(
-            "click",
-            event => {
-
-                if (
-                    event.target ===
-                    messageModal
-                ) {
-
-                    closeMessage();
-
-                }
-
-            }
-        );
-
-
-        /*
-        ========================================================
-        INITIAL LOAD
-        ========================================================
-        */
-
-        loadAttendanceSchedule();
-
-
-        /*
-        ========================================================
-        REFRESH SCHEDULE
-        ========================================================
-        */
-
-        setInterval(
-            () => {
-
-                loadAttendanceSchedule();
-
-            },
-            30000
-        );
-
-    </script>
-
+      }
+    }
+  }catch(err){
+    // Even if a single frame errors out, it won't stop the whole flow —
+    // the loop just continues, and the manual button is still available.
+    console.error("Detection frame error:", err);
+    detectionFailCount++;
+  }
+
+  if(detectionFailCount > MAX_DETECTION_FAILS){
+    console.warn("Too many failed detections, switching to manual capture.");
+    stopLivenessCheck();
+    hideDirectionGuide();
+    livenessFallbackMsg.classList.add("show");
+    livenessChecklist.style.display = "none";
+    livenessStatus.textContent = "Please use the button below to capture manually.";
+    return;
+  }
+
+  if(livenessActive && !autoCaptureTriggered){
+    livenessLoopHandle = requestAnimationFrame(detectFrame);
+  }
+}
+
+async function startLivenessCheck(){
+  resetLivenessUI();
+
+  if(!faceApiReady){
+    // Wait for the model in case it hasn't finished loading yet (e.g. it's
+    // still loading while the location step is being checked); give it a
+    // bit of extra time before falling back to manual mode.
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  if(!faceApiReady){
+    // Model truly failed to load (e.g. no internet access to the CDN) —
+    // automatically fall back to manual capture so the UI doesn't
+    // error out or get stuck.
+    hideDirectionGuide();
+    livenessFallbackMsg.classList.add("show");
+    livenessChecklist.style.display = "none";
+    livenessStatus.textContent = "Please use the button below to capture manually.";
+    return;
+  }
+
+  livenessActive = true;
+  detectFrame();
+}
+
+function stopLivenessCheck(){
+  livenessActive = false;
+  if(livenessLoopHandle){
+    cancelAnimationFrame(livenessLoopHandle);
+    livenessLoopHandle = null;
+  }
+}
+
+function triggerAutoCapture(){
+  if(autoCaptureTriggered) return;
+  autoCaptureTriggered = true;
+  hideDirectionGuide();
+  livenessStatus.textContent = "Perfect! Capturing the picture now...";
+  stopLivenessCheck();
+  setTimeout(() => {
+    performCapture();
+  }, 500);
+}
+
+const MAX_BYTES = 150 * 1024; 
+const MIN_WIDTH = 160;        
+function dataUrlSizeBytes(dataUrl){
+  const base64 = dataUrl.split(",")[1] || "";
+  return Math.ceil(base64.length * 0.75);
+}
+
+function compressFromVideo(){
+  let width = 400; 
+  let quality = 0.55;
+  let dataUrl = "";
+
+  for(let attempt = 0; attempt < 8; attempt++){
+    const height = (video.videoHeight / video.videoWidth * width) || (width * 0.75);
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, width, height);
+    dataUrl = canvas.toDataURL("image/jpeg", quality);
+
+    if(dataUrlSizeBytes(dataUrl) <= MAX_BYTES || width <= MIN_WIDTH){
+      break;
+    }
+
+    
+    if(quality > 0.35){
+      quality -= 0.1;
+    } else {
+      width = Math.max(MIN_WIDTH, Math.round(width * 0.8));
+      quality = 0.55;
+    }
+  }
+
+  return dataUrl;
+}
+
+// performCapture() = shared logic for auto-capture (after the liveness
+// check completes) and manual capture (clicking the button).
+function performCapture(){
+  stopLivenessCheck();
+  capturedDataUrl = compressFromVideo();
+
+  photoPreview.width = canvas.width;
+  photoPreview.height = canvas.height;
+  photoPreview.getContext("2d").drawImage(canvas, 0, 0);
+
+  stopCamera();
+  showStep(stepPreview);
+}
+
+captureBtn.addEventListener("click", () => {
+  performCapture();
+});
+
+retakeBtn.addEventListener("click", async () => {
+  await startCamera();
+});
+
+
+submitBtn.addEventListener("click", async () => {
+ 
+  const nowCheck = new Date();
+  if(!attendanceWindow || nowCheck < attendanceWindow.start || nowCheck > attendanceWindow.end){
+    alert("Not Available or the attendance window has ended. Your attendance cannot be submitted.");
+    stopCamera();
+    showStep(stepStart);
+    checkAttendanceWindow();
+    return;
+  }
+
+  // NEW: final re-check right before saving to Firestore — this catches
+  // the case where the student already submitted attendance from another
+  // tab/device for this same schedule window (prevents double entry).
+  const alreadyAttended = await hasExistingAttendance(attendanceWindow.start, attendanceWindow.end);
+  if(alreadyAttended){
+    alert("You have already submitted attendance for this schedule.");
+    stopCamera();
+    showStep(stepStart);
+    checkAttendanceWindow();
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner"></span>';
+
+  try{
+    
+    const course = sessionStorage.getItem("course") || "";
+    const yearLevel = sessionStorage.getItem("yearLevel") || "";
+
+    
+    const attendanceRef = await addDoc(collection(db, "attendance"), {
+      name: displayName,
+      course,
+      yearLevel,
+      photo: capturedDataUrl,
+      address: locationData.address,
+      lat: locationData.lat,
+      lng: locationData.lng,
+      timestamp: serverTimestamp()
+    });
+
+
+    const qrHolder = document.getElementById("qrHolder");
+    qrHolder.innerHTML = "";
+    const qrTemp = document.createElement("div");
+    new QRCode(qrTemp, {
+      text: JSON.stringify({ id: attendanceRef.id, name: displayName }),
+      width: 220,
+      height: 220
+    });
+
+    
+    await new Promise(r => setTimeout(r, 250));
+    let qrDataUrl = "";
+    const qrCanvas = qrTemp.querySelector("canvas");
+    const qrImg = qrTemp.querySelector("img");
+    if(qrCanvas){
+      qrDataUrl = qrCanvas.toDataURL("image/png");
+    } else if(qrImg){
+      qrDataUrl = qrImg.src;
+    }
+
+    
+    await addDoc(collection(db, "qr"), {
+      attendanceId: attendanceRef.id,
+      name: displayName,
+      course,
+      yearLevel,
+      qrImage: qrDataUrl,
+      timestamp: serverTimestamp()
+    });
+
+    
+    const displayQR = document.createElement("img");
+    displayQR.src = qrDataUrl;
+    displayQR.style.width = "220px";
+    displayQR.style.borderRadius = "10px";
+    displayQR.style.border = "1px solid #dfdbd0";
+    qrHolder.appendChild(displayQR);
+
+    showStep(stepDone);
+
+   
+
+    setTimeout(() => {
+      window.location.href = "user.html";
+    }, 2500);
+  }catch(err){
+    console.error(err);
+    alert("There was an error submitting your attendance, Please try again later.");
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Submit Attendance";
+  }
+});
+</script>
 </body>
 </html>

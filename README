@@ -1,0 +1,43 @@
+# CCS Attendance System
+
+## Mga file
+- `firebase.js` – Firebase config/init (imo na gihatag)
+- `login.html` – login sa estudyante (ngalan + School ID) ug admin (hardcoded credentials)
+- `student_dashboard.html` – take attendance: geolocation check → camera → QR code
+- `qr.html` – gallery sa mga QR code, click para makita ang detalye, share button
+- `me.html` – listahan sa mga na-share nga record, admin ra ang naay download-to-Excel button
+- `admin_dashboard.html` – dashboard sa admin, pwede mag-dugang og estudyante (ngalan + School ID)
+- `style.css` – shared nga design sa tanan nga page
+
+## Unsaon pag-run
+1. I-upload kining tanang files sa imong hosting (Firebase Hosting, GitHub Pages, o bisan unsa nga static host). Kinahanglan HTTPS kay ang camera ug geolocation dili mo-work sa plain `http://` gawas sa `localhost`.
+2. Abrihi ang `login.html` isip starting page.
+
+## Firestore setup nga kinahanglan
+Kining code kay nag-gamit og upat ka collections nga automatic mahimo pag first write:
+- `students` — { name, schoolId }
+- `attendance` — { name, photo (base64), address, lat, lng, timestamp }
+- `qr` — { attendanceId, name, qrImage (base64), timestamp }
+- `sharedRecords` — { attendanceId, name, address, timestamp }
+
+**Security Rules (para demo/testing lang):**
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+⚠️ Kini nga rules kay open sa tanan — palihug ipa-ilis og proper authentication rules (e.g. Firebase Auth + custom claims para sa admin) usa i-launch sa production.
+
+## Login credentials
+- **Estudyante:** ngalan (kinahanglan i-dugang una sa Admin Dashboard) + School ID
+- **Admin:** username `ccsdepevosanser1willbedone`, password `ITmeperodlimetigayoogwashingmachinTVunsapadiha`
+
+## Mga limitasyon nga angay hibaw-an
+- Ang picture kay gi-store isip base64 string diretso sa Firestore document (dili gigamit ang Firebase Storage). Firestore documents kay naay 1MB limit, mao nga ang picture kay gi-resize/compress una i-save aron mosuporta.
+- Ang reverse geocoding (address gikan sa lat/lng) kay gikan sa libre nga OpenStreetMap Nominatim API — pwede ni magamay ka-slow o magamit og rate limit kung sagad gamiton.
+- Kung gusto nimo mas secure/scalable, i-upgrade ngadto sa Firebase Storage para sa mga picture ug Firebase Authentication para sa login.

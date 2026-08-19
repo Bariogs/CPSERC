@@ -6,7 +6,7 @@
 <title>Student Dashboard — CCS Attendance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/user.css">
+<link rel="stylesheet" href="student_dashboard.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <!-- Face detection library for liveness check (look left / look right / look up) -->
 <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
@@ -817,7 +817,7 @@ submitBtn.addEventListener("click", async () => {
    
 
     setTimeout(() => {
-      window.location.href = "user.html";
+      window.location.href = "student_dashboard.html";
     }, 2500);
   }catch(err){
     console.error(err);

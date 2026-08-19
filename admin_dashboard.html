@@ -6,7 +6,7 @@
 <title>Admin Dashboard — CCS Attendance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="admin_dashboard.css">
 <style>
   /* ===== Inline edit fields for the students table ===== */
   .editNameInput, .editSchoolIdInput{
@@ -95,7 +95,7 @@
         <input type="text" id="sName" required placeholder="e.g. Juan Dela Cruz">
       </div>
       <div class="field">
-        <label for="sId">Password</label>
+        <label for="sId">School ID</label>
         <input type="text" id="sId" required placeholder="e.g. COL-00789">
       </div>
       <div class="field">
@@ -110,7 +110,7 @@
           <option value="2nd Year">2nd Year</option>
           <option value="3rd Year">3rd Year</option>
           <option value="4th Year">4th Year</option>
-          
+          <option value="5th Year">5th Year</option>
         </select>
       </div>
       <button type="submit" class="btn gold" id="addBtn">Add</button>
@@ -123,7 +123,7 @@
 
     <div class="table-scroll" id="studentsTableWrap" style="display:none; margin-top:14px;">
       <table class="records" id="studentsTable">
-        <thead><tr><th>#</th><th>Name</th><th>Password</th><th>Course</th><th>Year Level</th><th>Action</th></tr></thead>
+        <thead><tr><th>#</th><th>Name</th><th>School ID</th><th>Course</th><th>Year Level</th><th>Action</th></tr></thead>
         <tbody id="studentsBody"></tbody>
       </table>
     </div>
@@ -144,7 +144,16 @@
       the Firebase Spark plan.
     </p>
 
-   
+    <div id="cleanupMsg" class="msg"></div>
+
+    <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+      <div class="field" style="max-width:200px; margin-bottom:0;">
+        <label for="cleanupDays">Delete if older than (days)</label>
+        <input type="number" id="cleanupDays" min="1" value="1">
+      </div>
+      <button type="button" class="btn outline" id="cleanupBtn">Clear old records</button>
+    </div>
+  </div>
 
 </div>
 

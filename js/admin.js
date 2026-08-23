@@ -5,6 +5,9 @@
 const loginShell = document.getElementById('loginShell');
 const dashShell  = document.getElementById('dashShell');
 
+let allMembers = [];
+let editingMemberId = null;
+
 /* ---------------------------------------------------------------------- */
 /* AUTH                                                                    */
 /* ---------------------------------------------------------------------- */
@@ -109,20 +112,26 @@ document.getElementById('scheduleForm').addEventListener('submit', async (e)=>{
 });
 
 /* ---------------------------------------------------------------------- */
-/* MEMBERS / ADD USER                                                      */
+/* MEMBERS / ADD USER / SEARCH / EDIT PASSWORD                             */
 /* ---------------------------------------------------------------------- */
 async function loadMembers(){
   const list = document.getElementById('memberList');
   list.innerHTML = '<div class="empty-state"><div class="glyph">…</div>Loading members</div>';
   const snap = await db.collection('users').orderBy('createdAt', 'desc').get();
-  document.getElementById('memberCount').textContent = snap.size + ' total';
-  if(snap.empty){
-    list.innerHTML = '<div class="empty-state"><div class="glyph">👤</div>No members yet. Add one to get started.</div>';
+  allMembers = [];
+  snap.forEach(doc=> allMembers.push({ id: doc.id, ...doc.data() }));
+  document.getElementById('memberCount').textContent = allMembers.length + ' total';
+  renderMembers(allMembers);
+}
+
+function renderMembers(members){
+  const list = document.getElementById('memberList');
+  if(members.length === 0){
+    list.innerHTML = '<div class="empty-state"><div class="glyph">👤</div>No user found.</div>';
     return;
   }
   list.innerHTML = '';
-  snap.forEach(doc=>{
-    const m = doc.data();
+  members.forEach(m=>{
     const row = document.createElement('div');
     row.className = 'member-row';
     row.innerHTML = `
@@ -131,10 +140,26 @@ async function loadMembers(){
         <div class="u">${escapeHTML(m.course || '')} · ${escapeHTML(m.yearLevel || '')}</div>
       </div>
       <div class="u">${escapeHTML(m.username)}</div>`;
+    row.addEventListener('click', ()=> openEditPassword(m.id, m.fullName));
     list.appendChild(row);
   });
 }
 
+/* -- Search -- */
+function runMemberSearch(){
+  const q = document.getElementById('memberSearchInput').value.trim().toLowerCase();
+  if(!q){
+    renderMembers(allMembers);
+    return;
+  }
+  const filtered = allMembers.filter(m => (m.fullName || '').toLowerCase().includes(q));
+  renderMembers(filtered);
+}
+
+document.getElementById('memberSearchBtn').addEventListener('click', runMemberSearch);
+document.getElementById('memberSearchInput').addEventListener('keyup', runMemberSearch);
+
+/* -- Add User -- */
 document.getElementById('addUserBtn').addEventListener('click', ()=>{
   document.getElementById('addUserForm').reset();
   document.getElementById('addUserForm').style.display = 'block';
@@ -143,17 +168,31 @@ document.getElementById('addUserBtn').addEventListener('click', ()=>{
   openModal('addUserModal');
 });
 
+// Auto-fill username & password as the officer types the full name
+document.getElementById('newFullName').addEventListener('input', (e)=>{
+  const fullName = e.target.value.trim();
+  if(!fullName) return;
+  document.getElementById('newUsername').value = 'CPSERC.' + lastNameSlug(fullName);
+  document.getElementById('newPassword').value = generatePassword(fullName);
+});
+
 document.getElementById('addUserForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const btn = document.getElementById('addUserSubmitBtn');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generating…';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Creating…';
   try{
     const fullName = document.getElementById('newFullName').value.trim();
-    const course = document.getElementById('newCourse').value.trim();
+    const course = document.getElementById('newCourse').value;
     const yearLevel = document.getElementById('newYearLevel').value;
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value.trim();
 
-    const username = await generateUsername(fullName);
-    const password = generatePassword(fullName);
+    // Quick uniqueness check (single query, not a loop)
+    const existing = await db.collection('users').where('username', '==', username).limit(1).get();
+    if(!existing.empty){
+      showToast('That username is already taken. Please edit it.', 'err');
+      return;
+    }
 
     await db.collection('users').add({
       fullName, course, yearLevel, username, password,
@@ -179,7 +218,34 @@ document.getElementById('addUserForm').addEventListener('submit', async (e)=>{
     console.error(err);
     showToast('Could not create account: ' + err.message, 'err');
   } finally {
-    btn.disabled = false; btn.textContent = 'Generate Account';
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+});
+
+/* -- Edit Password -- */
+function openEditPassword(id, fullName){
+  editingMemberId = id;
+  document.getElementById('editPassName').textContent = `Member: ${fullName}`;
+  document.getElementById('editPassInput').value = '';
+  openModal('editPassModal');
+}
+
+document.getElementById('editPassForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const btn = document.getElementById('editPassSubmitBtn');
+  const newPass = document.getElementById('editPassInput').value.trim();
+  if(!newPass || !editingMemberId) return;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
+  try{
+    await db.collection('users').doc(editingMemberId).update({ password: newPass });
+    showToast('Password updated.', 'ok');
+    closeModal('editPassModal');
+    loadMembers();
+  } catch(err){
+    console.error(err);
+    showToast('Could not update password: ' + err.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Password';
   }
 });
 

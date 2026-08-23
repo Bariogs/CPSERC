@@ -40,8 +40,16 @@
   .att-qr{ width:44px; height:44px; }
 
   .member-list{ display:grid; gap:8px; }
-  .member-row{ display:flex; justify-content:space-between; align-items:center; background:var(--fog); border-radius:8px; padding:10px 14px; font-size:13.5px; }
+  .member-row{
+    display:flex; justify-content:space-between; align-items:center; background:var(--fog);
+    border-radius:8px; padding:10px 14px; font-size:13.5px; cursor:pointer;
+    border:1px solid transparent; transition:border-color .12s, background .12s;
+  }
+  .member-row:hover{ border-color:var(--navy); background:#fff; }
   .member-row .u{ font-family:var(--f-mono); font-size:12px; color:var(--steel); }
+
+  .search-row{ display:flex; gap:8px; margin-bottom:16px; }
+  .search-row input{ flex:1; }
 
   .detail-photo{ width:100%; border-radius:8px; margin-bottom:16px; background:var(--fog); aspect-ratio:1/1; object-fit:cover; }
   .detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin-bottom:18px; }
@@ -152,6 +160,12 @@
         <div class="card panel">
           <h3>👥 Registered Members <span style="margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--steel);" id="memberCount"></span></h3>
           <button id="addUserBtn" class="btn btn-navy btn-block" style="margin-bottom:16px;">+ Add User</button>
+
+          <div class="search-row">
+            <input type="text" id="memberSearchInput" placeholder="Search by name…">
+            <button id="memberSearchBtn" class="btn btn-primary">Search</button>
+          </div>
+
           <div class="member-list scroll-list" id="memberList"></div>
         </div>
       </div>
@@ -187,7 +201,14 @@
         <div class="form-row">
           <div class="field">
             <label>Course</label>
-            <input type="text" id="newCourse" placeholder="BS Criminology" required>
+            <select id="newCourse" required>
+              <option value="">Select</option>
+              <option>BSIT</option>
+              <option>HM</option>
+              <option>Social Work</option>
+              <option>CTE</option>
+              <option>BSBA</option>
+            </select>
           </div>
           <div class="field">
             <label>Year Level</label>
@@ -197,9 +218,39 @@
             </select>
           </div>
         </div>
-        <button type="submit" class="btn btn-primary btn-block" id="addUserSubmitBtn">Generate Account</button>
+        <div class="form-row">
+          <div class="field">
+            <label>Username</label>
+            <input type="text" id="newUsername" required>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="text" id="newPassword" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="addUserSubmitBtn">Create Account</button>
       </form>
       <div id="credResult" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EDIT PASSWORD MODAL ===================== -->
+<div class="modal-backdrop" id="editPassModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Edit Member Password</h3>
+      <button class="modal-close" data-close="editPassModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:14px; font-size:13.5px;" id="editPassName"></p>
+      <form id="editPassForm">
+        <div class="field">
+          <label>New Password</label>
+          <input type="text" id="editPassInput" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="editPassSubmitBtn">Save Password</button>
+      </form>
     </div>
   </div>
 </div>

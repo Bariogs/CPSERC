@@ -284,7 +284,7 @@ async function loadAttendance(){
     const row = document.createElement('div');
     row.className = 'att-row';
     row.innerHTML = `
-      <img class="att-thumb" src="${a.photoURL || ''}" alt="">
+      <img class="att-thumb" src="${a.photo || ''}" alt="">
       <div>
         <div class="att-name">${escapeHTML(a.fullName)}</div>
         <div class="att-meta">${escapeHTML(a.eventName || '')} · ${fmtDateTime(a.timestamp)}</div>
@@ -310,7 +310,7 @@ function openDetail(id){
   const body = document.getElementById('detailBody');
   const accepted = a.status === 'accepted';
   body.innerHTML = `
-    <img class="detail-photo" src="${a.photoURL || ''}" alt="Check-in photo">
+    <img class="detail-photo" src="${a.photo || ''}" alt="Check-in photo">
     <div class="detail-grid">
       <div><div class="k">Name</div><div class="v">${escapeHTML(a.fullName)}</div></div>
       <div><div class="k">Username</div><div class="v">${escapeHTML(a.username || '—')}</div></div>
@@ -333,31 +333,27 @@ function openDetail(id){
   openModal('detailModal');
 }
 
+/* NOTE: No Firebase Storage used — everything stays in Firestore (free
+   Spark plan). Accepting a record just re-compresses the existing base64
+   photo down further and re-saves it as a smaller base64 string in the
+   same document. */
 async function acceptAttendance(id){
   const a = attendanceCache[id];
   const btn = document.getElementById('acceptBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Compressing photo…';
   try{
-    // Pull the stored photo and re-compress it down under 1MB, no matter
-    // how large the original upload was, while keeping the face legible.
-    const res = await fetch(a.photoURL);
-    const originalBlob = await res.blob();
-    const compressedBlob = await compressImage(originalBlob, 1024 * 1024);
-
-    const path = `attendance/${id}.jpg`;
-    const ref = storage.ref(path);
-    await ref.put(compressedBlob, { contentType: 'image/jpeg' });
-    const newURL = await ref.getDownloadURL();
+    const compressedBlob = await compressImage(a.photo, 500 * 1024);
+    const compressedBase64 = await blobToDataURL(compressedBlob);
 
     await db.collection('attendance').doc(id).update({
       status: 'accepted',
-      photoURL: newURL,
+      photo: compressedBase64,
       photoSize: compressedBlob.size,
       acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
     attendanceCache[id].status = 'accepted';
-    attendanceCache[id].photoURL = newURL;
+    attendanceCache[id].photo = compressedBase64;
     attendanceCache[id].photoSize = compressedBlob.size;
 
     showToast(`Accepted — photo compressed to ${fmtBytes(compressedBlob.size)}.`, 'ok');
@@ -380,13 +376,13 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
     const snap = await db.collection('attendance').orderBy('timestamp', 'desc').get();
     const rows = [[
       'Full Name', 'Username', 'Course', 'Year Level', 'Event', 'Date/Time',
-      'Address', 'Status', 'Photo Size (bytes)', 'Photo URL'
+      'Address', 'Status', 'Photo Size (bytes)'
     ]];
     snap.forEach(doc=>{
       const a = doc.data();
       rows.push([
         a.fullName, a.username, a.course, a.yearLevel, a.eventName,
-        fmtDateTime(a.timestamp), a.address, a.status, a.photoSize || '', a.photoURL
+        fmtDateTime(a.timestamp), a.address, a.status, a.photoSize || ''
       ]);
     });
     downloadCSV(`cpserc-attendance-${new Date().toISOString().slice(0,10)}.csv`, rows);

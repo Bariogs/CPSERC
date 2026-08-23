@@ -234,18 +234,22 @@ async function fetchLocation(){
 
 submitBtn.addEventListener('click', submitAttendance);
 
+/* NOTE: No Firebase Storage used — the free Spark plan doesn't include it.
+   Instead, the photo is compressed down small enough (under ~700KB) and
+   stored directly as a base64 text string inside the Firestore document
+   itself. Firestore documents can hold up to 1MB, and base64 text adds
+   about 33% overhead, so keeping the compressed photo under 700KB leaves
+   plenty of headroom. */
 async function submitAttendance(){
   if(!capturedLocation){ showToast('Waiting for location.', 'err'); return; }
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<span class="spinner"></span> Submitting…';
   try{
-    const blob = await compressImage(capturedImg.src, 1.5 * 1024 * 1024);
-    const docRef = db.collection('attendance').doc();
-    const path = `attendance/${docRef.id}.jpg`;
-    const ref = storage.ref(path);
-    await ref.put(blob, { contentType: 'image/jpeg' });
-    const photoURL = await ref.getDownloadURL();
+    // Compress tightly so the base64 string comfortably fits in one Firestore doc
+    const compressedBlob = await compressImage(capturedImg.src, 700 * 1024);
+    const photoBase64 = await blobToDataURL(compressedBlob);
 
+    const docRef = db.collection('attendance').doc();
     await docRef.set({
       userId: currentUser.id,
       fullName: currentUser.fullName,
@@ -255,8 +259,8 @@ async function submitAttendance(){
       eventName: currentSchedule.eventName,
       date: currentSchedule.date,
       scheduleKey,
-      photoURL,
-      photoSize: blob.size,
+      photo: photoBase64,
+      photoSize: compressedBlob.size,
       lat: capturedLocation.lat,
       lng: capturedLocation.lng,
       address: capturedLocation.address,

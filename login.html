@@ -3,202 +3,87 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — CPSERC Attendance</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/login.css">
+<title>Log In — CPSERC</title>
+<link rel="stylesheet" href="css/style.css">
 <style>
-  /* Wrapper para sa password field + toggle button */
-  .password-wrap{
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-  .password-wrap input{
-    width: 100%;
-    padding-right: 42px; /* space para sa icon */
-  }
-  .toggle-password{
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-  }
-  .toggle-password:hover{
-    color: #222;
-  }
-  .toggle-password svg{
-    width: 20px;
-    height: 20px;
-  }
-
-  /* Back to landing page button */
-  .back-btn{
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: #666;
-    padding: 4px 0;
-    margin-bottom: 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .back-btn:hover{
-    color: #222;
-  }
-  .back-btn svg{
-    width: 16px;
-    height: 16px;
-  }
+  .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; background:
+    radial-gradient(900px 460px at 50% -10%, rgba(200,41,31,.30), transparent 60%), var(--navy); padding:20px; }
+  .login-card{ width:100%; max-width:380px; background:var(--white); border-radius:12px; padding:34px 30px; box-shadow:0 25px 60px rgba(0,0,0,.4); }
+  .login-card .eyebrow{ font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
+  .login-card h2{ color:var(--navy); font-size:22px; margin-bottom:6px; }
+  .login-card .sub{ font-size:13.5px; color:var(--steel); margin-bottom:22px; }
+  .login-card .badge-center{ display:flex; justify-content:center; margin-bottom:16px; }
+  .login-card .badge-center .badge-mini{ width:44px; height:44px; }
 </style>
 </head>
 <body>
 
-<div class="center-screen">
-  <div class="card" style="max-width:400px; width:100%;">
-    <button type="button" class="back-btn" id="backToLandingBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-      Back
-    </button>
-
-    <p class="eyebrow">CPSERC Attendance System</p>
-    <h1 class="page-title">Log in</h1>
-    <p class="page-sub">Use your name and School ID as your password.</p>
-
-    <div id="msg" class="msg error"></div>
-
+<div class="login-shell">
+  <div class="login-card">
+    <div class="badge-center"><span class="badge-mini"></span></div>
+    <div class="eyebrow" style="text-align:center;">CPSERC</div>
+    <h2 style="text-align:center;">Log In</h2>
+    <p class="sub" style="text-align:center;">
+      Members and officers both log in here — you'll be taken straight to your dashboard.
+    </p>
     <form id="loginForm">
       <div class="field">
-        <label for="username">Name (Username)</label>
-        <input type="text" id="username" autocomplete="username" required placeholder="e.g. Juan Dela Cruz">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="CPSERC.rizal" autocomplete="username" required>
       </div>
       <div class="field">
-        <label for="password">School ID (Password)</label>
-        <div class="password-wrap">
-          <input type="password" id="password" autocomplete="current-password" required placeholder="e.g. COL-00789">
-          <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password">
-            <!-- eye icon (shown state = hidden password) -->
-            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
-        </div>
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
       </div>
-      <button type="submit" class="btn block" id="loginBtn">
-        <span id="loginBtnText">Login</span>
-      </button>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+      <p style="margin-top:14px; font-size:12px; text-align:center;">
+        <a href="index.html" style="color:var(--steel);">&larr; Back to CPSERC home</a>
+      </p>
     </form>
   </div>
 </div>
 
-<script type="module">
-import { db } from "./firebase.js";
-import {
-  collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Logging in…';
 
-// Hardcoded admin credentials
-const ADMIN_USER = "cpserc-0000192-23-?-csfj-rizal";
-const ADMIN_PASS = "cpserc-2026-2027-unabletouse/csfj-rizal-zbcvx2v";
+    try{
+      // 1. Officer / admin credentials (defined in js/firebase-config.js)
+      if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
+        sessionStorage.setItem('cpserc_admin', '1');
+        location.href = 'admin.html';
+        return;
+      }
 
-const form = document.getElementById("loginForm");
-const msg = document.getElementById("msg");
-const loginBtn = document.getElementById("loginBtn");
-const loginBtnText = document.getElementById("loginBtnText");
+      // 2. Member credentials (stored in Firestore by the admin)
+      const snap = await db.collection('users')
+        .where('username', '==', username)
+        .where('password', '==', password)
+        .limit(1).get();
 
-function showError(text){
-  msg.textContent = text;
-  msg.className = "msg error show";
-}
+      if(!snap.empty){
+        const doc = snap.docs[0];
+        sessionStorage.setItem('cpserc_user', JSON.stringify({ id: doc.id, ...doc.data() }));
+        location.href = 'user.html';
+        return;
+      }
 
-// ---- Back to landing page ----
-document.getElementById("backToLandingBtn").addEventListener("click", () => {
-  window.location.href = "index.html";
-});
-
-// ---- Show / Hide password toggle ----
-const passwordInput = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
-const eyeIcon = document.getElementById("eyeIcon");
-
-const eyeOpen = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>`;
-const eyeClosed = `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06"></path>
-<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-2.16 3.19"></path>
-<path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"></path>
-<line x1="1" y1="1" x2="23" y2="23"></line>`;
-
-togglePassword.addEventListener("click", () => {
-  const isHidden = passwordInput.type === "password";
-  passwordInput.type = isHidden ? "text" : "password";
-  eyeIcon.innerHTML = isHidden ? eyeClosed : eyeOpen;
-  togglePassword.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
-});
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  msg.className = "msg";
-
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-
-  if(!username || !password){
-    showError("Please fill in both fields.");
-    return;
-  }
-
-  loginBtn.disabled = true;
-  loginBtnText.innerHTML = '<span class="spinner"></span>';
-
-  try{
-    // 1. Check admin credentials first
-    if(username === ADMIN_USER && password === ADMIN_PASS){
-      sessionStorage.setItem("role", "admin");
-      sessionStorage.setItem("displayName", "Admin");
-      window.location.href = "admin_dashboard.html";
-      return;
+      showToast('Incorrect username or password.', 'err');
+    } catch(err){
+      console.error(err);
+      showToast('Log-in failed: ' + err.message, 'err');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Log In';
     }
-
-    // 2. Check student credentials against Firestore "students" collection
-    const studentsRef = collection(db, "students");
-    const q = query(
-      studentsRef,
-      where("name", "==", username),
-      where("schoolId", "==", password)
-    );
-    const snap = await getDocs(q);
-
-    if(!snap.empty){
-      const studentDoc = snap.docs[0].data();
-      sessionStorage.setItem("role", "student");
-      sessionStorage.setItem("displayName", studentDoc.name);
-      window.location.href = "student_dashboard.html";
-    } else {
-      showError("Invalid name or School ID. Please try again.");
-    }
-  }catch(err){
-    console.error(err);
-    showError("There was an issue with the login process. Please try again.");
-  }finally{
-    loginBtn.disabled = false;
-    loginBtnText.textContent = "Login";
-  }
-});
+  });
 </script>
 </body>
 </html>

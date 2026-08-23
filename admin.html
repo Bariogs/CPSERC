@@ -3,648 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — CPSERC Attendance</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<title>Admin Dashboard — CPSERC</title>
+<link rel="stylesheet" href="css/style.css">
 <style>
-  /* ===== Inline edit fields for the students table ===== */
-  .editNameInput, .editSchoolIdInput{
-    width: 100%;
-    min-width: 120px;
-    padding: 6px 8px;
-    border: 1px solid #d8d2c0;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 13px;
-    box-sizing: border-box;
+  .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; background:
+    radial-gradient(900px 460px at 80% -10%, rgba(200,41,31,.30), transparent 60%), var(--navy); padding:20px; }
+  .login-card{ width:100%; max-width:380px; background:var(--white); border-radius:12px; padding:34px 30px; box-shadow:0 25px 60px rgba(0,0,0,.4); }
+  .login-card .eyebrow{ font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
+  .login-card h2{ color:var(--navy); font-size:22px; margin-bottom:22px; }
+
+  .dash-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; flex-wrap:wrap; gap:12px; }
+  .dash-head h1{ font-size:22px; color:var(--navy); margin:0; }
+  .dash-head .sub{ font-family:var(--f-mono); font-size:12px; color:var(--steel); }
+
+  .grid-2{ display:grid; grid-template-columns:1.1fr .9fr; gap:22px; align-items:start; }
+  .panel{ padding:22px; }
+  .panel h3{ font-size:15px; color:var(--navy); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .schedule-status{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-radius:8px; background:var(--fog); margin-bottom:18px; }
+  .schedule-status .lbl{ font-family:var(--f-mono); font-size:11px; color:var(--steel); letter-spacing:.06em; text-transform:uppercase; }
+  .schedule-status .val{ font-family:var(--f-display); font-size:15px; color:var(--navy); }
+
+  .action-row{ display:flex; gap:12px; flex-wrap:wrap; margin:22px 0; }
+
+  .att-list{ display:grid; gap:10px; }
+  .att-row{
+    display:grid; grid-template-columns:50px 1fr auto auto; gap:14px; align-items:center;
+    background:var(--white); border:1px solid var(--steel-200); border-radius:8px; padding:10px 14px;
+    cursor:pointer; transition:border-color .12s;
   }
-  .records td .btn{
-    margin-right: 6px;
-  }
-  .records td .btn:last-child{
-    margin-right: 0;
+  .att-row:hover{ border-color:var(--navy); }
+  .att-thumb{ width:50px; height:50px; border-radius:6px; object-fit:cover; background:var(--fog); }
+  .att-name{ font-weight:600; font-size:14px; color:var(--ink); }
+  .att-meta{ font-size:12px; color:var(--steel); font-family:var(--f-mono); }
+  .att-qr{ width:44px; height:44px; }
+
+  .member-list{ display:grid; gap:8px; }
+  .member-row{ display:flex; justify-content:space-between; align-items:center; background:var(--fog); border-radius:8px; padding:10px 14px; font-size:13.5px; }
+  .member-row .u{ font-family:var(--f-mono); font-size:12px; color:var(--steel); }
+
+  .detail-photo{ width:100%; border-radius:8px; margin-bottom:16px; background:var(--fog); aspect-ratio:1/1; object-fit:cover; }
+  .detail-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 16px; margin-bottom:18px; }
+  .detail-grid .k{ font-family:var(--f-mono); font-size:11px; letter-spacing:.05em; color:var(--steel); text-transform:uppercase; }
+  .detail-grid .v{ font-size:14px; font-weight:600; color:var(--ink); }
+  .detail-grid .v.full{ grid-column:1/-1; }
+
+  .cred-box{ background:var(--navy); color:#fff; border-radius:8px; padding:16px; font-family:var(--f-mono); font-size:14px; margin-top:16px; }
+  .cred-box .row{ display:flex; justify-content:space-between; margin-bottom:6px; }
+  .cred-box b{ color:var(--amber); }
+
+  @media (max-width:820px){
+    .grid-2, .form-row{ grid-template-columns:1fr; }
+    .att-row{ grid-template-columns:44px 1fr; }
+    .att-row .att-qr, .att-row .att-status{ grid-column:2; justify-self:start; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand"><span class="dot"></span> CPSERC Attendance — Admin</div>
-  <nav>
-    <span class="who">Admin</span>
-    <a href="qr.html">QR Codes</a>
-    <a href="me.html">Records</a>
-    <button id="logoutBtn">Log out</button>
-  </nav>
-</div>
-
-<div class="wrap">
-
-  <div class="card" style="margin-bottom:24px;">
-    <p class="eyebrow">Admin Dashboard</p>
-    <h1 class="page-title">Good day, Admin!</h1>
-    <p class="page-sub">Here you can manage students and view all attendance records.</p>
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <a class="btn gold" href="qr.html">View QR Codes</a>
-      <a class="btn outline" href="me.html">View Records / Download</a>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:24px;">
-    <p class="eyebrow">Attendance Schedule</p>
-    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Set the Attendance Date and Time</h2>
-    <p class="page-sub">
-      Students can only take attendance within the selected date and
-      time. Outside of this, the "Take Attendance" button cannot be
-      accessed until the admin sets a new schedule.
-    </p>
-
-    <div id="windowMsg" class="msg"></div>
-    <div id="currentWindowInfo" class="msg" style="display:none;"></div>
-
-    <form id="windowForm" style="max-width:420px;">
+<!-- ============================= LOGIN ============================= -->
+<div id="loginShell" class="login-shell">
+  <div class="login-card">
+    <div class="eyebrow">Officer Access</div>
+    <h2>CPSERC Admin Log-in</h2>
+    <form id="loginForm">
       <div class="field">
-        <label for="attDate">Date</label>
-        <input type="date" id="attDate" required>
+        <label>Username</label>
+        <input type="text" id="loginUser" autocomplete="username" required>
       </div>
-      <div style="display:flex; gap:12px;">
-        <div class="field" style="flex:1;">
-          <label for="attStart">Start Time</label>
-          <input type="time" id="attStart" required>
-        </div>
-        <div class="field" style="flex:1;">
-          <label for="attEnd">End Time</label>
-          <input type="time" id="attEnd" required>
-        </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
       </div>
-      <button type="submit" class="btn gold" id="saveWindowBtn">Save Schedule</button>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+      <p style="margin-top:14px; font-size:12px; text-align:center;">
+        <a href="index.html" style="color:var(--steel);">&larr; Back to CPSERC home</a>
+      </p>
     </form>
   </div>
-
-  <div class="card" style="margin-bottom:24px;">
-    <p class="eyebrow">Student Accounts</p>
-    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Add a Student</h2>
-    <p class="page-sub">The name is the username, and the School ID is the password when the student logs in.</p>
-
-    <div id="addMsg" class="msg"></div>
-
-    <form id="addStudentForm" style="max-width:420px;">
-      <div class="field">
-        <label for="sName">Student Name</label>
-        <input type="text" id="sName" required placeholder="e.g. Juan Dela Cruz">
-      </div>
-      <div class="field">
-        <label for="sId">School ID</label>
-        <input type="text" id="sId" required placeholder="e.g. COL-00789">
-      </div>
-      <div class="field">
-        <label for="sCourse">Course</label>
-        <input type="text" id="sCourse" required placeholder="e.g. BS Computer Science">
-      </div>
-      <div class="field">
-        <label for="sYearLevel">Year Level</label>
-        <select id="sYearLevel" required>
-          <option value="" disabled selected>Select Year Level</option>
-          <option value="1st Year">1st Year</option>
-          <option value="2nd Year">2nd Year</option>
-          <option value="3rd Year">3rd Year</option>
-          <option value="4th Year">4th Year</option>
-          <option value="5th Year">5th Year</option>
-        </select>
-      </div>
-      <button type="submit" class="btn gold" id="addBtn">Add</button>
-    </form>
-
-    <div class="field" id="studentSearchWrap" style="display:none; max-width:320px; margin-top:26px; margin-bottom:0;">
-      <label for="studentSearch">Search by Name</label>
-      <input type="text" id="studentSearch" placeholder="Type a name to search...">
-    </div>
-
-    <div class="table-scroll" id="studentsTableWrap" style="display:none; margin-top:14px;">
-      <table class="records" id="studentsTable">
-        <thead><tr><th>#</th><th>Name</th><th>School ID</th><th>Course</th><th>Year Level</th><th>Action</th></tr></thead>
-        <tbody id="studentsBody"></tbody>
-      </table>
-    </div>
-    <div id="studentsCountInfo" class="page-sub" style="display:none; margin-top:10px; margin-bottom:0;"></div>
-    <button type="button" class="btn outline" id="seeMoreBtn" style="display:none; margin-top:14px;">See more</button>
-    <div id="noSearchResults" class="empty" style="display:none;">No students match your search.</div>
-    <div id="emptyState" class="empty" style="display:none;">No students registered yet.</div>
-  </div>
-
-  <div class="card">
-    <p class="eyebrow">Storage Cleanup</p>
-    <h2 style="margin:0 0 4px; color:var(--navy-deep);">Delete Old Records</h2>
-    <p class="page-sub">
-      This action is <b>permanent and cannot be undone</b>. It deletes
-      all attendance records (including photos) older than the chosen
-      number of days — along with any related QR codes and Shared
-      Records. Use this to avoid hitting the 1&nbsp;GB storage limit on
-      the Firebase Spark plan.
-    </p>
-
-    <div id="cleanupMsg" class="msg"></div>
-
-    <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
-      <div class="field" style="max-width:200px; margin-bottom:0;">
-        <label for="cleanupDays">Delete if older than (days)</label>
-        <input type="number" id="cleanupDays" min="1" value="1">
-      </div>
-      <button type="button" class="btn outline" id="cleanupBtn">Clear old records</button>
-    </div>
-  </div>
-
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import {
-  collection, addDoc, getDocs, getDoc, setDoc, updateDoc, query, orderBy, where, deleteDoc, doc, Timestamp, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+<!-- ============================ DASHBOARD ============================ -->
+<div id="dashShell" style="display:none;">
+  <header class="topbar">
+    <div class="container">
+      <div class="brand"><span class="badge-mini"></span> CPSERC Admin</div>
+      <div style="display:flex; gap:10px;">
+        <a href="index.html" class="btn btn-outline-light btn-sm">Home</a>
+        <button id="logoutBtn" class="btn btn-outline-light btn-sm">Log Out</button>
+      </div>
+    </div>
+  </header>
 
-// used to check for a duplicate username when adding a student
-async function nameExists(name){
-  const q = query(collection(db, "students"), where("name", "==", name));
-  const snap = await getDocs(q);
-  return !snap.empty;
-}
+  <div class="page-shell">
+    <div class="container">
+      <div class="dash-head">
+        <div>
+          <h1>Dashboard</h1>
+          <div class="sub" id="todayLabel"></div>
+        </div>
+      </div>
 
-// simple escape so a student's name/ID with special characters (", <, >, &)
-// can't break the table's HTML when we insert it via innerHTML
-function escapeHtml(str){
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/'/g, "&#39;");
-}
+      <div class="grid-2">
+        <!-- Schedule panel -->
+        <div class="card panel">
+          <h3>📅 Attendance Schedule</h3>
+          <div class="schedule-status" id="scheduleStatusBox">
+            <div>
+              <div class="lbl">Current status</div>
+              <div class="val" id="scheduleStatusVal">Loading…</div>
+            </div>
+            <span class="pill pill-inactive" id="schedulePill">—</span>
+          </div>
 
-// ---- Auth guard ----
-const role = sessionStorage.getItem("role");
-if(role !== "admin"){
-  window.location.href = "login.html";
-}
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  sessionStorage.clear();
-  window.location.href = "login.html";
-});
+          <form id="scheduleForm">
+            <div class="field">
+              <label>Event Name</label>
+              <input type="text" id="eventName" placeholder="e.g. Flag Ceremony Duty" required>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label>Date</label>
+                <input type="date" id="eventDate" required>
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <label style="display:flex; align-items:center; gap:8px; margin-top:6px; text-transform:none; font-family:var(--f-body); font-size:14px;">
+                  <input type="checkbox" id="eventActive" style="width:auto;" checked> Open for attendance
+                </label>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label>Time Start</label>
+                <input type="time" id="timeStart" required>
+              </div>
+              <div class="field">
+                <label>Time End</label>
+                <input type="time" id="timeEnd" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Save Schedule</button>
+          </form>
+        </div>
 
-const addMsg = document.getElementById("addMsg");
-const addBtn = document.getElementById("addBtn");
-const studentsTableWrap = document.getElementById("studentsTableWrap");
-const studentsBody = document.getElementById("studentsBody");
-const studentsCountInfo = document.getElementById("studentsCountInfo");
-const seeMoreBtn = document.getElementById("seeMoreBtn");
-const emptyState = document.getElementById("emptyState");
-const studentSearchWrap = document.getElementById("studentSearchWrap");
-const studentSearchInput = document.getElementById("studentSearch");
-const noSearchResults = document.getElementById("noSearchResults");
+        <!-- Members panel -->
+        <div class="card panel">
+          <h3>👥 Registered Members <span style="margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--steel);" id="memberCount"></span></h3>
+          <button id="addUserBtn" class="btn btn-navy btn-block" style="margin-bottom:16px;">+ Add User</button>
+          <div class="member-list scroll-list" id="memberList"></div>
+        </div>
+      </div>
 
-// ---- Pagination state for the student roster ----
-// We keep every student in memory (allStudents) and only render
-// the first `visibleCount` rows. "See more" reveals another page
-// without needing to re-query Firestore.
-const PAGE_SIZE = 10;
-let allStudents = [];
-let visibleCount = PAGE_SIZE;
-let searchTerm = "";
+      <div class="action-row">
+        <button id="checkAttendanceBtn" class="btn btn-primary">🔍 Check Attendance</button>
+        <button id="downloadBtn" class="btn btn-ghost">⬇ Download All Data (CSV)</button>
+      </div>
 
-// Returns allStudents filtered by the current search term (case-insensitive,
-// matches anywhere in the name). Returns everyone if the search box is empty.
-function getFilteredStudents(){
-  if(!searchTerm) return allStudents;
-  const term = searchTerm.toLowerCase();
-  return allStudents.filter(s => (s.data.name || "").toLowerCase().includes(term));
-}
+      <div id="attendanceSection" style="display:none;">
+        <div class="card panel">
+          <h3>Attendance Log <span style="margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--steel);" id="attCount"></span></h3>
+          <div class="att-list scroll-list" id="attList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-function renderStudentRow(docId, data, index){
-  const tr = document.createElement("tr");
-  tr.dataset.id = docId;
-  tr.innerHTML = `
-    <td>${index}</td>
-    <td>${escapeHtml(data.name)}</td>
-    <td>${escapeHtml(data.schoolId)}</td>
-    <td>${escapeHtml(data.course || "—")}</td>
-    <td>${escapeHtml(data.yearLevel || "—")}</td>
-    <td>
-      <button type="button" class="btn outline editStudentBtn" data-id="${docId}">Edit</button>
-      <button type="button" class="btn outline deleteStudentBtn" data-id="${docId}" data-name="${escapeHtml(data.name)}">Delete</button>
-    </td>
-  `;
-  return tr;
-}
+<!-- ========================= ADD USER MODAL ========================= -->
+<div class="modal-backdrop" id="addUserModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Add Member</h3>
+      <button class="modal-close" data-close="addUserModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="addUserForm">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="newFullName" placeholder="Juan Miguel Dela Cruz" required>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Course</label>
+            <input type="text" id="newCourse" placeholder="BS Criminology" required>
+          </div>
+          <div class="field">
+            <label>Year Level</label>
+            <select id="newYearLevel" required>
+              <option value="">Select</option>
+              <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="addUserSubmitBtn">Generate Account</button>
+      </form>
+      <div id="credResult" style="display:none;"></div>
+    </div>
+  </div>
+</div>
 
-// Same row, but Name and School ID become editable input fields,
-// and the action buttons become Save / Cancel.
-function renderStudentEditRow(docId, data, index){
-  const tr = document.createElement("tr");
-  tr.dataset.id = docId;
-  tr.innerHTML = `
-    <td>${index}</td>
-    <td><input type="text" class="editNameInput" value="${escapeHtml(data.name)}"></td>
-    <td><input type="text" class="editSchoolIdInput" value="${escapeHtml(data.schoolId)}"></td>
-    <td>${escapeHtml(data.course || "—")}</td>
-    <td>${escapeHtml(data.yearLevel || "—")}</td>
-    <td>
-      <button type="button" class="btn gold saveStudentBtn" data-id="${docId}">Save</button>
-      <button type="button" class="btn outline cancelStudentBtn" data-id="${docId}">Cancel</button>
-    </td>
-  `;
-  return tr;
-}
+<!-- ===================== ATTENDANCE DETAIL MODAL ===================== -->
+<div class="modal-backdrop" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Check-in Detail</h3>
+      <button class="modal-close" data-close="detailModal">&times;</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
 
-function renderVisibleStudents(){
-  const filtered = getFilteredStudents();
-  studentsBody.innerHTML = "";
-  const slice = filtered.slice(0, visibleCount);
-  slice.forEach((s, idx) => {
-    studentsBody.appendChild(renderStudentRow(s.id, s.data, idx + 1));
-  });
-
-  const total = filtered.length;
-  const shown = slice.length;
-
-  // "No matching students" only applies while searching; if there's no
-  // search term at all, the normal emptyState already covers zero students.
-  if(searchTerm && total === 0){
-    noSearchResults.style.display = "block";
-    studentsTableWrap.style.display = "none";
-    studentsCountInfo.style.display = "none";
-    seeMoreBtn.style.display = "none";
-    return;
-  }
-  noSearchResults.style.display = "none";
-  studentsTableWrap.style.display = "block";
-
-  if(total > PAGE_SIZE || (searchTerm && allStudents.length > total)){
-    studentsCountInfo.textContent = searchTerm
-      ? `Showing ${shown} of ${total} matching student(s).`
-      : `Showing ${shown} of ${total} student(s).`;
-    studentsCountInfo.style.display = "block";
-  } else {
-    studentsCountInfo.style.display = "none";
-  }
-
-  // only show "See more" while there are still hidden rows left
-  seeMoreBtn.style.display = shown < total ? "inline-flex" : "none";
-}
-
-seeMoreBtn.addEventListener("click", () => {
-  visibleCount += PAGE_SIZE;
-  renderVisibleStudents();
-});
-
-async function loadStudents(){
-  const q = query(collection(db, "students"), orderBy("name"));
-  const snap = await getDocs(q);
-
-  if(snap.empty){
-    allStudents = [];
-    emptyState.style.display = "block";
-    studentSearchWrap.style.display = "none";
-    noSearchResults.style.display = "none";
-    studentsTableWrap.style.display = "none";
-    studentsCountInfo.style.display = "none";
-    seeMoreBtn.style.display = "none";
-    return;
-  }
-
-  emptyState.style.display = "none";
-  studentSearchWrap.style.display = "block";
-  studentsTableWrap.style.display = "block";
-
-  allStudents = [];
-  snap.forEach(docSnap => {
-    allStudents.push({ id: docSnap.id, data: docSnap.data() });
-  });
-
-  // reset back to the first page whenever the roster is (re)loaded,
-  // e.g. right after adding, editing, or deleting a student
-  visibleCount = PAGE_SIZE;
-  renderVisibleStudents();
-}
-
-// ---- Search-by-name filter ----
-studentSearchInput.addEventListener("input", () => {
-  searchTerm = studentSearchInput.value.trim();
-  visibleCount = PAGE_SIZE; // start back at the first page for every new search
-  renderVisibleStudents();
-});
-
-// ---- Table actions: Edit, Save, Cancel, Delete (event delegation) ----
-studentsBody.addEventListener("click", async (e) => {
-  const deleteBtn = e.target.closest(".deleteStudentBtn");
-  const editBtn = e.target.closest(".editStudentBtn");
-  const saveBtn = e.target.closest(".saveStudentBtn");
-  const cancelBtn = e.target.closest(".cancelStudentBtn");
-
-  // ---- Delete ----
-  if(deleteBtn){
-    const studentId = deleteBtn.dataset.id;
-    const studentName = deleteBtn.dataset.name;
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${studentName}? This cannot be undone, and they will be permanently removed from the database.`
-    );
-    if(!confirmed) return;
-
-    deleteBtn.disabled = true;
-    deleteBtn.textContent = "...";
-
-    try{
-      await deleteDoc(doc(db, "students", studentId));
-      addMsg.textContent = `${studentName} has been deleted.`;
-      addMsg.className = "msg ok show";
-      loadStudents();
-    }catch(err){
-      console.error(err);
-      addMsg.textContent = `There was a problem deleting ${studentName}.`;
-      addMsg.className = "msg error show";
-      deleteBtn.disabled = false;
-      deleteBtn.textContent = "Delete";
-    }
-    return;
-  }
-
-  // ---- Enter edit mode ----
-  if(editBtn){
-    const studentId = editBtn.dataset.id;
-    const student = allStudents.find(s => s.id === studentId);
-    if(!student) return;
-
-    const tr = editBtn.closest("tr");
-    const index = tr.children[0].textContent;
-    const editTr = renderStudentEditRow(studentId, student.data, index);
-    tr.replaceWith(editTr);
-    editTr.querySelector(".editNameInput").focus();
-    return;
-  }
-
-  // ---- Cancel edit mode (revert back, no changes saved) ----
-  if(cancelBtn){
-    const studentId = cancelBtn.dataset.id;
-    const student = allStudents.find(s => s.id === studentId);
-    if(!student) return;
-
-    const tr = cancelBtn.closest("tr");
-    const index = tr.children[0].textContent;
-    const normalTr = renderStudentRow(studentId, student.data, index);
-    tr.replaceWith(normalTr);
-    return;
-  }
-
-  // ---- Save the edited Name / School ID ----
-  if(saveBtn){
-    const studentId = saveBtn.dataset.id;
-    const tr = saveBtn.closest("tr");
-    const nameInput = tr.querySelector(".editNameInput");
-    const schoolIdInput = tr.querySelector(".editSchoolIdInput");
-    const newName = nameInput.value.trim();
-    const newSchoolId = schoolIdInput.value.trim();
-
-    if(!newName || !newSchoolId){
-      alert("Name and School ID cannot be empty.");
-      return;
-    }
-
-    const student = allStudents.find(s => s.id === studentId);
-    if(!student) return;
-
-    saveBtn.disabled = true;
-    const cancelBtnEl = tr.querySelector(".cancelStudentBtn");
-    if(cancelBtnEl) cancelBtnEl.disabled = true;
-    saveBtn.innerHTML = '<span class="spinner"></span>';
-
-    try{
-      // Only check for a duplicate name if the name actually changed,
-      // so re-saving with the same name doesn't falsely block itself.
-      if(newName !== student.data.name && await nameExists(newName)){
-        alert(`A student is already registered with the name "${newName}". Please use a different name.`);
-        saveBtn.disabled = false;
-        saveBtn.textContent = "Save";
-        if(cancelBtnEl) cancelBtnEl.disabled = false;
-        return;
-      }
-
-      await updateDoc(doc(db, "students", studentId), {
-        name: newName,
-        schoolId: newSchoolId
-      });
-
-      addMsg.textContent = `${newName} has been updated.`;
-      addMsg.className = "msg ok show";
-      loadStudents();
-    }catch(err){
-      console.error(err);
-      alert("There was a problem updating the student. Please try again.");
-      saveBtn.disabled = false;
-      saveBtn.textContent = "Save";
-      if(cancelBtnEl) cancelBtnEl.disabled = false;
-    }
-    return;
-  }
-});
-
-document.getElementById("addStudentForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const name = document.getElementById("sName").value.trim();
-  const schoolId = document.getElementById("sId").value.trim();
-  const course = document.getElementById("sCourse").value.trim();
-  const yearLevel = document.getElementById("sYearLevel").value;
-  if(!name || !schoolId || !course || !yearLevel) return;
-
-  addBtn.disabled = true;
-  addBtn.innerHTML = '<span class="spinner"></span>';
-  addMsg.className = "msg";
-
-  try{
-    // First check if a student with the same name/username is already registered
-    if(await nameExists(name)){
-      addMsg.textContent = `A student is already registered with the name "${name}". Use a different name or delete the old one first.`;
-      addMsg.className = "msg error show";
-      addBtn.disabled = false;
-      addBtn.textContent = "Add";
-      return;
-    }
-
-    await addDoc(collection(db, "students"), { name, schoolId, course, yearLevel });
-    addMsg.textContent = `${name} has been added.`;
-    addMsg.className = "msg ok show";
-    document.getElementById("addStudentForm").reset();
-    loadStudents();
-  }catch(err){
-    console.error(err);
-    addMsg.textContent = "There was a problem adding the student.";
-    addMsg.className = "msg error show";
-  }finally{
-    addBtn.disabled = false;
-    addBtn.textContent = "Add";
-  }
-});
-
-loadStudents();
-
-// ---- Attendance Schedule: set by the admin for when the "Take Attendance" button is available ----
-const windowForm = document.getElementById("windowForm");
-const attDate = document.getElementById("attDate");
-const attStart = document.getElementById("attStart");
-const attEnd = document.getElementById("attEnd");
-const windowMsg = document.getElementById("windowMsg");
-const currentWindowInfo = document.getElementById("currentWindowInfo");
-const saveWindowBtn = document.getElementById("saveWindowBtn");
-
-function formatWindowDisplay(startDate, endDate){
-  const dateStr = startDate.toLocaleDateString("en-PH", { year: "numeric", month: "long", day: "numeric" });
-  const startStr = startDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
-  const endStr = endDate.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
-  return `${dateStr}, ${startStr} – ${endStr}`;
-}
-
-async function loadCurrentWindow(){
-  try{
-    const snap = await getDoc(doc(db, "settings", "attendanceWindow"));
-    if(snap.exists()){
-      const data = snap.data();
-      const startDate = data.startAt.toDate();
-      const endDate = data.endAt.toDate();
-
-      currentWindowInfo.textContent = `Current schedule: ${formatWindowDisplay(startDate, endDate)}`;
-      currentWindowInfo.className = "msg ok show";
-      currentWindowInfo.style.display = "block";
-
-      // prefill the form based on the current setting so it's easy to edit
-      const pad = n => String(n).padStart(2, "0");
-      attDate.value = `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
-      attStart.value = `${pad(startDate.getHours())}:${pad(startDate.getMinutes())}`;
-      attEnd.value = `${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
-    } else {
-      currentWindowInfo.style.display = "none";
-    }
-  }catch(err){
-    console.error("Failed to load attendance window:", err);
-  }
-}
-loadCurrentWindow();
-
-windowForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const dateVal = attDate.value;
-  const startVal = attStart.value;
-  const endVal = attEnd.value;
-  if(!dateVal || !startVal || !endVal) return;
-
-  const startDate = new Date(`${dateVal}T${startVal}:00`);
-  const endDate = new Date(`${dateVal}T${endVal}:00`);
-
-  if(endDate <= startDate){
-    windowMsg.className = "msg error show";
-    windowMsg.textContent = "The End Time must be later than the Start Time.";
-    return;
-  }
-
-  saveWindowBtn.disabled = true;
-  saveWindowBtn.innerHTML = '<span class="spinner"></span>';
-  windowMsg.className = "msg";
-  windowMsg.textContent = "";
-
-  try{
-    await setDoc(doc(db, "settings", "attendanceWindow"), {
-      startAt: Timestamp.fromDate(startDate),
-      endAt: Timestamp.fromDate(endDate),
-      updatedAt: serverTimestamp()
-    });
-    windowMsg.textContent = `Schedule has been set: ${formatWindowDisplay(startDate, endDate)}`;
-    windowMsg.className = "msg ok show";
-    loadCurrentWindow();
-  }catch(err){
-    console.error(err);
-    windowMsg.className = "msg error show";
-    windowMsg.textContent = "There was a problem setting the schedule.";
-  }finally{
-    saveWindowBtn.disabled = false;
-    saveWindowBtn.textContent = "Save Schedule";
-  }
-});
-const cleanupBtn = document.getElementById("cleanupBtn");
-const cleanupDaysInput = document.getElementById("cleanupDays");
-const cleanupMsg = document.getElementById("cleanupMsg");
-
-cleanupBtn.addEventListener("click", async () => {
-  const days = parseInt(cleanupDaysInput.value, 10);
-  if(!days || days < 1){
-    cleanupMsg.className = "msg error show";
-    cleanupMsg.textContent = "Please enter a valid number of days.";
-    return;
-  }
-
-  const confirmed = window.confirm(
-    `Are you sure you want to permanently delete all records older than ${days} day(s)? This cannot be undone.`
-  );
-  if(!confirmed) return;
-
-  cleanupBtn.disabled = true;
-  cleanupBtn.innerHTML = '<span class="spinner"></span>';
-  cleanupMsg.className = "msg";
-  cleanupMsg.textContent = "";
-
-  try{
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    const cutoffTs = Timestamp.fromDate(cutoff);
-
-    // 1. Get all old attendance records
-    const attQ = query(collection(db, "attendance"), where("timestamp", "<", cutoffTs));
-    const attSnap = await getDocs(attQ);
-
-    if(attSnap.empty){
-      cleanupMsg.textContent = "There are no records older than the selected number of days.";
-      cleanupMsg.className = "msg ok show";
-      return;
-    }
-
-    const oldAttendanceIds = new Set();
-    attSnap.forEach(d => oldAttendanceIds.add(d.id));
-
-    // 2. Find and delete the QR records linked to the old attendance
-    const qrSnap = await getDocs(collection(db, "qr"));
-    const qrDeletes = [];
-    qrSnap.forEach(d => {
-      const data = d.data();
-      if(oldAttendanceIds.has(data.attendanceId)){
-        qrDeletes.push(deleteDoc(doc(db, "qr", d.id)));
-      }
-    });
-
-    // 3. Find and delete the Shared Records linked to the old attendance
-    const sharedSnap = await getDocs(collection(db, "sharedRecords"));
-    const sharedDeletes = [];
-    sharedSnap.forEach(d => {
-      const data = d.data();
-      if(oldAttendanceIds.has(data.attendanceId)){
-        sharedDeletes.push(deleteDoc(doc(db, "sharedRecords", d.id)));
-      }
-    });
-
-    // 4. Delete the attendance records themselves (this is where the photos are)
-    const attDeletes = [];
-    attSnap.forEach(d => attDeletes.push(deleteDoc(doc(db, "attendance", d.id))));
-
-    await Promise.all([...qrDeletes, ...sharedDeletes, ...attDeletes]);
-
-    cleanupMsg.textContent =
-      `${attDeletes.length} attendance record(s) deleted (along with ${qrDeletes.length} related QR record(s) and ${sharedDeletes.length} related shared record(s)).`;
-    cleanupMsg.className = "msg ok show";
-  }catch(err){
-    console.error(err);
-    cleanupMsg.className = "msg error show";
-    cleanupMsg.textContent = "There was an error clearing the old records.";
-  }finally{
-    cleanupBtn.disabled = false;
-    cleanupBtn.textContent = "Clear old records";
-  }
-});
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>

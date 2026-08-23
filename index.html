@@ -1,795 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPSERC — Colegio de San Francisco Javier</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .hero{
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(200,41,31,.35), transparent 60%),
+      linear-gradient(180deg, var(--navy) 0%, #0B1D33 100%);
+    color:var(--white);
+    position:relative;
+    overflow:hidden;
+    padding:88px 0 90px;
+  }
+  .hero::after{
+    content:'';
+    position:absolute; left:0; right:0; bottom:0; height:8px;
+    background:repeating-linear-gradient(-45deg, var(--amber) 0 16px, var(--navy) 16px 32px);
+  }
+  .hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:56px; align-items:center; }
+  .eyebrow{
+    font-family:var(--f-mono); font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--amber); display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--red); box-shadow:0 0 0 4px rgba(200,41,31,.25); }
+  .hero h1{
+    font-size:clamp(34px, 5vw, 56px); line-height:1.04; margin-bottom:18px; color:var(--white);
+  }
+  .hero h1 span{ color:var(--amber); }
+  .hero p.lead{ color:rgba(255,255,255,.78); font-size:17px; max-width:52ch; }
+  .hero-actions{ display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; }
 
-    <title>CPSERC | CSFJ Public Safety and Response Corps</title>
+  /* Signature element — duty badge / patch */
+  .badge-wrap{ display:flex; justify-content:center; }
+  .patch{
+    width:280px; height:280px; border-radius:50%; position:relative;
+    background:conic-gradient(from 180deg, var(--red) 0 8%, var(--navy-2) 8% 92%, var(--red) 92% 100%);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 25px 60px rgba(0,0,0,.4), inset 0 0 0 6px rgba(255,255,255,.08);
+  }
+  .patch::before{
+    content:''; position:absolute; inset:14px; border-radius:50%;
+    border:2px dashed rgba(232,163,61,.55);
+  }
+  .patch-inner{
+    width:198px; height:198px; border-radius:50%; background:var(--navy);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; border:3px solid var(--amber);
+  }
+  .patch-inner .glyph{ font-size:38px; margin-bottom:6px; }
+  .patch-inner b{ font-family:var(--f-display); font-size:20px; letter-spacing:.06em; }
+  .patch-inner small{ font-family:var(--f-mono); font-size:10px; letter-spacing:.14em; color:var(--amber); margin-top:4px; }
 
-    <!-- External CSS -->
-    <link rel="stylesheet" href="css/index.css">
+  /* dispatch ticker */
+  .ticker{
+    border-top:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14);
+    overflow:hidden; white-space:nowrap; margin-top:56px;
+  }
+  .ticker-track{
+    display:inline-flex; gap:48px; padding:12px 0;
+    animation:scroll 26s linear infinite;
+    font-family:var(--f-mono); font-size:12.5px; letter-spacing:.06em; color:rgba(255,255,255,.65);
+  }
+  @keyframes scroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  section{ padding:72px 0; }
+  .section-head{ max-width:60ch; margin-bottom:36px; }
+  .section-head .eyebrow{ color:var(--red); }
+  .section-head h2{ color:var(--navy); font-size:30px; }
+
+  .about-grid{ display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:start; }
+  .meaning-list{ list-style:none; margin:0; padding:0; display:grid; gap:14px; }
+  .meaning-list li{
+    display:grid; grid-template-columns:56px 1fr; gap:14px; align-items:start;
+    background:var(--white); border:1px solid var(--steel-200); border-radius:8px; padding:14px 16px;
+  }
+  .meaning-list .letter{
+    font-family:var(--f-display); font-size:26px; color:var(--red); background:rgba(200,41,31,.08);
+    border-radius:6px; display:flex; align-items:center; justify-content:center; height:40px;
+  }
+  .meaning-list b{ font-family:var(--f-display); letter-spacing:.03em; display:block; margin-bottom:2px; }
+  .meaning-list span{ color:var(--steel); font-size:14px; }
+
+  .location-card{ background:var(--white); border:1px solid var(--steel-200); border-radius:10px; padding:26px; }
+  .location-card h3{ color:var(--navy); font-size:18px; }
+  .location-card .addr{ font-family:var(--f-mono); font-size:13.5px; color:var(--steel); border-left:3px solid var(--amber); padding-left:12px; margin:14px 0 18px; }
+  .map-frame{ border-radius:8px; overflow:hidden; border:1px solid var(--steel-200); height:220px; }
+  .map-frame iframe{ width:100%; height:100%; border:0; }
+
+  .duty-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; }
+  .duty-card{ background:var(--navy); color:#fff; border-radius:10px; padding:22px 18px; position:relative; overflow:hidden; }
+  .duty-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--amber); }
+  .duty-card .glyph{ font-size:26px; margin-bottom:10px; display:block; }
+  .duty-card h4{ font-size:14px; color:#fff; margin-bottom:6px; }
+  .duty-card p{ color:rgba(255,255,255,.65); font-size:13px; margin:0; }
+
+  .portal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  .portal-card{
+    background:var(--white); border:1px solid var(--steel-200); border-radius:10px;
+    padding:30px; display:flex; flex-direction:column; gap:14px;
+  }
+  .portal-card .tag{ font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; color:var(--red); text-transform:uppercase; }
+  .portal-card h3{ font-size:22px; color:var(--navy); }
+  .portal-card p{ font-size:14px; }
+
+  .about-note{
+    background:rgba(200,41,31,.06); border:1px solid rgba(200,41,31,.18);
+    border-radius:8px; padding:16px 18px; font-size:13.5px; color:var(--steel);
+  }
+
+  footer{ background:var(--navy); color:rgba(255,255,255,.6); padding:30px 0; font-size:13px; }
+  footer .container{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+
+  @media (max-width:860px){
+    .hero-grid, .about-grid, .portal-grid{ grid-template-columns:1fr; }
+    .badge-wrap{ order:-1; }
+    .duty-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+</style>
 </head>
-
 <body>
 
-    <!-- ================= NAVBAR ================= -->
-    <header class="navbar">
+<header class="topbar">
+  <div class="container">
+    <div class="brand"><span class="badge-mini"></span> CPSERC · CSFJ Rizal</div>
+    <div style="display:flex; gap:10px;">
+      <a href="login.html" class="btn btn-primary btn-sm">Log In</a>
+    </div>
+  </div>
+</header>
 
-        <div class="nav-container">
-
-            <div class="logo-area">
-                <div class="logo-circle">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-
-                <div class="logo-text">
-                    <h2>CPSERC</h2>
-                    <span>CSFJ Public Safety and Response Corps</span>
-                </div>
-            </div>
-
-            <nav id="navMenu">
-                <a href="#home" class="active">Home</a>
-                <a href="#about">About</a>
-                <a href="#mission">Mission</a>
-                <a href="#location">Location</a>
-                <a href="#contact">Contact</a>
-                <a href="login.html" class="login-btn">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    Login
-                </a>
-            </nav>
-
-            <button class="menu-btn" id="menuBtn">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> DUTY STATUS · STANDING BY</div>
+      <h1>Public Safety &amp; Emergency<br>Response, <span>on call.</span></h1>
+      <p class="lead">
+        CPSERC is the Public Safety and Emergency Response Corp of Colegio de San Francisco
+        Javier of Rizal, Zamboanga del Norte — the student unit trained to assist in first aid,
+        disaster response, and campus safety operations. This site is where the corps checks
+        members in and out of duty.
+      </p>
+      <div class="hero-actions">
+        <a href="login.html" class="btn btn-primary">Log In</a>
+      </div>
+    </div>
+    <div class="badge-wrap">
+      <div class="patch">
+        <div class="patch-inner">
+          <span class="glyph">🚨</span>
+          <b>CPSERC</b>
+          <small>CSFJ · RIZAL · ZN</small>
         </div>
+      </div>
+    </div>
+  </div>
 
-    </header>
+  <div class="ticker">
+    <div class="ticker-track">
+      <span>◉ FIRST AID &amp; TRIAGE SUPPORT</span>
+      <span>◉ DISASTER RISK REDUCTION</span>
+      <span>◉ CROWD &amp; TRAFFIC CONTROL</span>
+      <span>◉ SEARCH &amp; RESCUE ASSIST</span>
+      <span>◉ CAMPUS SAFETY PATROL</span>
+      <span>◉ EMERGENCY COMMUNICATIONS</span>
+      <span>◉ FIRST AID &amp; TRIAGE SUPPORT</span>
+      <span>◉ DISASTER RISK REDUCTION</span>
+      <span>◉ CROWD &amp; TRAFFIC CONTROL</span>
+      <span>◉ SEARCH &amp; RESCUE ASSIST</span>
+      <span>◉ CAMPUS SAFETY PATROL</span>
+      <span>◉ EMERGENCY COMMUNICATIONS</span>
+    </div>
+  </div>
+</section>
 
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot" style="background:var(--red);"></span> WHAT THE NAME STANDS FOR</div>
+      <h2>Breaking down CPSERC</h2>
+    </div>
+    <div class="about-grid">
+      <ul class="meaning-list">
+        <li><span class="letter">C</span><div><b>Colegio</b><span>The college the corps is organized under — Colegio de San Francisco Javier.</span></div></li>
+        <li><span class="letter">P</span><div><b>Public</b><span>Its work reaches beyond the classroom, into the barangay and municipality it serves.</span></div></li>
+        <li><span class="letter">S</span><div><b>Safety</b><span>Everyday readiness — first aid coverage, patrols, and safety checks at school events.</span></div></li>
+        <li><span class="letter">E R</span><div><b>Emergency Response</b><span>Trained assistance during disasters, accidents, and other emergencies affecting the community.</span></div></li>
+        <li><span class="letter">C</span><div><b>Corp</b><span>An organized student unit with officers, duty rosters, and attendance discipline — which is what this system tracks.</span></div></li>
+      </ul>
 
-    <!-- ================= HERO ================= -->
-    <section class="hero" id="home">
-
-        <div class="hero-overlay"></div>
-
-        <div class="hero-content">
-
-            <div class="hero-badge">
-                <i class="fa-solid fa-shield-heart"></i>
-                READY TO RESPOND
-            </div>
-
-            <h1>
-                Public Safety.
-                <span>Ready to Respond.</span>
-            </h1>
-
-            <p>
-                The CSFJ Public Safety and Response Corps is committed
-                to helping, protecting, and responding to emergencies
-                within the community.
-            </p>
-
-            <div class="hero-buttons">
-
-                <a href="login.html" class="primary-btn">
-                    <i class="fa-solid fa-user-shield"></i>
-                    Member Login
-                </a>
-
-                <a href="#about" class="secondary-btn">
-                    Learn More
-                    <i class="fa-solid fa-arrow-down"></i>
-                </a>
-
-            </div>
-
+      <div class="location-card">
+        <h3>Where CPSERC operates</h3>
+        <p class="addr">Colegio de San Francisco Javier of Rizal<br>Rizal, Zamboanga del Norte, Philippines</p>
+        <div class="map-frame">
+          <iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            src="https://www.google.com/maps?q=Colegio+de+San+Francisco+Javier+Rizal+Zamboanga+del+Norte&output=embed">
+          </iframe>
         </div>
-
-        <div class="scroll-indicator">
-            <span>Scroll to explore</span>
-            <i class="fa-solid fa-chevron-down"></i>
+        <div style="margin-top:16px;" class="about-note">
+          A Diocesan school in Rizal, Zamboanga del Norte — CPSERC is its student-run public
+          safety and emergency response unit.
         </div>
-
-    </section>
-
-
-    <!-- ================= ABOUT ================= -->
-    <section class="section about-section" id="about">
-
-        <div class="section-container">
-
-            <div class="section-heading">
-
-                <span class="section-label">
-                    <i class="fa-solid fa-circle-info"></i>
-                    ABOUT CPSERC
-                </span>
-
-                <h2>
-                    Prepared to Serve.<br>
-                    <span>Ready to Respond.</span>
-                </h2>
-
-                <p>
-                    CPSERC is a public safety and response organization
-                    focused on providing assistance during emergencies,
-                    incidents, activities, and situations where trained
-                    responders are needed.
-                </p>
-
-            </div>
-
-
-            <div class="about-grid">
-
-                <div class="about-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-person-circle-check"></i>
-                    </div>
-
-                    <h3>Trained Members</h3>
-
-                    <p>
-                        Members are organized and prepared to assist
-                        during emergency and public safety situations.
-                    </p>
-
-                </div>
-
-
-                <div class="about-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-truck-medical"></i>
-                    </div>
-
-                    <h3>Emergency Response</h3>
-
-                    <p>
-                        Our members stand ready to provide immediate
-                        assistance whenever their presence is needed.
-                    </p>
-
-                </div>
-
-
-                <div class="about-card">
-
-                    <div class="card-icon">
-                        <i class="fa-solid fa-people-group"></i>
-                    </div>
-
-                    <h3>Community Service</h3>
-
-                    <p>
-                        We work together to promote safety, preparedness,
-                        cooperation, and community support.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= MISSION ================= -->
-    <section class="mission-section" id="mission">
-
-        <div class="mission-overlay"></div>
-
-        <div class="section-container mission-container">
-
-            <div class="mission-content">
-
-                <span class="section-label light">
-                    <i class="fa-solid fa-bullseye"></i>
-                    OUR MISSION
-                </span>
-
-                <h2>
-                    Always Ready.<br>
-                    Always Prepared.
-                </h2>
-
-                <p>
-                    To establish a reliable and organized public safety
-                    response corps that is prepared to assist individuals
-                    and communities during emergencies, events, disasters,
-                    and other situations requiring immediate assistance.
-                </p>
-
-                <div class="mission-points">
-
-                    <div class="mission-point">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Rapid Response</span>
-                    </div>
-
-                    <div class="mission-point">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Community Safety</span>
-                    </div>
-
-                    <div class="mission-point">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Emergency Assistance</span>
-                    </div>
-
-                    <div class="mission-point">
-                        <i class="fa-solid fa-check"></i>
-                        <span>Teamwork and Preparedness</span>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= SERVICES ================= -->
-    <section class="section services-section">
-
-        <div class="section-container">
-
-            <div class="section-heading center">
-
-                <span class="section-label">
-                    <i class="fa-solid fa-hand-holding-heart"></i>
-                    WHAT WE DO
-                </span>
-
-                <h2>
-                    Ready When<br>
-                    <span>Help Is Needed.</span>
-                </h2>
-
-                <p>
-                    CPSERC members may assist in different situations
-                    where public safety and emergency response are needed.
-                </p>
-
-            </div>
-
-
-            <div class="services-grid">
-
-                <div class="service-card">
-
-                    <div class="service-number">01</div>
-
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-
-                    <h3>Emergency Response</h3>
-
-                    <p>
-                        Assist during emergency situations and provide
-                        support when immediate response is required.
-                    </p>
-
-                </div>
-
-
-                <div class="service-card">
-
-                    <div class="service-number">02</div>
-
-                    <i class="fa-solid fa-people-arrows"></i>
-
-                    <h3>Event Assistance</h3>
-
-                    <p>
-                        Help maintain safety and provide response support
-                        during school and community events.
-                    </p>
-
-                </div>
-
-
-                <div class="service-card">
-
-                    <div class="service-number">03</div>
-
-                    <i class="fa-solid fa-kit-medical"></i>
-
-                    <h3>Safety Support</h3>
-
-                    <p>
-                        Provide assistance and support to individuals
-                        during situations where safety is a concern.
-                    </p>
-
-                </div>
-
-
-                <div class="service-card">
-
-                    <div class="service-number">04</div>
-
-                    <i class="fa-solid fa-tower-broadcast"></i>
-
-                    <h3>Coordinated Response</h3>
-
-                    <p>
-                        Work as a team and coordinate response activities
-                        to help ensure an organized operation.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= LOCATION ================= -->
-    <section class="section location-section" id="location">
-
-        <div class="section-container">
-
-            <div class="location-grid">
-
-                <div class="location-info">
-
-                    <span class="section-label">
-                        <i class="fa-solid fa-location-dot"></i>
-                        OUR LOCATION
-                    </span>
-
-                    <h2>
-                        Colegio de San<br>
-                        <span>Francisco Javier</span>
-                    </h2>
-
-                    <p>
-                        CPSERC operates within the community of
-                        Colegio de San Francisco Javier, where members
-                        are prepared to assist whenever their services
-                        are needed.
-                    </p>
-
-                    <div class="location-details">
-
-                        <div class="location-detail">
-
-                            <div class="detail-icon">
-                                <i class="fa-solid fa-school"></i>
-                            </div>
-
-                            <div>
-                                <strong>Institution</strong>
-                                <span>Colegio de San Francisco Javier</span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="location-detail">
-
-                            <div class="detail-icon">
-                                <i class="fa-solid fa-shield-halved"></i>
-                            </div>
-
-                            <div>
-                                <strong>Organization</strong>
-                                <span>CPSERC</span>
-                            </div>
-
-                        </div>
-
-
-                        <div class="location-detail">
-
-                            <div class="detail-icon">
-                                <i class="fa-solid fa-location-crosshairs"></i>
-                            </div>
-
-                            <div>
-                                <strong>Purpose</strong>
-                                <span>Public Safety and Emergency Response</span>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="location-map">
-
-                    <div class="map-card">
-
-                        <div class="map-header">
-                            <i class="fa-solid fa-map-location-dot"></i>
-                            <span>CSFJ Location</span>
-                        </div>
-
-                        <div class="map-placeholder">
-
-                            <i class="fa-solid fa-location-dot"></i>
-
-                            <h3>Colegio de San Francisco Javier</h3>
-
-                            <p>
-                                Public Safety and Response Corps
-                            </p>
-
-                            <a
-                                href="https://www.google.com/maps/search/?api=1&query=Colegio+de+San+Francisco+Javier"
-                                target="_blank"
-                                class="map-btn">
-
-                                <i class="fa-solid fa-map"></i>
-                                Open in Google Maps
-
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= CTA ================= -->
-    <section class="cta-section">
-
-        <div class="section-container">
-
-            <div class="cta-content">
-
-                <div class="cta-icon">
-                    <i class="fa-solid fa-shield-heart"></i>
-                </div>
-
-                <div class="cta-text">
-
-                    <span>CP SERC MEMBER PORTAL</span>
-
-                    <h2>
-                        Are You a CPSERC Member?
-                    </h2>
-
-                    <p>
-                        Access your attendance dashboard and
-                        response records through the member portal.
-                    </p>
-
-                </div>
-
-                <a href="login.html" class="cta-btn">
-                    Member Login
-                    <i class="fa-solid fa-arrow-right"></i>
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= CONTACT ================= -->
-    <section class="section contact-section" id="contact">
-
-        <div class="section-container">
-
-            <div class="section-heading center">
-
-                <span class="section-label">
-                    <i class="fa-solid fa-headset"></i>
-                    CONTACT
-                </span>
-
-                <h2>
-                    Stay Connected.
-                </h2>
-
-                <p>
-                    For information about CPSERC and its public safety
-                    activities, please coordinate with the organization
-                    through Colegio de San Francisco Javier.
-                </p>
-
-            </div>
-
-
-            <div class="contact-grid">
-
-                <div class="contact-card">
-
-                    <div class="contact-icon">
-                        <i class="fa-solid fa-school"></i>
-                    </div>
-
-                    <h3>CSFJ</h3>
-
-                    <p>
-                        Colegio de San Francisco Javier
-                    </p>
-
-                </div>
-
-
-                <div class="contact-card">
-
-                    <div class="contact-icon">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-
-                    <h3>CPSERC</h3>
-
-                    <p>
-                        Public Safety and Response Corps
-                    </p>
-
-                </div>
-
-
-                <div class="contact-card">
-
-                    <div class="contact-icon">
-                        <i class="fa-solid fa-clock"></i>
-                    </div>
-
-                    <h3>Response Ready</h3>
-
-                    <p>
-                        Prepared to assist when needed
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-    <!-- ================= FOOTER ================= -->
-    <footer class="footer">
-
-        <div class="section-container">
-
-            <div class="footer-top">
-
-                <div class="footer-brand">
-
-                    <div class="logo-area">
-
-                        <div class="logo-circle">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
-
-                        <div class="logo-text">
-                            <h2>CPSERC</h2>
-                            <span>
-                                CSFJ Public Safety and Response Corps
-                            </span>
-                        </div>
-
-                    </div>
-
-                    <p>
-                        Ready to serve. Ready to respond.
-                        Committed to public safety and community assistance.
-                    </p>
-
-                </div>
-
-
-                <div class="footer-links">
-
-                    <h3>Quick Links</h3>
-
-                    <a href="#home">Home</a>
-                    <a href="#about">About</a>
-                    <a href="#mission">Mission</a>
-                    <a href="#location">Location</a>
-                    <a href="login.html">Member Login</a>
-
-                </div>
-
-
-                <div class="footer-links">
-
-                    <h3>Organization</h3>
-
-                    <a href="#about">About CPSERC</a>
-                    <a href="#mission">Our Mission</a>
-                    <a href="#location">Our Location</a>
-                    <a href="#contact">Contact</a>
-
-                </div>
-
-            </div>
-
-
-            <div class="footer-bottom">
-
-                <p>
-                    © <span id="year"></span> CPSERC –
-                    CSFJ Public Safety and Response Corps.
-                    All Rights Reserved.
-                </p>
-
-                <div class="footer-status">
-                    <span class="status-dot"></span>
-                    <span>Response System Online</span>
-                </div>
-
-            </div>
-
-        </div>
-
-    </footer>
-
-
-    <!-- ================= JAVASCRIPT ================= -->
-    <script>
-
-        // ================= MOBILE MENU =================
-
-        const menuBtn = document.getElementById("menuBtn");
-        const navMenu = document.getElementById("navMenu");
-
-        menuBtn.addEventListener("click", function () {
-
-            navMenu.classList.toggle("show");
-
-            const icon = menuBtn.querySelector("i");
-
-            if (navMenu.classList.contains("show")) {
-                icon.classList.remove("fa-bars");
-                icon.classList.add("fa-xmark");
-            } else {
-                icon.classList.remove("fa-xmark");
-                icon.classList.add("fa-bars");
-            }
-
-        });
-
-
-        // ================= CLOSE MOBILE MENU =================
-
-        const navLinks = document.querySelectorAll("#navMenu a");
-
-        navLinks.forEach(function(link) {
-
-            link.addEventListener("click", function() {
-
-                navMenu.classList.remove("show");
-
-                const icon = menuBtn.querySelector("i");
-
-                icon.classList.remove("fa-xmark");
-                icon.classList.add("fa-bars");
-
-            });
-
-        });
-
-
-        // ================= ACTIVE NAVIGATION =================
-
-        const sections = document.querySelectorAll("section[id]");
-
-        window.addEventListener("scroll", function() {
-
-            let current = "";
-
-            sections.forEach(function(section) {
-
-                const sectionTop = section.offsetTop - 150;
-                const sectionHeight = section.offsetHeight;
-
-                if (
-                    window.scrollY >= sectionTop &&
-                    window.scrollY < sectionTop + sectionHeight
-                ) {
-
-                    current = section.getAttribute("id");
-
-                }
-
-            });
-
-
-            navLinks.forEach(function(link) {
-
-                link.classList.remove("active");
-
-                if (
-                    link.getAttribute("href") === "#" + current
-                ) {
-
-                    link.classList.add("active");
-
-                }
-
-            });
-
-        });
-
-
-        // ================= FOOTER YEAR =================
-
-        document.getElementById("year").textContent =
-            new Date().getFullYear();
-
-
-        // ================= SMOOTH SCROLL =================
-
-        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-
-            anchor.addEventListener("click", function(event) {
-
-                const targetId = this.getAttribute("href");
-
-                if (targetId === "#") {
-                    return;
-                }
-
-                const target = document.querySelector(targetId);
-
-                if (target) {
-
-                    event.preventDefault();
-
-                    target.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                }
-
-            });
-
-        });
-
-
-        // ================= NAVBAR SCROLL EFFECT =================
-
-        const navbar = document.querySelector(".navbar");
-
-        window.addEventListener("scroll", function() {
-
-            if (window.scrollY > 30) {
-
-                navbar.classList.add("scrolled");
-
-            } else {
-
-                navbar.classList.remove("scrolled");
-
-            }
-
-        });
-
-    </script>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--white); border-top:1px solid var(--steel-200); border-bottom:1px solid var(--steel-200);">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot" style="background:var(--amber);"></span> AREAS OF DUTY</div>
+      <h2>Where members are deployed</h2>
+    </div>
+    <div class="duty-grid">
+      <div class="duty-card"><span class="glyph">⛑️</span><h4>First Aid Support</h4><p>Manning aid stations during school events and drills.</p></div>
+      <div class="duty-card"><span class="glyph">🚧</span><h4>Traffic &amp; Crowd Control</h4><p>Keeping foot and vehicle traffic orderly on campus grounds.</p></div>
+      <div class="duty-card"><span class="glyph">📡</span><h4>Emergency Communications</h4><p>Relaying reports and coordinating with local responders.</p></div>
+      <div class="duty-card"><span class="glyph">🌪️</span><h4>Disaster Response</h4><p>Assisting in evacuation and relief operations when called on.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow"><span class="dot" style="background:var(--green);"></span> ABOUT THIS SITE</div>
+      <h2>What this website does</h2>
+      <p>
+        This is CPSERC's digital attendance logbook. Officers set a duty schedule and review
+        every check-in; members log in to record their attendance, with a photo and location
+        captured at the moment of check-in.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div>CPSERC — Public Safety and Emergency Response Corp</div>
+    <div>Colegio de San Francisco Javier of Rizal, Zamboanga del Norte</div>
+  </div>
+</footer>
 
 </body>
 </html>

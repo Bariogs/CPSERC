@@ -1,43 +1,110 @@
-# CCS Attendance System
+# CPSERC Attendance System
 
-## Mga file
-- `firebase.js` – Firebase config/init (imo na gihatag)
-- `login.html` – login sa estudyante (ngalan + School ID) ug admin (hardcoded credentials)
-- `student_dashboard.html` – take attendance: geolocation check → camera → QR code
-- `qr.html` – gallery sa mga QR code, click para makita ang detalye, share button
-- `me.html` – listahan sa mga na-share nga record, admin ra ang naay download-to-Excel button
-- `admin_dashboard.html` – dashboard sa admin, pwede mag-dugang og estudyante (ngalan + School ID)
-- `style.css` – shared nga design sa tanan nga page
+A 3-page attendance system for CPSERC (Public Safety and Emergency Response Corp),
+Colegio de San Francisco Javier of Rizal, Zamboanga del Norte.
 
-## Unsaon pag-run
-1. I-upload kining tanang files sa imong hosting (Firebase Hosting, GitHub Pages, o bisan unsa nga static host). Kinahanglan HTTPS kay ang camera ug geolocation dili mo-work sa plain `http://` gawas sa `localhost`.
-2. Abrihi ang `login.html` isip starting page.
+- **index.html** — public landing page (what CPSERC is, where it's based, links to both portals)
+- **admin.html** — officer dashboard: set duty schedule, add members, review/accept check-ins, export CSV
+- **user.html** — member portal: log in, take a check-in photo, auto-capture location, submit
 
-## Firestore setup nga kinahanglan
-Kining code kay nag-gamit og upat ka collections nga automatic mahimo pag first write:
-- `students` — { name, schoolId }
-- `attendance` — { name, photo (base64), address, lat, lng, timestamp }
-- `qr` — { attendanceId, name, qrImage (base64), timestamp }
-- `sharedRecords` — { attendanceId, name, address, timestamp }
+Data is stored in **Firebase** (Firestore for records, Storage for photos).
 
-**Security Rules (para demo/testing lang):**
+---
+
+## 1. Set up Firebase (one-time)
+
+1. Go to the [Firebase console](https://console.firebase.google.com) → **Add project**.
+2. Inside the project: **Build → Firestore Database → Create database** (start in test mode
+   for now).
+3. **Build → Storage → Get started** (start in test mode for now).
+4. **Project settings (⚙️) → General → Your apps → Add app → Web (`</>`)**. Copy the config
+   object it gives you.
+5. Paste that config into `js/firebase-config.js`, replacing the placeholder values.
+
+That's it — all three pages already load `js/firebase-config.js` and share one database.
+
+## 2. Set the admin login
+
+Open `js/firebase-config.js` and change these two lines to whatever you want the officer
+login to be:
+
+```js
+const ADMIN_USERNAME = "CPSERC.admin";
+const ADMIN_PASSWORD = "CPSERC-2026!";
+```
+
+Member accounts (for `user.html`) are **not** set here — the admin creates those from the
+**+ Add User** button on the dashboard, which auto-generates a username like
+`CPSERC.rizal` and a password like `0021Bulawin`.
+
+## 3. Run it
+
+The camera and location features require a **secure context** (`https://` or `localhost`) —
+opening the HTML file directly with `file://` will block the camera in most browsers. Easiest
+options:
+
+- **Firebase Hosting** (recommended, free, matches the Firebase project you already made):
+  ```
+  npm install -g firebase-tools
+  firebase login
+  firebase init hosting     # point the public dir at this folder
+  firebase deploy
+  ```
+- **Any static host** (Netlify, Vercel, GitHub Pages) — just upload the folder as-is.
+- **Local testing**: run a local server from this folder, e.g. `npx serve .`, then open
+  `http://localhost:3000`.
+
+## 4. Before going live: lock down the rules
+
+Test mode leaves the database wide open. Once you're done setting things up, tighten these
+(Firestore → Rules, and Storage → Rules):
+
+**Firestore rules** (basic version — since this app uses simple username/password instead of
+Firebase Auth, real protection has to happen via server-side checks or Cloud Functions if you
+want it airtight; this is a reasonable starting point for a small internal tool):
+
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if true; // tighten before wider public launch
     }
   }
 }
 ```
-⚠️ Kini nga rules kay open sa tanan — palihug ipa-ilis og proper authentication rules (e.g. Firebase Auth + custom claims para sa admin) usa i-launch sa production.
 
-## Login credentials
-- **Estudyante:** ngalan (kinahanglan i-dugang una sa Admin Dashboard) + School ID
-- **Admin:** username `ccsdepevosanser1willbedone`, password `ITmeperodlimetigayoogwashingmachinTVunsapadiha`
+**Storage rules:**
 
-## Mga limitasyon nga angay hibaw-an
-- Ang picture kay gi-store isip base64 string diretso sa Firestore document (dili gigamit ang Firebase Storage). Firestore documents kay naay 1MB limit, mao nga ang picture kay gi-resize/compress una i-save aron mosuporta.
-- Ang reverse geocoding (address gikan sa lat/lng) kay gikan sa libre nga OpenStreetMap Nominatim API — pwede ni magamay ka-slow o magamit og rate limit kung sagad gamiton.
-- Kung gusto nimo mas secure/scalable, i-upgrade ngadto sa Firebase Storage para sa mga picture ug Firebase Authentication para sa login.
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /attendance/{fileName} {
+      allow read, write: if true; // tighten before wider public launch
+    }
+  }
+}
+```
+
+## Data model
+
+- `schedule/current` — `{ eventName, date, timeStart, timeEnd, active }`
+- `users/{id}` — `{ fullName, course, yearLevel, username, password, createdAt }`
+- `attendance/{id}` — `{ userId, fullName, username, course, yearLevel, eventName, date,
+  scheduleKey, photoURL, photoSize, lat, lng, address, status: "pending"|"accepted",
+  timestamp, acceptedAt }`
+
+## How the pieces map to what was asked
+
+- Admin sets attendance **time, date, event** → *Attendance Schedule* panel on `admin.html`.
+- Admin creates each member's **username/password** → *+ Add User* → format `CPSERC.<lastname>`
+  / 4-digit-number+Surname, editable before sharing.
+- **Check Attendance** button → shows every check-in with name + QR code (encodes the record
+  ID for audit); tapping a row opens the photo.
+- **Accept** button → reveals full detail (name, address where they checked in) and compresses
+  the photo to under 1 MB while keeping the face clear, no matter how large the original was.
+- **Download** button → exports every record to CSV.
+- `user.html` shows the member's name; the **Take Attendance** button is disabled until the
+  admin opens a schedule, and disables again after one submission per schedule. Includes
+  **Retake** before submitting, and requests device location to fetch the check-in address.

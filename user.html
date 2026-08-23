@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Log-in — CPSERC</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; background:
+    radial-gradient(900px 460px at 20% -10%, rgba(200,41,31,.30), transparent 60%), var(--navy); padding:20px; }
+  .login-card{ width:100%; max-width:380px; background:var(--white); border-radius:12px; padding:34px 30px; box-shadow:0 25px 60px rgba(0,0,0,.4); }
+  .login-card .eyebrow{ font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
+  .login-card h2{ color:var(--navy); font-size:22px; margin-bottom:22px; }
+
+  .dash-wrap{ max-width:520px; margin:0 auto; }
+  .id-card{
+    background:var(--navy); color:#fff; border-radius:14px; padding:26px 24px; position:relative; overflow:hidden;
+    margin-bottom:22px;
+  }
+  .id-card::after{ content:''; position:absolute; top:0; right:0; bottom:0; width:8px; background:repeating-linear-gradient(-45deg, var(--amber) 0 10px, var(--navy-2) 10px 20px); }
+  .id-card .role{ font-family:var(--f-mono); font-size:11px; letter-spacing:.12em; color:var(--amber); text-transform:uppercase; margin-bottom:6px; }
+  .id-card .name{ font-family:var(--f-display); font-size:24px; letter-spacing:.02em; }
+  .id-card .meta{ color:rgba(255,255,255,.7); font-size:13.5px; margin-top:4px; }
+
+  .status-card{ padding:20px 22px; margin-bottom:22px; }
+  .status-card .row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .status-card h4{ font-size:13px; color:var(--navy); margin:0; }
+  .status-card p{ font-size:13px; margin:6px 0 0; }
+
+  .attendance-panel{ padding:26px; text-align:center; }
+  .attendance-panel .glyph{ font-size:38px; margin-bottom:10px; }
+  .attendance-panel h3{ color:var(--navy); font-size:18px; margin-bottom:6px; }
+  .attendance-panel p.hint{ font-size:13.5px; margin-bottom:20px; }
+
+  /* Camera modal */
+  #cameraModal .modal{ max-width:460px; }
+  #cameraStage{ position:relative; background:#000; border-radius:8px; overflow:hidden; aspect-ratio:3/4; }
+  #cameraVideo, #cameraCanvas, #capturedImg{ width:100%; height:100%; object-fit:cover; display:block; }
+  #cameraCanvas{ display:none; }
+  #capturedImg{ display:none; }
+  .camera-actions{ display:flex; gap:10px; margin-top:16px; }
+  .step-label{ font-family:var(--f-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--steel); margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<!-- ============================= LOGIN ============================= -->
+<div id="loginShell" class="login-shell">
+  <div class="login-card">
+    <div class="eyebrow">Member Access</div>
+    <h2>CPSERC Log-in</h2>
+    <form id="loginForm">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="CPSERC.rizal" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+      <p style="margin-top:14px; font-size:12px; text-align:center;">
+        Don't have an account? Ask your CPSERC officer to add you.<br>
+        <a href="index.html" style="color:var(--steel);">&larr; Back to CPSERC home</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- ============================ DASHBOARD ============================ -->
+<div id="dashShell" style="display:none;">
+  <header class="topbar">
+    <div class="container">
+      <div class="brand"><span class="badge-mini"></span> CPSERC Member</div>
+      <button id="logoutBtn" class="btn btn-outline-light btn-sm">Log Out</button>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <div class="container dash-wrap">
+      <div class="id-card">
+        <div class="role">Duty Member</div>
+        <div class="name" id="userFullName">—</div>
+        <div class="meta" id="userMeta">—</div>
+      </div>
+
+      <div class="card status-card">
+        <div class="row">
+          <h4>Duty Schedule</h4>
+          <span class="pill pill-inactive" id="userSchedulePill">—</span>
+        </div>
+        <p id="userScheduleText">Checking for an open schedule…</p>
+      </div>
+
+      <div class="card attendance-panel">
+        <div class="glyph" id="attGlyph">🕓</div>
+        <h3 id="attTitle">Attendance</h3>
+        <p class="hint" id="attHint">Waiting for your officer to open a duty schedule.</p>
+        <button id="attendanceBtn" class="btn btn-primary" disabled>Take Attendance</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ CAMERA MODAL ============================ -->
+<div class="modal-backdrop" id="cameraModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Check-in Photo</h3>
+      <button class="modal-close" data-close="cameraModal" id="cameraCancelBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-label" id="cameraStepLabel">Step 1 of 3 · Take your photo</div>
+      <div id="cameraStage">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <canvas id="cameraCanvas"></canvas>
+        <img id="capturedImg" alt="Captured">
+      </div>
+      <div class="camera-actions">
+        <button class="btn btn-primary btn-block" id="captureBtn">📸 Capture</button>
+        <button class="btn btn-ghost btn-block" id="retakeBtn" style="display:none;">↺ Retake</button>
+        <button class="btn btn-navy btn-block" id="usePhotoBtn" style="display:none;">Use This Photo</button>
+      </div>
+      <div id="locationStep" style="display:none; margin-top:18px;">
+        <div class="step-label">Step 2 of 3 · Confirm your location</div>
+        <p id="locationText" style="font-size:13.5px;">Requesting location access…</p>
+        <button class="btn btn-primary btn-block" id="submitAttendanceBtn" disabled>Submit Attendance</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/common.js"></script>
+<script src="js/user.js"></script>
+</body>
+</html>

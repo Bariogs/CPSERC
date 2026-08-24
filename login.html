@@ -15,37 +15,48 @@
   .login-card .badge-center{ display:flex; justify-content:center; margin-bottom:16px; }
   .login-card .badge-center .badge-mini{ width:44px; height:44px; }
 
-  /* Gidugang nga mga estilo para sa eye icon */
-  .password-wrapper {
-    position: relative;
+  /* FIX: Wrapper ug Eye Icon button style */
+  .password-container {
+    position: relative !important;
+    width: 100%;
     display: flex;
     align-items: center;
   }
-
-  .password-wrapper input {
-    padding-right: 40px; /* Room para sa icon */
+  
+  .password-container input {
+    width: 100%;
+    padding-right: 42px !important; /* Spacing para dili ma-overlapping ang text ug icon */
+    box-sizing: border-box;
   }
 
-  .toggle-password {
+  .eye-btn {
     position: absolute;
-    right: 12px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    outline: none;
     cursor: pointer;
-    color: var(--steel); /* Himoong steel color ang icon */
-    transition: color 0.2s ease;
+    padding: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--steel, #64748b);
+    z-index: 10;
   }
 
-  .toggle-password:hover {
-    color: var(--red); /* Pula kung i-hover */
+  .eye-btn:hover {
+    color: var(--navy, #0f172a);
   }
 
-  .toggle-password svg {
-    display: block;
+  .eye-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
-
-  .d-none { display: none !important; } /* Hidden class para sa pag-toggle */
 </style>
 </head>
 <body>
@@ -65,20 +76,20 @@
       </div>
       <div class="field">
         <label>Password</label>
-        <div class="password-wrapper">
-          <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" required>
-          <span class="toggle-password" id="togglePassword" title="Show/Hide Password">
-            <!-- Inline SVG para sa Eye icon (Show) -->
-            <svg id="eyeIcon" class="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+        <div class="password-container">
+          <input type="password" id="loginPass" autocomplete="current-password" required>
+          <button type="button" class="eye-btn" id="togglePasswordBtn" aria-label="Toggle password visibility">
+            <!-- Open Eye Icon -->
+            <svg id="eyeOpen" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
             </svg>
-            <!-- Inline SVG para sa Eye-Slash icon (Hide) - hidden initially -->
-            <svg id="eyeSlashIcon" class="eye-icon d-none" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
+            <!-- Closed Eye Icon (Hidden by default) -->
+            <svg id="eyeClosed" viewBox="0 0 24 24" style="display: none;">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
             </svg>
-          </span>
+          </button>
         </div>
       </div>
       <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
@@ -89,27 +100,25 @@
   </div>
 </div>
 
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="js/firebase.js"></script>
 <script src="js/common.js"></script>
 <script>
-  // Show/Hide Password Logic
-  const togglePassword = document.getElementById('togglePassword');
-  const loginPass = document.getElementById('loginPass');
-  const eyeIcon = document.getElementById('eyeIcon');
-  const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+  // Show / Hide Password Script
+  const toggleBtn = document.getElementById('togglePasswordBtn');
+  const passInput = document.getElementById('loginPass');
+  const eyeOpen = document.getElementById('eyeOpen');
+  const eyeClosed = document.getElementById('eyeClosed');
 
-  togglePassword.addEventListener('click', function () {
-    // Toggle the type attribute
-    const type = loginPass.getAttribute('type') === 'password' ? 'text' : 'password';
-    loginPass.setAttribute('type', type);
-
-    // Toggle the icon
-    eyeIcon.classList.toggle('d-none');
-    eyeSlashIcon.classList.toggle('d-none');
+  toggleBtn.addEventListener('click', () => {
+    const isPassword = passInput.type === 'password';
+    passInput.type = isPassword ? 'text' : 'password';
+    
+    // Switch icons
+    eyeOpen.style.display = isPassword ? 'none' : 'block';
+    eyeClosed.style.display = isPassword ? 'block' : 'none';
   });
 
   document.getElementById('loginForm').addEventListener('submit', async (e)=>{

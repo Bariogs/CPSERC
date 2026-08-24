@@ -119,15 +119,25 @@
     .badge-wrap{ order:-1; }
     .duty-grid{ grid-template-columns:repeat(2,1fr); }
   }
+
+  /* -------- Logos (CPSERC = left, CSFJ = right) -------- */
+  .topbar .container{ display:flex; align-items:center; justify-content:space-between; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-logo{ height:34px; width:auto; object-fit:contain; }
+  .topbar-right{ display:flex; align-items:center; gap:14px; }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="container">
-    <div class="brand"><span class="badge-mini"></span> CPSERC · CSFJ Rizal</div>
-    <div style="display:flex; gap:10px;">
+    <div class="brand">
+      <img src="images/csfj.png" alt="CSFJ Logo" class="brand-logo">
+      CPSERC · CSFJ Rizal
+    </div>
+    <div class="topbar-right">
       <a href="login.html" class="btn btn-primary btn-sm">Log In</a>
+      <img src="images/cpserc.png" alt="CPSERC Logo" class="brand-logo">
     </div>
   </div>
 </header>

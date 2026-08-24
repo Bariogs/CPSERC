@@ -1,5 +1,31 @@
 /* ==========================================================================
    ADMIN DASHBOARD LOGIC
+   ==========================================================================
+   NOTE ON DATA MODEL CHANGE:
+   Each "attendance" document now represents ONE member's attendance for the
+   currently active event, and can hold BOTH a time-in and a time-out entry:
+
+     {
+       fullName, username, course, yearLevel, eventName,
+       timeInAt:  Firestore Timestamp | null,
+       timeInPhoto: base64 string | null,
+       timeInPhotoSize: number | null,
+       timeInStatus: 'pending' | 'accepted' | null,
+       timeInAddress: string | null,
+
+       timeOutAt: Firestore Timestamp | null,
+       timeOutPhoto: base64 string | null,
+       timeOutPhotoSize: number | null,
+       timeOutStatus: 'pending' | 'accepted' | null,
+       timeOutAddress: string | null,
+
+       createdAt: Firestore Timestamp   // set once, when the time-in record is first created
+     }
+
+   The member-facing check-in page must be updated to match this shape
+   (write to timeInAt/timeInPhoto/... on time-in, and timeOutAt/timeOutPhoto/...
+   on time-out, using the SAME document per member+event instead of creating a
+   new document every scan). Ping me with that file if you want it updated too.
    ========================================================================== */
 
 const loginShell = document.getElementById('loginShell');
@@ -54,36 +80,70 @@ document.querySelectorAll('.modal-backdrop').forEach(bd=>{
 });
 
 /* ---------------------------------------------------------------------- */
-/* SCHEDULE                                                                */
+/* SCHEDULE (Time In window + Time Out window)                             */
 /* ---------------------------------------------------------------------- */
+
+// Returns true if "now" falls between date+startTime and date+endTime
+function isWindowOpen(dateStr, startStr, endStr){
+  if(!dateStr || !startStr || !endStr) return false;
+  const start = new Date(`${dateStr}T${startStr}:00`);
+  const end   = new Date(`${dateStr}T${endStr}:00`);
+  const now   = new Date();
+  return now >= start && now <= end;
+}
+
 async function loadSchedule(){
   const doc = await db.collection('schedule').doc('current').get();
-  const box = document.getElementById('scheduleStatusVal');
-  const pill = document.getElementById('schedulePill');
+
+  const timeInVal  = document.getElementById('timeInStatusVal');
+  const timeInPill = document.getElementById('timeInPill');
+  const timeOutVal  = document.getElementById('timeOutStatusVal');
+  const timeOutPill = document.getElementById('timeOutPill');
+
   if(!doc.exists){
-    box.textContent = 'No schedule set yet';
-    pill.textContent = 'Closed';
-    pill.className = 'pill pill-inactive';
+    timeInVal.textContent = 'No schedule set yet';
+    timeInPill.textContent = 'Closed';
+    timeInPill.className = 'pill pill-inactive';
+    timeOutVal.textContent = 'No schedule set yet';
+    timeOutPill.textContent = 'Closed';
+    timeOutPill.className = 'pill pill-inactive';
     return;
   }
-  const s = doc.data();
-  document.getElementById('eventName').value = s.eventName || '';
-  document.getElementById('eventDate').value = s.date || '';
-  document.getElementById('timeStart').value = s.timeStart || '';
-  document.getElementById('timeEnd').value = s.timeEnd || '';
-  document.getElementById('eventActive').checked = !!s.active;
 
-  const open = isScheduleOpen(s);
-  box.textContent = `${s.eventName} · ${s.date}`;
-  if(open){
-    pill.textContent = 'Open now';
-    pill.className = 'pill pill-active';
+  const s = doc.data();
+  document.getElementById('eventName').value  = s.eventName || '';
+  document.getElementById('eventDate').value  = s.date || '';
+  document.getElementById('eventActive').checked = !!s.active;
+  document.getElementById('timeInStart').value  = s.timeInStart  || '';
+  document.getElementById('timeInEnd').value    = s.timeInEnd    || '';
+  document.getElementById('timeOutStart').value = s.timeOutStart || '';
+  document.getElementById('timeOutEnd').value   = s.timeOutEnd   || '';
+
+  const timeInOpen  = s.active && isWindowOpen(s.date, s.timeInStart, s.timeInEnd);
+  const timeOutOpen = s.active && isWindowOpen(s.date, s.timeOutStart, s.timeOutEnd);
+
+  timeInVal.textContent = `${s.eventName} · ${s.timeInStart || '--:--'}–${s.timeInEnd || '--:--'}`;
+  if(timeInOpen){
+    timeInPill.textContent = 'Open now';
+    timeInPill.className = 'pill pill-active';
   } else if(s.active){
-    pill.textContent = 'Scheduled';
-    pill.className = 'pill pill-pending';
+    timeInPill.textContent = 'Scheduled';
+    timeInPill.className = 'pill pill-pending';
   } else {
-    pill.textContent = 'Closed';
-    pill.className = 'pill pill-inactive';
+    timeInPill.textContent = 'Closed';
+    timeInPill.className = 'pill pill-inactive';
+  }
+
+  timeOutVal.textContent = `${s.eventName} · ${s.timeOutStart || '--:--'}–${s.timeOutEnd || '--:--'}`;
+  if(timeOutOpen){
+    timeOutPill.textContent = 'Open now';
+    timeOutPill.className = 'pill pill-active';
+  } else if(s.active){
+    timeOutPill.textContent = 'Scheduled';
+    timeOutPill.className = 'pill pill-pending';
+  } else {
+    timeOutPill.textContent = 'Closed';
+    timeOutPill.className = 'pill pill-inactive';
   }
 }
 
@@ -92,11 +152,25 @@ document.getElementById('scheduleForm').addEventListener('submit', async (e)=>{
   const btn = e.target.querySelector('button[type=submit]');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Saving…';
   try{
+    const timeInStart  = document.getElementById('timeInStart').value;
+    const timeInEnd    = document.getElementById('timeInEnd').value;
+    const timeOutStart = document.getElementById('timeOutStart').value;
+    const timeOutEnd   = document.getElementById('timeOutEnd').value;
+
+    if(timeInEnd <= timeInStart){
+      showToast('Time In End must be after Time In Start.', 'err');
+      return;
+    }
+    if(timeOutEnd <= timeOutStart){
+      showToast('Time Out End must be after Time Out Start.', 'err');
+      return;
+    }
+
     const payload = {
       eventName: document.getElementById('eventName').value.trim(),
       date: document.getElementById('eventDate').value,
-      timeStart: document.getElementById('timeStart').value,
-      timeEnd: document.getElementById('timeEnd').value,
+      timeInStart, timeInEnd,
+      timeOutStart, timeOutEnd,
       active: document.getElementById('eventActive').checked,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -250,9 +324,11 @@ document.getElementById('editPassForm').addEventListener('submit', async (e)=>{
 });
 
 /* ---------------------------------------------------------------------- */
-/* ATTENDANCE REVIEW                                                       */
+/* ATTENDANCE REVIEW (Time In tab / Time Out tab)                          */
 /* ---------------------------------------------------------------------- */
 let attendanceLoaded = false;
+let attendanceCache = {};
+let activeTab = 'timeIn'; // 'timeIn' | 'timeOut'
 
 document.getElementById('checkAttendanceBtn').addEventListener('click', ()=>{
   const sec = document.getElementById('attendanceSection');
@@ -264,62 +340,93 @@ document.getElementById('checkAttendanceBtn').addEventListener('click', ()=>{
   }
 });
 
-let attendanceCache = {};
+document.getElementById('tabTimeIn').addEventListener('click', ()=> switchTab('timeIn'));
+document.getElementById('tabTimeOut').addEventListener('click', ()=> switchTab('timeOut'));
+
+function switchTab(tab){
+  activeTab = tab;
+  document.getElementById('tabTimeIn').classList.toggle('active', tab === 'timeIn');
+  document.getElementById('tabTimeOut').classList.toggle('active', tab === 'timeOut');
+  renderAttendanceList();
+}
 
 async function loadAttendance(){
   const list = document.getElementById('attList');
   list.innerHTML = '<div class="empty-state"><div class="glyph">…</div>Loading attendance records</div>';
-  const snap = await db.collection('attendance').orderBy('timestamp', 'desc').limit(200).get();
-  document.getElementById('attCount').textContent = snap.size + ' record(s)';
-  if(snap.empty){
-    list.innerHTML = '<div class="empty-state"><div class="glyph">🗒️</div>No check-ins yet.</div>';
+  const snap = await db.collection('attendance').orderBy('createdAt', 'desc').limit(300).get();
+  attendanceCache = {};
+  snap.forEach(doc=>{ attendanceCache[doc.id] = doc.data(); });
+  renderAttendanceList();
+}
+
+function renderAttendanceList(){
+  const list = document.getElementById('attList');
+  const field = activeTab === 'timeIn' ? 'timeInAt' : 'timeOutAt';
+  const entries = Object.entries(attendanceCache).filter(([, a]) => !!a[field]);
+
+  document.getElementById('attCount').textContent =
+    entries.length + ' ' + (activeTab === 'timeIn' ? 'time-in' : 'time-out') + ' record(s)';
+
+  if(entries.length === 0){
+    list.innerHTML = '<div class="empty-state"><div class="glyph">🗒️</div>No records yet.</div>';
     return;
   }
+
   list.innerHTML = '';
-  attendanceCache = {};
-  snap.forEach(doc=>{
-    const a = doc.data();
-    attendanceCache[doc.id] = a;
+  entries
+    .sort((a, b) => (b[1][field]?.toMillis?.() || 0) - (a[1][field]?.toMillis?.() || 0))
+    .forEach(([id, a])=>{
+      const photo  = activeTab === 'timeIn' ? a.timeInPhoto  : a.timeOutPhoto;
+      const status = activeTab === 'timeIn' ? a.timeInStatus : a.timeOutStatus;
+      const stamp  = a[field];
 
-    const row = document.createElement('div');
-    row.className = 'att-row';
-    row.innerHTML = `
-      <img class="att-thumb" src="${a.photo || ''}" alt="">
-      <div>
-        <div class="att-name">${escapeHTML(a.fullName)}</div>
-        <div class="att-meta">${escapeHTML(a.eventName || '')} · ${fmtDateTime(a.timestamp)}</div>
-      </div>
-      <div class="att-qr" id="qr-${doc.id}"></div>
-      <span class="pill ${a.status === 'accepted' ? 'pill-accepted' : 'pill-pending'} att-status">${a.status === 'accepted' ? 'Accepted' : 'Pending'}</span>
-    `;
-    row.addEventListener('click', ()=> openDetail(doc.id));
-    list.appendChild(row);
+      const row = document.createElement('div');
+      row.className = 'att-row';
+      row.innerHTML = `
+        <img class="att-thumb" src="${photo || ''}" alt="">
+        <div>
+          <div class="att-name">${escapeHTML(a.fullName)}</div>
+          <div class="att-meta">${escapeHTML(a.eventName || '')} · ${fmtDateTime(stamp)}</div>
+        </div>
+        <div class="att-qr" id="qr-${activeTab}-${id}"></div>
+        <span class="pill ${status === 'accepted' ? 'pill-accepted' : 'pill-pending'} att-status">${status === 'accepted' ? 'Accepted' : 'Pending'}</span>
+      `;
+      row.addEventListener('click', ()=> openDetail(id));
+      list.appendChild(row);
 
-    // QR encodes the record id, useful for physical verification / audit
-    // eslint-disable-next-line no-new
-    new QRCode(document.getElementById(`qr-${doc.id}`), {
-      text: doc.id, width: 44, height: 44,
-      colorDark: '#0F2540', colorLight: '#ffffff'
+      // QR encodes "recordId:phase" so a physical scan can be traced to
+      // the exact time-in or time-out entry
+      // eslint-disable-next-line no-new
+      new QRCode(document.getElementById(`qr-${activeTab}-${id}`), {
+        text: `${id}:${activeTab}`, width: 44, height: 44,
+        colorDark: '#0F2540', colorLight: '#ffffff'
+      });
     });
-  });
 }
 
 function openDetail(id){
   const a = attendanceCache[id];
   if(!a) return;
+  const phase = activeTab; // 'timeIn' | 'timeOut'
+  const photo   = phase === 'timeIn' ? a.timeInPhoto   : a.timeOutPhoto;
+  const address = phase === 'timeIn' ? a.timeInAddress : a.timeOutAddress;
+  const status  = phase === 'timeIn' ? a.timeInStatus  : a.timeOutStatus;
+  const size    = phase === 'timeIn' ? a.timeInPhotoSize : a.timeOutPhotoSize;
+  const stamp   = phase === 'timeIn' ? a.timeInAt : a.timeOutAt;
+  const accepted = status === 'accepted';
+
   const body = document.getElementById('detailBody');
-  const accepted = a.status === 'accepted';
   body.innerHTML = `
-    <img class="detail-photo" src="${a.photo || ''}" alt="Check-in photo">
+    <img class="detail-photo" src="${photo || ''}" alt="Check-in photo">
     <div class="detail-grid">
       <div><div class="k">Name</div><div class="v">${escapeHTML(a.fullName)}</div></div>
       <div><div class="k">Username</div><div class="v">${escapeHTML(a.username || '—')}</div></div>
       <div><div class="k">Course</div><div class="v">${escapeHTML(a.course || '—')}</div></div>
       <div><div class="k">Year Level</div><div class="v">${escapeHTML(a.yearLevel || '—')}</div></div>
       <div><div class="k">Event</div><div class="v">${escapeHTML(a.eventName || '—')}</div></div>
-      <div><div class="k">Timestamp</div><div class="v">${fmtDateTime(a.timestamp)}</div></div>
-      <div class="v full"><div class="k">Address (Location Taken)</div>${escapeHTML(a.address || '—')}</div>
-      <div class="v full"><div class="k">Photo Size</div>${a.photoSize ? fmtBytes(a.photoSize) : '—'}</div>
+      <div><div class="k">${phase === 'timeIn' ? 'Time In' : 'Time Out'}</div><div class="v">${fmtDateTime(stamp)}</div></div>
+      <div class="v full"><div class="k">Address (Location Taken)</div>${escapeHTML(address || '—')}</div>
+      <div class="v full"><div class="k">Photo Size</div>${size ? fmtBytes(size) : '—'}</div>
     </div>
     <div id="detailAction"></div>
   `;
@@ -328,7 +435,7 @@ function openDetail(id){
     actionBox.innerHTML = `<span class="pill pill-accepted" style="padding:8px 14px;">✓ Accepted</span>`;
   } else {
     actionBox.innerHTML = `<button class="btn btn-green btn-block" id="acceptBtn">Accept &amp; Compress Photo</button>`;
-    document.getElementById('acceptBtn').addEventListener('click', ()=> acceptAttendance(id));
+    document.getElementById('acceptBtn').addEventListener('click', ()=> acceptAttendance(id, phase));
   }
   openModal('detailModal');
 }
@@ -336,29 +443,35 @@ function openDetail(id){
 /* NOTE: No Firebase Storage used — everything stays in Firestore (free
    Spark plan). Accepting a record just re-compresses the existing base64
    photo down further and re-saves it as a smaller base64 string in the
-   same document. */
-async function acceptAttendance(id){
+   same document, under either the timeIn* or timeOut* fields depending on
+   which phase is being accepted. */
+async function acceptAttendance(id, phase){
   const a = attendanceCache[id];
+  const photoField      = phase === 'timeIn' ? 'timeInPhoto'      : 'timeOutPhoto';
+  const photoSizeField  = phase === 'timeIn' ? 'timeInPhotoSize'  : 'timeOutPhotoSize';
+  const statusField     = phase === 'timeIn' ? 'timeInStatus'     : 'timeOutStatus';
+  const acceptedAtField = phase === 'timeIn' ? 'timeInAcceptedAt' : 'timeOutAcceptedAt';
+
   const btn = document.getElementById('acceptBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Compressing photo…';
   try{
-    const compressedBlob = await compressImage(a.photo, 500 * 1024);
+    const compressedBlob = await compressImage(a[photoField], 500 * 1024);
     const compressedBase64 = await blobToDataURL(compressedBlob);
 
     await db.collection('attendance').doc(id).update({
-      status: 'accepted',
-      photo: compressedBase64,
-      photoSize: compressedBlob.size,
-      acceptedAt: firebase.firestore.FieldValue.serverTimestamp()
+      [statusField]: 'accepted',
+      [photoField]: compressedBase64,
+      [photoSizeField]: compressedBlob.size,
+      [acceptedAtField]: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    attendanceCache[id].status = 'accepted';
-    attendanceCache[id].photo = compressedBase64;
-    attendanceCache[id].photoSize = compressedBlob.size;
+    attendanceCache[id][statusField] = 'accepted';
+    attendanceCache[id][photoField] = compressedBase64;
+    attendanceCache[id][photoSizeField] = compressedBlob.size;
 
     showToast(`Accepted — photo compressed to ${fmtBytes(compressedBlob.size)}.`, 'ok');
     closeModal('detailModal');
-    loadAttendance(); // refresh list + thumbnails
+    renderAttendanceList();
   } catch(err){
     console.error(err);
     showToast('Could not accept record: ' + err.message, 'err');
@@ -367,26 +480,50 @@ async function acceptAttendance(id){
 }
 
 /* ---------------------------------------------------------------------- */
-/* DOWNLOAD ALL DATA                                                       */
+/* DOWNLOAD ALL DATA  (then clear the attendance log)                      */
 /* ---------------------------------------------------------------------- */
 document.getElementById('downloadBtn').addEventListener('click', async ()=>{
   const btn = document.getElementById('downloadBtn');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Preparing…';
   try{
-    const snap = await db.collection('attendance').orderBy('timestamp', 'desc').get();
+    const snap = await db.collection('attendance').orderBy('createdAt', 'desc').get();
+
+    if(snap.empty){
+      showToast('No attendance records to download.', 'err');
+      return;
+    }
+
     const rows = [[
-      'Full Name', 'Username', 'Course', 'Year Level', 'Event', 'Date/Time',
-      'Address', 'Status', 'Photo Size (bytes)'
+      'Full Name', 'Username', 'Course', 'Year Level', 'Event',
+      'Time In', 'Time In Status', 'Time Out', 'Time Out Status',
+      'Address (Time In)', 'Address (Time Out)'
     ]];
+
     snap.forEach(doc=>{
       const a = doc.data();
+      const timeInText  = a.timeInAt  ? `✓ ${fmtDateTime(a.timeInAt)}`  : '✗';
+      const timeOutText = a.timeOutAt ? `✓ ${fmtDateTime(a.timeOutAt)}` : '✗';
       rows.push([
         a.fullName, a.username, a.course, a.yearLevel, a.eventName,
-        fmtDateTime(a.timestamp), a.address, a.status, a.photoSize || ''
+        timeInText,  a.timeInAt  ? (a.timeInStatus  || 'pending') : '—',
+        timeOutText, a.timeOutAt ? (a.timeOutStatus || 'pending') : '—',
+        a.timeInAddress || '', a.timeOutAddress || ''
       ]);
     });
+
     downloadCSV(`cpserc-attendance-${new Date().toISOString().slice(0,10)}.csv`, rows);
-    showToast('Download started.', 'ok');
+    showToast('Download started. Clearing the attendance log…', 'ok');
+
+    // Zero-out the attendance log now that it's archived in the CSV.
+    // Any check-ins/check-outs made AFTER this point are new records and
+    // will simply repopulate the collection for the next download cycle.
+    await clearAttendanceCollection(snap.docs.map(d => d.id));
+
+    attendanceCache = {};
+    attendanceLoaded = false;
+    document.getElementById('attList').innerHTML = '';
+    document.getElementById('attCount').textContent = '0 record(s)';
+    showToast('Attendance log cleared. Ready for the next event.', 'ok');
   } catch(err){
     console.error(err);
     showToast('Could not export data: ' + err.message, 'err');
@@ -394,6 +531,18 @@ document.getElementById('downloadBtn').addEventListener('click', async ()=>{
     btn.disabled = false; btn.textContent = '⬇ Download All Data (CSV)';
   }
 });
+
+// Deletes the given attendance doc IDs in batches of 450 (Firestore's batch
+// limit is 500 writes) so large logs don't fail in one shot.
+async function clearAttendanceCollection(docIds){
+  const chunkSize = 450;
+  for(let i = 0; i < docIds.length; i += chunkSize){
+    const chunk = docIds.slice(i, i + chunkSize);
+    const batch = db.batch();
+    chunk.forEach(id => batch.delete(db.collection('attendance').doc(id)));
+    await batch.commit();
+  }
+}
 
 /* ---------------------------------------------------------------------- */
 function escapeHTML(str){

@@ -5,87 +5,289 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Log In — CPSERC</title>
 <link rel="stylesheet" href="css/style.css">
+
 <style>
-  .login-shell{ min-height:100vh; display:flex; align-items:center; justify-content:center; background:
-    radial-gradient(900px 460px at 50% -10%, rgba(200,41,31,.30), transparent 60%), var(--navy); padding:20px; }
-  .login-card{ width:100%; max-width:380px; background:var(--white); border-radius:12px; padding:34px 30px; box-shadow:0 25px 60px rgba(0,0,0,.4); }
-  .login-card .eyebrow{ font-family:var(--f-mono); font-size:11px; letter-spacing:.14em; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
-  .login-card h2{ color:var(--navy); font-size:22px; margin-bottom:6px; }
-  .login-card .sub{ font-size:13.5px; color:var(--steel); margin-bottom:22px; }
-  .login-card .badge-center{ display:flex; justify-content:center; margin-bottom:16px; }
-  .login-card .badge-center .badge-mini{ width:44px; height:44px; }
+  .login-shell{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(900px 460px at 50% -10%, rgba(200,41,31,.30), transparent 60%),
+      var(--navy);
+    padding:20px;
+  }
+
+  .login-card{
+    width:100%;
+    max-width:380px;
+    background:var(--white);
+    border-radius:12px;
+    padding:34px 30px;
+    box-shadow:0 25px 60px rgba(0,0,0,.4);
+  }
+
+  .login-card .eyebrow{
+    font-family:var(--f-mono);
+    font-size:11px;
+    letter-spacing:.14em;
+    color:var(--red);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  .login-card h2{
+    color:var(--navy);
+    font-size:22px;
+    margin-bottom:6px;
+  }
+
+  .login-card .sub{
+    font-size:13.5px;
+    color:var(--steel);
+    margin-bottom:22px;
+  }
+
+  .login-card .badge-center{
+    display:flex;
+    justify-content:center;
+    margin-bottom:16px;
+  }
+
+  .login-card .badge-center .badge-mini{
+    width:44px;
+    height:44px;
+  }
+
+  /* PASSWORD AREA */
+  .password-wrapper{
+    position:relative;
+  }
+
+  .password-wrapper input{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  .show-password{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-top:8px;
+    font-size:12px;
+    color:var(--steel);
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .show-password input{
+    width:14px;
+    height:14px;
+    margin:0;
+    cursor:pointer;
+    accent-color:var(--red);
+  }
+
+  .show-password span{
+    cursor:pointer;
+  }
 </style>
 </head>
+
 <body>
 
 <div class="login-shell">
   <div class="login-card">
-    <div class="badge-center"><span class="badge-mini"></span></div>
+
+    <div class="badge-center">
+      <span class="badge-mini"></span>
+    </div>
+
     <div class="eyebrow" style="text-align:center;">CPSERC</div>
+
     <h2 style="text-align:center;">Log In</h2>
+
     <p class="sub" style="text-align:center;">
       Members and officers both log in here — you'll be taken straight to your dashboard.
     </p>
+
     <form id="loginForm">
+
+      <!-- USERNAME -->
       <div class="field">
         <label>Username</label>
-        <input type="text" id="loginUser" placeholder="CPSERC.rizal" autocomplete="username" required>
+        <input
+          type="text"
+          id="loginUser"
+          placeholder="CPSERC.rizal"
+          autocomplete="username"
+          required
+        >
       </div>
+
+      <!-- PASSWORD -->
       <div class="field">
         <label>Password</label>
-        <input type="password" id="loginPass" autocomplete="current-password" required>
+
+        <div class="password-wrapper">
+          <input
+            type="password"
+            id="loginPass"
+            autocomplete="current-password"
+            required
+          >
+        </div>
+
+        <!-- SHOW PASSWORD -->
+        <label class="show-password">
+          <input type="checkbox" id="showPassword">
+          <span>Show Password</span>
+        </label>
       </div>
-      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+
+      <!-- LOGIN BUTTON -->
+      <button
+        type="submit"
+        class="btn btn-primary btn-block"
+        id="loginBtn"
+      >
+        Log In
+      </button>
+
       <p style="margin-top:14px; font-size:12px; text-align:center;">
-        <a href="index.html" style="color:var(--steel);">&larr; Back home</a>
+        <a href="index.html" style="color:var(--steel);">
+          &larr; Back home
+        </a>
       </p>
+
     </form>
   </div>
 </div>
 
 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
 <script src="js/firebase.js"></script>
 <script src="js/common.js"></script>
+
 <script>
+
+  /* =========================================================
+     SHOW / HIDE PASSWORD
+     ========================================================= */
+
+  const passwordInput = document.getElementById('loginPass');
+  const showPassword = document.getElementById('showPassword');
+
+  showPassword.addEventListener('change', function(){
+
+    if(this.checked){
+      passwordInput.type = 'text';
+    }else{
+      passwordInput.type = 'password';
+    }
+
+  });
+
+
+  /* =========================================================
+     LOGIN
+     ========================================================= */
+
   document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+
     e.preventDefault();
+
     const btn = document.getElementById('loginBtn');
-    const username = document.getElementById('loginUser').value.trim();
-    const password = document.getElementById('loginPass').value;
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Logging in…';
+
+    const username =
+      document.getElementById('loginUser').value.trim();
+
+    const password =
+      document.getElementById('loginPass').value;
+
+    btn.disabled = true;
+    btn.innerHTML =
+      '<span class="spinner"></span> Logging in…';
+
 
     try{
-      // 1. Officer / admin credentials (defined in js/firebase-config.js)
+
+      /* -----------------------------------------------------
+         1. OFFICER / ADMIN LOGIN
+         ----------------------------------------------------- */
+
       if(username === ADMIN_USERNAME && password === ADMIN_PASSWORD){
+
         sessionStorage.setItem('cpserc_admin', '1');
+
         location.href = 'admin.html';
+
         return;
       }
 
-      // 2. Member credentials (stored in Firestore by the admin)
-      const snap = await db.collection('users')
+
+      /* -----------------------------------------------------
+         2. MEMBER LOGIN
+         ----------------------------------------------------- */
+
+      const snap = await db
+        .collection('users')
         .where('username', '==', username)
         .where('password', '==', password)
-        .limit(1).get();
+        .limit(1)
+        .get();
+
 
       if(!snap.empty){
+
         const doc = snap.docs[0];
-        sessionStorage.setItem('cpserc_user', JSON.stringify({ id: doc.id, ...doc.data() }));
+
+        sessionStorage.setItem(
+          'cpserc_user',
+          JSON.stringify({
+            id: doc.id,
+            ...doc.data()
+          })
+        );
+
         location.href = 'user.html';
+
         return;
       }
 
-      showToast('Incorrect username or password.', 'err');
-    } catch(err){
+
+      /* -----------------------------------------------------
+         INVALID LOGIN
+         ----------------------------------------------------- */
+
+      showToast(
+        'Incorrect username or password.',
+        'err'
+      );
+
+    }catch(err){
+
       console.error(err);
-      showToast('Log-in failed: ' + err.message, 'err');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Log In';
+
+      showToast(
+        'Log-in failed: ' + err.message,
+        'err'
+      );
+
+    }finally{
+
+      btn.disabled = false;
+      btn.textContent = 'Log In';
+
     }
+
   });
+
 </script>
+
 </body>
 </html>

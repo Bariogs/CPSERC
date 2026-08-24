@@ -12,4 +12,4 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 
 const ADMIN_USERNAME = "CPSERC.rizal";
-const ADMIN_PASSWORD = "CPSERC-nurmal";
+const ADMIN_PASSWORD = "CPSERC-nurmalraybun";

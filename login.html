@@ -14,6 +14,11 @@
   .login-card .sub{ font-size:13.5px; color:var(--steel); margin-bottom:22px; }
   .login-card .badge-center{ display:flex; justify-content:center; margin-bottom:16px; }
   .login-card .badge-center .badge-mini{ width:44px; height:44px; }
+
+  /* Style para sa Show Password checkbox */
+  .show-pass-wrap { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--steel); }
+  .show-pass-wrap input[type="checkbox"] { cursor: pointer; accent-color: var(--red, #c8291f); width: 15px; height: 15px; }
+  .show-pass-wrap label { cursor: pointer; user-select: none; margin: 0; font-weight: normal; }
 </style>
 </head>
 <body>
@@ -34,8 +39,14 @@
       <div class="field">
         <label>Password</label>
         <input type="password" id="loginPass" autocomplete="current-password" required>
+        
+        <!-- Show Password Checkbox -->
+        <div class="show-pass-wrap">
+          <input type="checkbox" id="togglePass">
+          <label for="togglePass">Show password</label>
+        </div>
       </div>
-      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Log In</button>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn" style="margin-top: 16px;">Log In</button>
       <p style="margin-top:14px; font-size:12px; text-align:center;">
         <a href="index.html" style="color:var(--steel);">&larr; Back home</a>
       </p>
@@ -43,13 +54,20 @@
   </div>
 </div>
 
-
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <script src="js/firebase.js"></script>
 <script src="js/common.js"></script>
 <script>
+  // Show/Hide Password Logic
+  const togglePass = document.getElementById('togglePass');
+  const loginPass = document.getElementById('loginPass');
+
+  togglePass.addEventListener('change', () => {
+    loginPass.type = togglePass.checked ? 'text' : 'password';
+  });
+
   document.getElementById('loginForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const btn = document.getElementById('loginBtn');

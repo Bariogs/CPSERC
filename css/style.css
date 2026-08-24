@@ -173,3 +173,57 @@ input, select, textarea{ font-family:var(--f-body); }
 @media (max-width:640px){
   .container{ padding:0 16px; }
 }
+
+
+
+
+
+
+/* Container wrap sa password input ug icon */
+.password-container {
+  position: relative !important;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Hatagan og espasyo sa tuo ang input para dili matabonan sa icon ang password */
+.password-container input {
+  width: 100%;
+  padding-right: 42px !important;
+  box-sizing: border-box;
+}
+
+/* Posisyon ug design sa Eye Button */
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--steel, #64748b);
+  z-index: 10;
+}
+
+/* Color inag hover sa mata */
+.eye-btn:hover {
+  color: var(--red, #c8291f);
+}
+
+/* Sizing sa SVG Icon */
+.eye-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
